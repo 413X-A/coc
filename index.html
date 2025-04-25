@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <title>Berlin ÖPNV Routenplaner</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- Leaflet CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <style>
+    #map {
+      height: 100vh;
+    }
+  </style>
+</head>
+<body>
+  <div id="map"></div>
+
+  <!-- Leaflet JS -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+  <!-- OpenRouteService Leaflet Plugin -->
+  <script src="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.js"></script>
+
+  <!-- Axios for API requests -->
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+
+  <script>
+    const apiKey = 'DEIN_ORS_API_KEY'; // <-- Hier deinen OpenRouteService API-Key einfügen
+
+    const map = L.map('map').setView([52.52, 13.405], 12); // Berlin
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '© OpenStreetMap-Mitwirkende'
+    }).addTo(map);
+
+    let startMarker, endMarker, routeLayer;
+
+    function onMapClick(e) {
+      if (!startMarker) {
+        startMarker = L.marker(e.latlng, { draggable: true }).addTo(map).bindPopup("Startpunkt").openPopup();
+      } else if (!endMarker) {
+        endMarker = L.marker(e.latlng, { draggable: true }).addTo(map).bindPopup("Zielpunkt").openPopup();
+        calculateRoute();
+      }
+    }
+
+    async function calculateRoute() {
+      const start = startMarker.getLatLng();
+      const end = endMarker.getLatLng();
+
+      const url = `https://api.openrouteservice.org/v2/directions/publicTransport?api_key=${apiKey}`;
+      const data = {
+        coordinates: [
+          [start.lng, start.lat],
+          [end.lng, end.lat]
+        ]
+      };
+
+      try {
+        const response = await axios.post(url, data);
+        const routeCoords = response.data.features[0].geometry.coordinates.map(coord => [coord[1], coord[0]]);
+
+        if (routeLayer) map.removeLayer(routeLayer);
+
+        routeLayer = L.polyline(routeCoords, { color: 'blue', weight: 4 }).addTo(map);
+        map.fitBounds(routeLayer.getBounds());
+      } catch (error) {
+        console.error('Fehler beim Routenabruf:', error);
+        alert("Routenberechnung fehlgeschlagen.");
+      }
+    }
+
+    map.on('click', onMapClick);
+  </script>
+</body>
+</html>

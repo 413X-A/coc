@@ -1,39 +1,37 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Clash of Clans - Spiel</title>
-  <link rel="stylesheet" href="style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clash of Clans - Spiel</title>
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-
-  <!-- Login Screen -->
-  <div id="loginScreen">
-    <h2>Login</h2>
-    <input type="text" id="usernameInput" placeholder="Benutzername">
-    <input type="password" id="passwordInput" placeholder="Passwort">
-    <button onclick="login()">Login</button>
-    <p id="loginError"></p>
-  </div>
-
-  <!-- Game Screen -->
-  <div id="gameScreen" style="display: none;">
-    <div id="hud">
-      <p id="gold">Gold: 0</p>
-      <p id="population">Einwohner: 0</p>
+    <!-- Login-Seite -->
+    <div id="loginPage" class="page">
+        <h2>Login</h2>
+        <input type="text" id="username" placeholder="Benutzername" required>
+        <input type="password" id="password" placeholder="Passwort" required>
+        <button id="loginButton">Login</button>
+        <p id="loginMessage"></p>
+        <button id="registerButton">Neuen Benutzer erstellen</button>
     </div>
-    
-    <div id="buildMenu">
-      <button onclick="selectBuilding('weg')">Weg</button>
-      <button onclick="selectBuilding('haus')">Haus</button>
-      <button onclick="selectBuilding('goldmine')">Goldmine</button>
-      <button onclick="selectBuilding('rathaus')">Rathaus</button>
-    </div>
-    
-    <div id="gameArea"></div>
-  </div>
 
-  <script src="script.js"></script>
+    <!-- Spielfläche -->
+    <div id="gamePage" class="page" style="display: none;">
+        <h2>Clash of Clans</h2>
+        <div id="grid"></div>
+        <div id="buildMenu">
+            <button onclick="build('way')">Wege bauen</button>
+            <button onclick="build('house')">Haus bauen</button>
+            <button onclick="build('goldmine')">Goldmine bauen</button>
+        </div>
+        <div>
+            <h3>Gold: <span id="goldCount">0</span></h3>
+            <h3>Ressourcen: <span id="resources">0</span></h3>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
 </body>
 </html>

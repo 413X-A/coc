@@ -1,44 +1,61 @@
 body {
-  text-align: center;
   font-family: Arial, sans-serif;
+  background-color: #eef;
+  text-align: center;
+  margin: 0;
+  padding: 20px;
 }
 
-#hud {
-  margin: 10px;
-  font-size: 20px;
-}
-
-#buildMenu {
-  margin: 10px;
-}
-
-#gameArea {
-  width: 600px;
-  height: 600px;
+#loginScreen, #gameScreen {
+  max-width: 600px;
   margin: 0 auto;
-  display: grid;
-  grid-template-columns: repeat(10, 1fr);
-  grid-template-rows: repeat(10, 1fr);
-  background-color: #a7ffeb;
-  border: 2px solid #00695c;
-  gap: 2px;
-  user-select: none;
 }
 
-.cell {
-  background-color: #e0f2f1;
-  border: 1px solid #004d40;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  font-size: 24px;
+input {
+  padding: 10px;
+  width: 80%;
+  margin-bottom: 10px;
+}
+
+button {
+  padding: 10px 20px;
+  margin: 5px;
+  font-size: 16px;
   cursor: pointer;
 }
 
-.cell:hover {
-  background-color: #b2dfdb;
+.grid {
+  display: grid;
+  grid-template-columns: repeat(10, 40px);
+  grid-template-rows: repeat(10, 40px);
+  gap: 2px;
+  justify-content: center;
+  margin-top: 20px;
 }
 
-#rathaus {
-  font-size: 32px;
+.cell {
+  width: 40px;
+  height: 40px;
+  background-color: white;
+  border: 1px solid #ccc;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  cursor: pointer;
+  user-select: none;
+}
+
+#hud {
+  margin-bottom: 20px;
+  font-size: 18px;
+}
+
+#buildMenu {
+  margin-bottom: 20px;
+}
+
+#loginError {
+  margin-top: 10px;
+  color: red;
 }

@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clash of Clans - Simulation</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="game-container">
+        <h1>Clash of Clans - Simulation</h1>
+        <div id="grid"></div>
+        <div id="resources">
+            <p>Gold: <span id="gold">0</span></p>
+            <p>Einwohner: <span id="population">0</span></p>
+            <p>Freie Einwohner: <span id="freePopulation">0</span></p>
+        </div>
+        <div id="status"></div>
+        <div id="popup" style="display:none;">
+            <div id="popup-text"></div>
+            <button onclick="confirmUpgrade()">Bestätigen</button>
+            <button onclick="closePopup()">Abbrechen</button>
+        </div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>

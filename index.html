@@ -1,23 +1,25 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-    <meta charset="UTF-8">
-    <title>Mini Clash of Clans</title>
-    <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8">
+  <title>Clash of Mini</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <h1>Mini Clash of Clans</h1>
-    
-    <div id="village">
-        <h2>Dorf</h2>
-        <p>Gold: <span id="gold">100</span></p>
-        <p>Elixier: <span id="elixir">50</span></p>
-        <button onclick="collectResources()">Ressourcen sammeln</button>
-        <button onclick="trainTroop()">Truppen ausbilden (Kosten: 20 Gold)</button>
-        <p>Truppen: <span id="troops">0</span></p>
-        <button onclick="attack()">Angreifen</button>
-    </div>
+  <h1>Clash of Mini</h1>
+  <div id="gold">Gold: 100</div>
 
-    <script src="script.js"></script>
+  <div id="controls">
+    <button onclick="build('weg')">Weg bauen (10 Gold)</button>
+    <button onclick="build('haus')">Haus bauen (50 Gold)</button>
+    <button onclick="build('goldmine')">Goldmine bauen (100 Gold)</button>
+    <button onclick="upgradeMine()">Goldmine upgraden (200 Gold)</button>
+  </div>
+
+  <div id="gameArea">
+    <div id="rathaus">🏰 Rathaus</div>
+  </div>
+
+  <script src="script.js"></script>
 </body>
 </html>

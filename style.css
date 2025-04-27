@@ -1,34 +1,44 @@
 body {
-  font-family: Arial, sans-serif;
   text-align: center;
-  background-color: #e0f7fa;
+  font-family: Arial, sans-serif;
 }
 
-#gold {
-  font-size: 24px;
+#hud {
   margin: 10px;
+  font-size: 20px;
 }
 
-#controls {
-  margin-bottom: 20px;
+#buildMenu {
+  margin: 10px;
 }
 
 #gameArea {
   width: 600px;
-  height: 400px;
+  height: 600px;
   margin: 0 auto;
+  display: grid;
+  grid-template-columns: repeat(10, 1fr);
+  grid-template-rows: repeat(10, 1fr);
   background-color: #a7ffeb;
-  position: relative;
   border: 2px solid #00695c;
+  gap: 2px;
+  user-select: none;
+}
+
+.cell {
+  background-color: #e0f2f1;
+  border: 1px solid #004d40;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 24px;
+  cursor: pointer;
+}
+
+.cell:hover {
+  background-color: #b2dfdb;
 }
 
 #rathaus {
-  position: absolute;
-  top: 180px;
-  left: 270px;
   font-size: 32px;
-}
-.building {
-  position: absolute;
-  font-size: 24px;
 }

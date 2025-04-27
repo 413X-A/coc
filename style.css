@@ -1,73 +1,38 @@
 body {
-  font-family: Arial, sans-serif;
-  background-color: #eef;
-  text-align: center;
-  margin: 0;
-  padding: 20px;
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
 }
 
-#loginScreen, #gameScreen {
-  max-width: 600px;
-  margin: 0 auto;
+.page {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
 }
 
-input {
-  padding: 10px;
-  width: 80%;
-  margin-bottom: 10px;
+#grid {
+    display: grid;
+    grid-template-columns: repeat(101, 20px);
+    grid-template-rows: repeat(75, 20px);
+    gap: 1px;
+    margin-top: 20px;
+}
+
+#grid div {
+    width: 20px;
+    height: 20px;
+    background-color: #f0f0f0;
+    border: 1px solid #ddd;
+    cursor: pointer;
+}
+
+#grid div.occupied {
+    background-color: #ccc;
 }
 
 button {
-  padding: 10px 20px;
-  margin: 5px;
-  font-size: 16px;
-  cursor: pointer;
-}
-
-#gameArea {
-  display: grid;
-  grid-template-columns: repeat(10, 40px);
-  grid-template-rows: repeat(10, 40px);
-  gap: 2px;
-  justify-content: center;
-  margin-top: 20px;
-}
-
-.cell {
-  width: 40px;
-  height: 40px;
-  background-color: white;
-  border: 1px solid #ccc;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 24px;
-  cursor: pointer;
-  user-select: none;
-}
-
-#hud {
-  margin-bottom: 20px;
-  font-size: 18px;
-}
-
-#buildMenu {
-  margin-bottom: 20px;
-}
-
-#loginError {
-  margin-top: 10px;
-  color: red;
-}
-
-/* Mobile View */
-@media screen and (max-width: 600px) {
-  #gameArea {
-    grid-template-columns: repeat(5, 40px);
-    grid-template-rows: repeat(5, 40px);
-  }
-
-  input, button {
-    width: 100%;
-  }
+    margin: 5px;
+    padding: 10px;
+    font-size: 16px;
 }

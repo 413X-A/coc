@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <title>Mini Clash Aufbau</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <h1>Mini Clash Aufbau</h1>
+
+    <div id="ui">
+        <div id="resources">
+            <p>Gold: <span id="gold">500</span> | Einwohner: <span id="population">0</span> | Freie Einwohner: <span id="freePopulation">0</span></p>
+        </div>
+
+        <div id="controls">
+            <button onclick="selectBuilding('haus')">Haus (100 Gold, +5 Einwohner)</button>
+            <button onclick="selectBuilding('goldmine')">Goldmine (150 Gold, -5 Einwohner)</button>
+            <button onclick="selectBuilding('weg')">Weg (5 Gold)</button>
+            <button onclick="cancelBuilding()">Bau abbrechen</button>
+        </div>
+
+        <p id="status">Nichts ausgewählt</p>
+    </div>
+
+    <div id="grid"></div>
+
+    <!-- Upgrade-Popup -->
+    <div id="popup" style="display: none;">
+        <div id="popup-content">
+            <p id="popup-text">Verbessern?</p>
+            <button onclick="confirmUpgrade()">Ja</button>
+            <button onclick="closePopup()">Abbrechen</button>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

@@ -186,8 +186,13 @@ function isConnected(x, y) {
         if (visited.has(key)) continue;
         visited.add(key);
 
-        if (currX >= x && currX <= x + 1 && currY >= y && currY <= y + 1) {
-            return true;
+        // Prüfen, ob eine Zelle der 2x2 Goldmine erreicht wird
+        for (let dy = 0; dy < 2; dy++) {
+            for (let dx = 0; dx < 2; dx++) {
+                if (currX === x + dx && currY === y + dy) {
+                    return true;
+                }
+            }
         }
 
         const directions = [

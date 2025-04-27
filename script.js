@@ -1,5 +1,5 @@
-const gridWidth = 101;
-const gridHeight = 75;
+const gridWidth = 75;
+const gridHeight = 55
 let gold = 500;
 let population = 0;
 let freePopulation = 0;

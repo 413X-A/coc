@@ -3,35 +3,32 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Clash of Clans - Spiel</title>
-    <link rel="stylesheet" href="styles.css">
+    <title>Clash of Clans Spiel</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <!-- Login-Seite -->
-    <div id="loginPage" class="page">
+    <div id="login-container">
         <h2>Login</h2>
         <input type="text" id="username" placeholder="Benutzername" required>
         <input type="password" id="password" placeholder="Passwort" required>
-        <button id="loginButton">Login</button>
-        <p id="loginMessage"></p>
-        <button id="registerButton">Neuen Benutzer erstellen</button>
+        <button onclick="login()">Login</button>
+        <button onclick="createNewUser()">Neuen Benutzer erstellen</button>
     </div>
 
-    <!-- Spielfläche -->
-    <div id="gamePage" class="page" style="display: none;">
-        <h2>Clash of Clans</h2>
-        <div id="grid"></div>
-        <div id="buildMenu">
-            <button onclick="build('way')">Wege bauen</button>
-            <button onclick="build('house')">Haus bauen</button>
-            <button onclick="build('goldmine')">Goldmine bauen</button>
+    <!-- Spielfeld -->
+    <div id="game-container" style="display: none;">
+        <h2>Willkommen, <span id="player-name"></span></h2>
+        <p>Gold: <span id="gold">0</span></p>
+        <div id="build-menu">
+            <h3>Baumenü</h3>
+            <button onclick="selectBuilding('goldmine')">Goldmine (Kosten: 50 Gold)</button>
+            <button onclick="selectBuilding('house')">Haus (Kosten: 100 Gold)</button>
+            <button onclick="selectBuilding('path')">Weg (Kosten: 10 Gold)</button>
         </div>
-        <div>
-            <h3>Gold: <span id="goldCount">0</span></h3>
-            <h3>Ressourcen: <span id="resources">0</span></h3>
-        </div>
+        <div id="grid-container"></div>
     </div>
 
-    <script src="script.js"></script>
+    <script src="game.js"></script>
 </body>
 </html>

@@ -1,217 +1,144 @@
+const loginPage = document.getElementById('loginPage');
+const gamePage = document.getElementById('gamePage');
+const gridElement = document.getElementById('grid');
+const goldCountElement = document.getElementById('goldCount');
+const resourcesElement = document.getElementById('resources');
 let currentUser = null;
 let gold = 0;
-let population = 0;
-let gridSize = 10;
+let resources = 0;
 let grid = [];
-let selectedBuilding = null;
+let buildMode = null;
 
-const gameArea = document.getElementById('gameArea');
-const goldDisplay = document.getElementById('gold');
-const populationDisplay = document.getElementById('population');
+// Initialisiere das Spielfeld
+function initGrid() {
+    grid = [];
+    for (let i = 0; i < 101; i++) {
+        const row = [];
+        for (let j = 0; j < 75; j++) {
+            row.push(null); // Kein Gebäude, Platz leer
+        }
+        grid.push(row);
+    }
 
+    gridElement.innerHTML = '';
+    for (let i = 0; i < 101; i++) {
+        for (let j = 0; j < 75; j++) {
+            const cell = document.createElement('div');
+            cell.addEventListener('click', () => placeBuilding(i, j));
+            gridElement.appendChild(cell);
+        }
+    }
+}
+
+// Login-Logik
 function login() {
-  const username = document.getElementById('usernameInput').value.trim();
-  const password = document.getElementById('passwordInput').value;
+    const username = document.getElementById('username').value;
+    const password = document.getElementById('password').value;
 
-  if (!username || !password) {
-    showLoginError('Bitte Benutzername und Passwort eingeben!');
-    return;
-  }
-
-  const users = JSON.parse(localStorage.getItem('users') || '{}');
-
-  if (users[username]) {
-    if (users[username].password !== password) {
-      showLoginError('Falsches Passwort!');
-      return;
-    }
-    currentUser = username;
-    loadGame();
-  } else {
-    users[username] = { password, game: null };
-    localStorage.setItem('users', JSON.stringify(users));
-    currentUser = username;
-    createNewGame();
-  }
-
-  document.getElementById('loginScreen').style.display = 'none';
-  document.getElementById('gameScreen').style.display = 'block';
-}
-
-function showLoginError(message) {
-  document.getElementById('loginError').textContent = message;
-}
-
-function loadGame() {
-  const users = JSON.parse(localStorage.getItem('users'));
-  const userData = users[currentUser];
-
-  if (userData && userData.game) {
-    const save = userData.game;
-    gold = save.gold;
-    population = save.population;
-    grid = save.grid;
-    setupGridFromSave();
-    updateHUD();
-  } else {
-    createNewGame();
-  }
-}
-
-function createNewGame() {
-  gold = 100;
-  population = 0;
-  createGrid();
-  placeBuilding(5, 5, 'rathaus', 2);
-  grid[5][5].element.textContent = '🏰';
-  saveGame();
-}
-
-function setupGridFromSave() {
-  gameArea.innerHTML = '';
-  for (let y = 0; y < gridSize; y++) {
-    for (let x = 0; x < gridSize; x++) {
-      let cellData = grid[y][x];
-      let cell = document.createElement('div');
-      cell.className = 'cell';
-      cell.dataset.x = x;
-      cell.dataset.y = y;
-      cell.addEventListener('click', handleCellClick);
-      if (cellData.type) {
-        cell.textContent = getEmoji(cellData.type, cellData.level);
-      }
-      grid[y][x] = { ...cellData, element: cell };
-      gameArea.appendChild(cell);
-    }
-  }
-}
-
-function createGrid() {
-  gameArea.innerHTML = '';
-  grid = [];
-  for (let y = 0; y < gridSize; y++) {
-    grid[y] = [];
-    for (let x = 0; x < gridSize; x++) {
-      let cell = document.createElement('div');
-      cell.className = 'cell';
-      cell.dataset.x = x;
-      cell.dataset.y = y;
-      cell.addEventListener('click', handleCellClick);
-      gameArea.appendChild(cell);
-      grid[y][x] = { occupied: false, element: cell, type: null, level: 1 };
-    }
-  }
-}
-
-function selectBuilding(type) {
-  selectedBuilding = type;
-}
-
-function handleCellClick(event) {
-  const x = parseInt(event.target.dataset.x);
-  const y = parseInt(event.target.dataset.y);
-
-  if (selectedBuilding) {
-    let size = getBuildingSize(selectedBuilding);
-    if (canPlace(x, y, size)) {
-      build(x, y, selectedBuilding, size);
-      selectedBuilding = null;
+    if (localStorage.getItem(username)) {
+        const storedData = JSON.parse(localStorage.getItem(username));
+        if (storedData.password === password) {
+            currentUser = username;
+            gold = storedData.gold;
+            resources = storedData.resources;
+            initGrid();
+            loginPage.style.display = 'none';
+            gamePage.style.display = 'block';
+            goldCountElement.textContent = gold;
+            resourcesElement.textContent = resources;
+        } else {
+            document.getElementById('loginMessage').textContent = 'Falsches Passwort!';
+        }
     } else {
-      alert('Hier kann nichts gebaut werden!');
+        document.getElementById('loginMessage').textContent = 'Benutzername existiert nicht!';
     }
-  } else {
-    tryUpgrade(x, y);
-  }
 }
 
-function getBuildingSize(type) {
-  if (type === 'weg') return 1;
-  if (type === 'haus' || type === 'goldmine' || type === 'rathaus') return 2;
-  return 1;
-}
+// Neuen Benutzer registrieren
+function register() {
+    const username = document.getElementById('username').value;
+    const password = document.getElementById('password').value;
 
-function canPlace(x, y, size) {
-  if (x + size > gridSize || y + size > gridSize) return false;
-
-  for (let i = 0; i < size; i++) {
-    for (let j = 0; j < size; j++) {
-      if (grid[y + i][x + j].occupied) return false;
-    }
-  }
-  return true;
-}
-
-function build(x, y, type, size) {
-  let cost = getBuildingCost(type);
-  if (gold < cost) {
-    alert('Nicht genug Gold!');
-    return;
-  }
-
-  gold -= cost;
-
-  for (let i = 0; i < size; i++) {
-    for (let j = 0; j < size; j++) {
-      grid[y + i][x + j].occupied = true;
-      grid[y + i][x + j].type = type;
-      grid[y + i][x + j].level = 1;
-      grid[y + i][x + j].element.textContent = getEmoji(type);
-    }
-  }
-
-  if (type === 'haus') {
-    population += 5;
-  }
-  if (type === 'goldmine') {
-    gold += 50; // Sofort Goldbonus
-  }
-
-  updateHUD();
-  saveGame();
-}
-
-function getBuildingCost(type) {
-  if (type === 'weg') return 10;
-  if (type === 'haus') return 50;
-  if (type === 'goldmine') return 100;
-  return 0;
-}
-
-function tryUpgrade(x, y) {
-  const cell = grid[y][x];
-  if (cell.type === 'haus') {
-    if (gold >= 100) {
-      gold -= 100;
-      cell.level++;
-      cell.element.textContent = getEmoji('haus', cell.level);
-      population += 10; // Jeder Upgrade bringt mehr Einwohner
-      updateHUD();
-      saveGame();
+    if (!localStorage.getItem(username)) {
+        localStorage.setItem(username, JSON.stringify({
+            username: username,
+            password: password,
+            gold: 0,
+            resources: 0
+        }));
+        loginPage.style.display = 'none';
+        gamePage.style.display = 'block';
+        currentUser = username;
+        goldCountElement.textContent = gold;
+        resourcesElement.textContent = resources;
+        initGrid();
     } else {
-      alert('Nicht genug Gold für Upgrade! (100 Gold)');
+        document.getElementById('loginMessage').textContent = 'Benutzername bereits vergeben!';
     }
-  }
 }
 
-function getEmoji(type, level = 1) {
-  if (type === 'weg') return '🛤️';
-  if (type === 'haus') return level > 1 ? '🏠🏠' : '🏠';
-  if (type === 'goldmine') return '⛏️';
-  if (type === 'rathaus') return '🏰';
-  return '';
+// Gebäude auf das Spielfeld platzieren
+function placeBuilding(x, y) {
+    if (buildMode === 'way' && grid[x][y] === null) {
+        grid[x][y] = 'way';
+        updateGrid();
+    } else if (buildMode === 'house' && grid[x][y] === null && x + 1 < 101 && y + 1 < 75) {
+        if (grid[x + 1][y] === null && grid[x][y + 1] === null && grid[x + 1][y + 1] === null) {
+            grid[x][y] = 'house';
+            grid[x + 1][y] = 'house';
+            grid[x][y + 1] = 'house';
+            grid[x + 1][y + 1] = 'house';
+            updateGrid();
+        }
+    } else if (buildMode === 'goldmine' && grid[x][y] === null && x + 1 < 101 && y + 1 < 75) {
+        if (grid[x + 1][y] === null && grid[x][y + 1] === null && grid[x + 1][y + 1] === null) {
+            grid[x][y] = 'goldmine';
+            grid[x + 1][y] = 'goldmine';
+            grid[x][y + 1] = 'goldmine';
+            grid[x + 1][y + 1] = 'goldmine';
+            updateGrid();
+        }
+    }
 }
 
-function updateHUD() {
-  goldDisplay.textContent = `Gold: ${gold}`;
-  populationDisplay.textContent = `Einwohner: ${population}`;
+// Grid-Ansicht aktualisieren
+function updateGrid() {
+    gridElement.innerHTML = '';
+    for (let i = 0; i < 101; i++) {
+        for (let j = 0; j < 75; j++) {
+            const cell = document.createElement('div');
+            if (grid[i][j] !== null) {
+                cell.classList.add(grid[i][j]);
+            }
+            gridElement.appendChild(cell);
+        }
+    }
 }
 
+// Baumenü aufbauen
+function build(buildingType) {
+    buildMode = buildingType;
+}
+
+// Speicher Spielstand im LocalStorage
 function saveGame() {
-  const users = JSON.parse(localStorage.getItem('users'));
-  users[currentUser].game = {
-    gold,
-    population,
-    grid
-  };
-  localStorage.setItem('users', JSON.stringify(users));
+    localStorage.setItem(currentUser, JSON.stringify({
+        username: currentUser,
+        password: '*****', // Passwort nicht speichern
+        gold: gold,
+        resources: resources,
+        grid: grid
+    }));
+}
+
+// Event-Listener für Login und Registrierung
+document.getElementById('loginButton').addEventListener('click', login);
+document.getElementById('registerButton').addEventListener('click', register);
+
+// Start-Setup
+window.onload = function() {
+    const savedUser = localStorage.getItem('currentUser');
+    if (savedUser) {
+        currentUser = savedUser;
+    }
 }

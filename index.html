@@ -1,25 +1,22 @@
-<!DOCTYPE html>
-<html lang="de">
-<head>
-  <meta charset="UTF-8">
-  <title>Clash of Mini</title>
-  <link rel="stylesheet" href="style.css">
-</head>
-<body>
-  <h1>Clash of Mini</h1>
-  <div id="gold">Gold: 100</div>
+<div id="loginScreen">
+  <h2>Login</h2>
+  <input id="usernameInput" placeholder="Benutzername" /><br><br>
+  <input id="passwordInput" type="password" placeholder="Passwort" /><br><br>
+  <button onclick="login()">Login</button>
+  <div id="loginError" style="color: red; margin-top: 10px;"></div>
+</div>
 
-  <div id="controls">
-    <button onclick="build('weg')">Weg bauen (10 Gold)</button>
-    <button onclick="build('haus')">Haus bauen (50 Gold)</button>
-    <button onclick="build('goldmine')">Goldmine bauen (100 Gold)</button>
-    <button onclick="upgradeMine()">Goldmine upgraden (200 Gold)</button>
+<div id="gameScreen" style="display:none;">
+  <div id="hud">
+    <span id="gold">Gold: 0</span> |
+    <span id="population">Einwohner: 0</span>
   </div>
 
-  <div id="gameArea">
-    <div id="rathaus">🏰 Rathaus</div>
+  <div id="buildMenu">
+    <button onclick="selectBuilding('weg')">🛤️ Weg (10 Gold)</button>
+    <button onclick="selectBuilding('haus')">🏠 Haus (50 Gold)</button>
+    <button onclick="selectBuilding('goldmine')">⛏️ Goldmine (100 Gold)</button>
   </div>
 
-  <script src="script.js"></script>
-</body>
-</html>
+  <div id="gameArea" class="grid"></div>
+</div>

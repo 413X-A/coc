@@ -16,25 +16,22 @@ h1 {
 
 #grid {
     display: grid;
-    grid-template-columns: repeat(101, 12px);
-    grid-template-rows: repeat(75, 12px);
+    grid-template-columns: repeat(101, 1fr);
+    grid-template-rows: repeat(75, auto);
     gap: 1px;
-    justify-content: center;
-    margin: auto;
+    width: 95vw;
+    height: 70vh;
     background-color: #999;
-    padding: 5px;
+    margin: auto;
     overflow: auto;
-    max-width: 95vw;
-    max-height: 80vh;
 }
-
 .cell {
-    width: 12px;
-    height: 12px;
     background-color: #fff;
-    border: 1px solid #000; /* Schwarze Umrandung */
+    border: 1px solid #000;
+    aspect-ratio: 1 / 1; /* Neu: Jede Zelle bleibt quadratisch */
     position: relative;
 }
+
 
 .rathaus {
     background-color: brown;

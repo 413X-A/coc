@@ -2,35 +2,36 @@
 <html lang="de">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Mein Aufbauspiel</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Clash of Clans - Spiel</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
+  <!-- Login Screen -->
   <div id="loginScreen">
     <h2>Login</h2>
-    <input id="usernameInput" placeholder="Benutzername"><br><br>
-    <input id="passwordInput" type="password" placeholder="Passwort"><br><br>
+    <input type="text" id="usernameInput" placeholder="Benutzername">
+    <input type="password" id="passwordInput" placeholder="Passwort">
     <button onclick="login()">Login</button>
-    <div id="loginError"></div>
+    <p id="loginError"></p>
   </div>
 
-  <div id="gameScreen" style="display:none;">
-    <h1>🏰 Mein Aufbauspiel</h1>
-
+  <!-- Game Screen -->
+  <div id="gameScreen" style="display: none;">
     <div id="hud">
-      <span id="gold">Gold: 0</span> |
-      <span id="population">Einwohner: 0</span>
+      <p id="gold">Gold: 0</p>
+      <p id="population">Einwohner: 0</p>
     </div>
-
+    
     <div id="buildMenu">
-      <button onclick="selectBuilding('weg')">🛤️ Weg (10 Gold)</button>
-      <button onclick="selectBuilding('haus')">🏠 Haus (50 Gold)</button>
-      <button onclick="selectBuilding('goldmine')">⛏️ Goldmine (100 Gold)</button>
+      <button onclick="selectBuilding('weg')">Weg</button>
+      <button onclick="selectBuilding('haus')">Haus</button>
+      <button onclick="selectBuilding('goldmine')">Goldmine</button>
+      <button onclick="selectBuilding('rathaus')">Rathaus</button>
     </div>
-
-    <div id="gameArea" class="grid"></div>
+    
+    <div id="gameArea"></div>
   </div>
 
   <script src="script.js"></script>

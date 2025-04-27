@@ -195,7 +195,7 @@ function tryUpgrade(x, y) {
 
 function getEmoji(type, level = 1) {
   if (type === 'weg') return '🛤️';
-  if (type === 'haus') return level > 1 ? '🏢' : '🏠';
+  if (type === 'haus') return level > 1 ? '🏠🏠' : '🏠';
   if (type === 'goldmine') return '⛏️';
   if (type === 'rathaus') return '🏰';
   return '';
@@ -208,10 +208,7 @@ function updateHUD() {
 
 function saveGame() {
   const users = JSON.parse(localStorage.getItem('users'));
-  users[currentUser].game = {
-    gold,
-    population,
-    grid
-  };
+  const userData = users[currentUser];
+  userData.game = { gold, population, grid };
   localStorage.setItem('users', JSON.stringify(users));
 }

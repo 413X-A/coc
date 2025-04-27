@@ -1,7 +1,6 @@
 let currentUser = null;
 let gold = 0;
 let population = 0;
-let mineLevel = 1;
 let gridSize = 10;
 let grid = [];
 let selectedBuilding = null;
@@ -10,7 +9,6 @@ const gameArea = document.getElementById('gameArea');
 const goldDisplay = document.getElementById('gold');
 const populationDisplay = document.getElementById('population');
 
-// Login
 function login() {
   const username = document.getElementById('usernameInput').value.trim();
   const password = document.getElementById('passwordInput').value;
@@ -27,11 +25,9 @@ function login() {
       showLoginError('Falsches Passwort!');
       return;
     }
-    // Login erfolgreich
     currentUser = username;
     loadGame();
   } else {
-    // Neuer Benutzer anlegen
     users[username] = { password, game: null };
     localStorage.setItem('users', JSON.stringify(users));
     currentUser = username;
@@ -46,7 +42,6 @@ function showLoginError(message) {
   document.getElementById('loginError').textContent = message;
 }
 
-// Spielstand laden
 function loadGame() {
   const users = JSON.parse(localStorage.getItem('users'));
   const userData = users[currentUser];
@@ -63,7 +58,6 @@ function loadGame() {
   }
 }
 
-// Neues Spiel erstellen
 function createNewGame() {
   gold = 100;
   population = 0;
@@ -73,7 +67,6 @@ function createNewGame() {
   saveGame();
 }
 
-// Spielfeld neu aufbauen aus Save
 function setupGridFromSave() {
   gameArea.innerHTML = '';
   for (let y = 0; y < gridSize; y++) {
@@ -85,15 +78,14 @@ function setupGridFromSave() {
       cell.dataset.y = y;
       cell.addEventListener('click', handleCellClick);
       if (cellData.type) {
-        cell.textContent = getEmoji(cellData.type);
+        cell.textContent = getEmoji(cellData.type, cellData.level);
       }
-      gameArea.appendChild(cell);
       grid[y][x] = { ...cellData, element: cell };
+      gameArea.appendChild(cell);
     }
   }
 }
 
-// Spielfeld neu erstellen
 function createGrid() {
   gameArea.innerHTML = '';
   grid = [];
@@ -106,7 +98,7 @@ function createGrid() {
       cell.dataset.y = y;
       cell.addEventListener('click', handleCellClick);
       gameArea.appendChild(cell);
-      grid[y][x] = { occupied: false, element: cell, type: null };
+      grid[y][x] = { occupied: false, element: cell, type: null, level: 1 };
     }
   }
 }
@@ -116,26 +108,66 @@ function selectBuilding(type) {
 }
 
 function handleCellClick(event) {
-  if (!selectedBuilding) return;
-
   const x = parseInt(event.target.dataset.x);
   const y = parseInt(event.target.dataset.y);
 
-  let size = getBuildingSize(selectedBuilding);
-
-  if (canPlace(x, y, size)) {
-    build(x, y, selectedBuilding, size);
-    selectedBuilding = null;
+  if (selectedBuilding) {
+    let size = getBuildingSize(selectedBuilding);
+    if (canPlace(x, y, size)) {
+      build(x, y, selectedBuilding, size);
+      selectedBuilding = null;
+    } else {
+      alert('Hier kann nichts gebaut werden!');
+    }
   } else {
-    alert('Hier kann nichts gebaut werden!');
+    tryUpgrade(x, y);
   }
 }
 
 function getBuildingSize(type) {
   if (type === 'weg') return 1;
-  if (type === 'haus') return 2;
-  if (type === 'goldmine') return 2;
+  if (type === 'haus' || type === 'goldmine' || type === 'rathaus') return 2;
   return 1;
+}
+
+function canPlace(x, y, size) {
+  if (x + size > gridSize || y + size > gridSize) return false;
+
+  for (let i = 0; i < size; i++) {
+    for (let j = 0; j < size; j++) {
+      if (grid[y + i][x + j].occupied) return false;
+    }
+  }
+  return true;
+}
+
+function build(x, y, type, size) {
+  let cost = getBuildingCost(type);
+  if (gold < cost) {
+    alert('Nicht genug Gold!');
+    return;
+  }
+
+  gold -= cost;
+
+  for (let i = 0; i < size; i++) {
+    for (let j = 0; j < size; j++) {
+      grid[y + i][x + j].occupied = true;
+      grid[y + i][x + j].type = type;
+      grid[y + i][x + j].level = 1;
+      grid[y + i][x + j].element.textContent = getEmoji(type);
+    }
+  }
+
+  if (type === 'haus') {
+    population += 5;
+  }
+  if (type === 'goldmine') {
+    gold += 50; // Sofort Goldbonus
+  }
+
+  updateHUD();
+  saveGame();
 }
 
 function getBuildingCost(type) {
@@ -145,63 +177,28 @@ function getBuildingCost(type) {
   return 0;
 }
 
-function canPlace(x, y, size) {
-  if (x + size - 1 >= gridSize || y + size - 1 >= gridSize) {
-    return false;
-  }
-  for (let dy = 0; dy < size; dy++) {
-    for (let dx = 0; dx < size; dx++) {
-      if (grid[y + dy][x + dx].occupied) return false;
+function tryUpgrade(x, y) {
+  const cell = grid[y][x];
+  if (cell.type === 'haus') {
+    if (gold >= 100) {
+      gold -= 100;
+      cell.level++;
+      cell.element.textContent = getEmoji('haus', cell.level);
+      population += 10; // Jeder Upgrade bringt mehr Einwohner
+      updateHUD();
+      saveGame();
+    } else {
+      alert('Nicht genug Gold für Upgrade! (100 Gold)');
     }
   }
-  return true;
 }
 
-function build(x, y, type, size) {
-  const cost = getBuildingCost(type);
-  if (gold < cost) {
-    alert('Nicht genug Gold!');
-    return;
-  }
-
-  gold -= cost;
-  updateHUD();
-
-  for (let dy = 0; dy < size; dy++) {
-    for (let dx = 0; dx < size; dx++) {
-      grid[y + dy][x + dx].occupied = true;
-      grid[y + dy][x + dx].type = type;
-      if (dy === 0 && dx === 0) {
-        grid[y + dy][x + dx].element.textContent = getEmoji(type);
-      } else {
-        grid[y + dy][x + dx].element.textContent = '';
-      }
-    }
-  }
-
-  if (type === 'haus') {
-    population += 5;
-    updateHUD();
-  }
-
-  saveGame();
-}
-
-function getEmoji(type) {
+function getEmoji(type, level = 1) {
   if (type === 'weg') return '🛤️';
-  if (type === 'haus') return '🏠';
+  if (type === 'haus') return level > 1 ? '🏢' : '🏠';
   if (type === 'goldmine') return '⛏️';
   if (type === 'rathaus') return '🏰';
   return '';
-}
-
-function placeBuilding(x, y, type, size) {
-  for (let dy = 0; dy < size; dy++) {
-    for (let dx = 0; dx < size; dx++) {
-      grid[y + dy][x + dx].occupied = true;
-      grid[y + dy][x + dx].type = type;
-    }
-  }
 }
 
 function updateHUD() {
@@ -209,36 +206,12 @@ function updateHUD() {
   populationDisplay.textContent = `Einwohner: ${population}`;
 }
 
-function generateGold() {
-  let mineCount = 0;
-  for (let y = 0; y < gridSize; y++) {
-    for (let x = 0; x < gridSize; x++) {
-      if (grid[y][x].type === 'goldmine') {
-        mineCount++;
-      }
-    }
-  }
-  gold += mineCount * mineLevel;
-  updateHUD();
-  saveGame();
-}
-
 function saveGame() {
   const users = JSON.parse(localStorage.getItem('users'));
   users[currentUser].game = {
     gold,
     population,
-    grid: grid.map(row => row.map(cell => ({
-      occupied: cell.occupied,
-      type: cell.type
-    })))
+    grid
   };
   localStorage.setItem('users', JSON.stringify(users));
 }
-
-// Gold automatisch generieren
-setInterval(() => {
-  if (currentUser) {
-    generateGold();
-  }
-}, 1000);

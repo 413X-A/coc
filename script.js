@@ -208,7 +208,10 @@ function updateHUD() {
 
 function saveGame() {
   const users = JSON.parse(localStorage.getItem('users'));
-  const userData = users[currentUser];
-  userData.game = { gold, population, grid };
+  users[currentUser].game = {
+    gold,
+    population,
+    grid
+  };
   localStorage.setItem('users', JSON.stringify(users));
 }

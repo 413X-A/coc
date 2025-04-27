@@ -201,6 +201,7 @@ function isConnected(x, y) {
         if (visited.has(key)) continue;
         visited.add(key);
 
+        // Wenn wir die Goldmine erreichen (2x2 Fläche)
         for (let dy = 0; dy < 2; dy++) {
             for (let dx = 0; dx < 2; dx++) {
                 if (currX === x + dx && currY === y + dy) {
@@ -209,6 +210,7 @@ function isConnected(x, y) {
             }
         }
 
+        // Prüfe alle angrenzenden Felder (Weg oder Rathaus)
         const directions = [
             { dx: 1, dy: 0 },
             { dx: -1, dy: 0 },
@@ -225,8 +227,36 @@ function isConnected(x, y) {
             }
         });
     }
-    return false;
+    return false;  // Keine Verbindung zum Rathaus über Straße
 }
+
+// Goldminenproduktion (alle 5 Sekunden)
+setInterval(() => {
+    goldmines.forEach(mine => {
+        if (isConnected(mine.x, mine.y)) {
+            const baseProduction = 5;
+            const bonus = (mine.level - 1);
+            const producedGold = baseProduction + bonus;
+            gold += producedGold;
+            showGoldEffect(mine.x, mine.y, producedGold);
+        }
+    });
+    updateResources();
+}, 5000);
+
+// Gold-Effekt anzeigen (wenn Gold produziert wird)
+function showGoldEffect(x, y, amount) {
+    const cell = cells[y][x];
+    const effect = document.createElement('div');
+    effect.className = 'gold-float';
+    effect.textContent = `+${amount}`;
+    cell.appendChild(effect);
+
+    setTimeout(() => {
+        effect.remove();
+    }, 1000);
+}
+
 
 createGrid();
 placeRathaus();

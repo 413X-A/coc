@@ -236,6 +236,81 @@ function isInBounds(x, y) {
     return x >= 0 && x < WIDTH && y >= 0 && y < HEIGHT;
 }
 
+// Funktion für Goldmine Produktion
+function produceGold() {
+    gold += gridArray.flat().reduce((sum, cell) => {
+        if (cell.active && cell.type === "goldmine") {
+            const key = `${cell.element.dataset.x}_${cell.element.dataset.y}`;
+            const level = buildingLevels[key] || 1;
+            return sum + 5 * level;  // 5 Gold pro Goldmine
+        }
+        return sum;
+    }, 0);
+    updateInfo();
+}
+
+// Funktion für Holzfäller Produktion
+function produceHolz() {
+    holz += gridArray.flat().reduce((sum, cell) => {
+        if (cell.active && cell.type === "holzfaeller") {
+            const key = `${cell.element.dataset.x}_${cell.element.dataset.y}`;
+            const level = buildingLevels[key] || 1;
+            return sum + 4 * level;  // 4 Holz pro Holzfäller
+        }
+        return sum;
+    }, 0);
+    updateInfo();
+}
+
+// Funktion für Steinmetz Produktion
+function produceStein() {
+    stein += gridArray.flat().reduce((sum, cell) => {
+        if (cell.active && cell.type === "steinmetz") {
+            const key = `${cell.element.dataset.x}_${cell.element.dataset.y}`;
+            const level = buildingLevels[key] || 1;
+            return sum + 6 * level;  // 6 Stein pro Steinmetz
+        }
+        return sum;
+    }, 0);
+    updateInfo();
+}
+
+// Funktion für Eisenerz Mine Produktion
+function produceEisen() {
+    eisen += gridArray.flat().reduce((sum, cell) => {
+        if (cell.active && cell.type === "eisenerz") {
+            const key = `${cell.element.dataset.x}_${cell.element.dataset.y}`;
+            const level = buildingLevels[key] || 1;
+            return sum + 8 * level;  // 8 Eisen pro Eisenerz Mine
+        }
+        return sum;
+    }, 0);
+    updateInfo();
+}
+
+// Funktion für Smaragdmine Produktion
+function produceSmaragde() {
+    smaragde += gridArray.flat().reduce((sum, cell) => {
+        if (cell.active && cell.type === "smaragdmine") {
+            const key = `${cell.element.dataset.x}_${cell.element.dataset.y}`;
+            const level = buildingLevels[key] || 1;
+            return sum + 10 * level;  // 10 Smaragde pro Smaragdmine
+        }
+        return sum;
+    }, 0);
+    updateInfo();
+}
+
+// Start der Produktion
+function startProduction() {
+    setInterval(produceGold, 3000);        // Goldminen alle 3 Sekunden
+    setInterval(produceHolz, 5000);        // Holzfäller alle 5 Sekunden
+    setInterval(produceStein, 6000);       // Steinmetze alle 6 Sekunden
+    setInterval(produceEisen, 8000);       // Eisenerzminen alle 8 Sekunden
+    setInterval(produceSmaragde, 10000);   // Smaragdmine alle 10 Sekunden
+}
+
+// Update der Anzeige für Ressourcen
 function updateInfo() {
     document.getElementById("gold").innerText = gold;
     document.getElementById("bewohner").innerText = bewohner;
@@ -245,100 +320,6 @@ function updateInfo() {
     document.getElementById("smaragde").innerText = smaragde;
 }
 
-function isConnected(x, y, sizeX, sizeY) {
-    for (let dy = -1; dy <= sizeY; dy++) {
-        for (let dx = -1; dx <= sizeX; dx++) {
-            let nx = x + dx;
-            let ny = y + dy;
-            if (isInBounds(nx, ny)) {
-                let type = gridArray[ny][nx].type;
-                if (type === "weg" || type === "rathaus") {
-                    return true;
-                }
-            }
-        }
-    }
-    return false;
-}
-
-// Ressourcen-Produktion starten
-function startProduction() {
-    setInterval(produceGold, 3000);        // Goldminen alle 3 Sekunden
-    setInterval(produceHolz, 5000);         // Holzfäller alle 5 Sekunden
-    setInterval(produceStein, 6000);        // Steinmetze alle 6 Sekunden
-    setInterval(produceEisen, 8000);        // Eisenerzminen alle 8 Sekunden
-    setInterval(produceSmaragde, 10000);    // Smaragdmine alle 10 Sekunden
-}
-
-function produceGold() {
-    for (let y = 0; y < HEIGHT; y++) {
-        for (let x = 0; x < WIDTH; x++) {
-            const cell = gridArray[y][x];
-            if (cell.active && cell.type === "goldmine") {
-                const key = `${x}_${y}`;
-                const level = buildingLevels[key] || 1;
-                gold += 5 * level;
-            }
-        }
-    }
-    updateInfo();
-}
-
-function produceHolz() {
-    for (let y = 0; y < HEIGHT; y++) {
-        for (let x = 0; x < WIDTH; x++) {
-            const cell = gridArray[y][x];
-            if (cell.active && cell.type === "holzfaeller") {
-                const key = `${x}_${y}`;
-                const level = buildingLevels[key] || 1;
-                holz += 4 * level;
-            }
-        }
-    }
-    updateInfo();
-}
-
-function produceStein() {
-    for (let y = 0; y < HEIGHT; y++) {
-        for (let x = 0; x < WIDTH; x++) {
-            const cell = gridArray[y][x];
-            if (cell.active && cell.type === "steinmetz") {
-                const key = `${x}_${y}`;
-                const level = buildingLevels[key] || 1;
-                stein += 6 * level;
-            }
-        }
-    }
-    updateInfo();
-}
-
-function produceEisen() {
-    for (let y = 0; y < HEIGHT; y++) {
-        for (let x = 0; x < WIDTH; x++) {
-            const cell = gridArray[y][x];
-            if (cell.active && cell.type === "eisenerz") {
-                const key = `${x}_${y}`;
-                const level = buildingLevels[key] || 1;
-                eisen += 8 * level;
-            }
-        }
-    }
-    updateInfo();
-}
-
-function produceSmaragde() {
-    for (let y = 0; y < HEIGHT; y++) {
-        for (let x = 0; x < WIDTH; x++) {
-            const cell = gridArray[y][x];
-            if (cell.active && cell.type === "smaragdmine") {
-                const key = `${x}_${y}`;
-                const level = buildingLevels[key] || 1;
-                smaragde += 10 * level;
-            }
-        }
-    }
-    updateInfo();
-}
 
 
 // Produktion starten

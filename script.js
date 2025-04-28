@@ -7,6 +7,7 @@ const gridArray = [];
 const WIDTH = 101;
 const HEIGHT = 75;
 
+// Spielfeld aufbauen
 for (let y = 0; y < HEIGHT; y++) {
     gridArray[y] = [];
     for (let x = 0; x < WIDTH; x++) {
@@ -16,11 +17,11 @@ for (let y = 0; y < HEIGHT; y++) {
         cell.dataset.y = y;
         cell.addEventListener("click", () => build(x, y));
         grid.appendChild(cell);
-        gridArray[y][x] = { type: null, element: cell, active: false }; // <-- neu: active-Status
+        gridArray[y][x] = { type: null, element: cell, active: false };
     }
 }
 
-// Rathaus initialisieren
+// Rathaus initialisieren (3x3)
 for (let y = 36; y <= 38; y++) {
     for (let x = 49; x <= 51; x++) {
         gridArray[y][x].type = "rathaus";
@@ -82,12 +83,12 @@ function build(x, y) {
     for (let dy = 0; dy < size; dy++) {
         for (let dx = 0; dx < size; dx++) {
             gridArray[y + dy][x + dx].type = selectedBuilding;
-            gridArray[y + dy][x + dx].active = false; // Neu gebaute Gebäude sind erstmal inaktiv
+            gridArray[y + dy][x + dx].active = false;
             gridArray[y + dy][x + dx].element.classList.add(selectedBuilding);
         }
     }
 
-    checkConnections(); // nach jedem Bau neue Verbindungen prüfen
+    checkConnections();
 }
 
 function isInBounds(x, y) {
@@ -99,15 +100,25 @@ function updateInfo() {
     document.getElementById("bewohner").innerText = bewohner;
 }
 
+// VERBESSERT: nur orthogonale Nachbarn prüfen
 function isConnected(x, y, size) {
-    for (let dy = -1; dy <= size; dy++) {
-        for (let dx = -1; dx <= size; dx++) {
-            let nx = x + dx;
-            let ny = y + dy;
-            if (isInBounds(nx, ny)) {
-                let type = gridArray[ny][nx].type;
-                if (type === "weg" || type === "rathaus") {
-                    return true;
+    const directions = [
+        {dx: 1, dy: 0},
+        {dx: -1, dy: 0},
+        {dx: 0, dy: 1},
+        {dx: 0, dy: -1}
+    ];
+
+    for (let dy = 0; dy < size; dy++) {
+        for (let dx = 0; dx < size; dx++) {
+            for (let dir of directions) {
+                let nx = x + dx + dir.dx;
+                let ny = y + dy + dir.dy;
+                if (isInBounds(nx, ny)) {
+                    let type = gridArray[ny][nx].type;
+                    if (type === "weg" || type === "rathaus") {
+                        return true;
+                    }
                 }
             }
         }
@@ -115,16 +126,14 @@ function isConnected(x, y, size) {
     return false;
 }
 
-// Floodfill: Verbindungen prüfen
+// Floodfill: Wege & Gebäude verbinden
 function checkConnections() {
-    // Alle Gebäude deaktivieren
     for (let row of gridArray) {
         for (let cell of row) {
             cell.active = false;
         }
     }
 
-    // Start bei Rathaus
     const queue = [];
     for (let y = 0; y < HEIGHT; y++) {
         for (let x = 0; x < WIDTH; x++) {
@@ -135,7 +144,6 @@ function checkConnections() {
         }
     }
 
-    // Floodfill über Wege und Gebäude
     while (queue.length > 0) {
         const {x, y} = queue.shift();
         const directions = [
@@ -158,21 +166,20 @@ function checkConnections() {
         }
     }
 
-    // Jetzt Einwohner und Gold anpassen
     recalculatePopulation();
 }
 
 function recalculatePopulation() {
-    let newBewohner = 15; // Rathaus startet mit 15
+    let newBewohner = 15; // Startbewohner durch Rathaus
     for (let y = 0; y < HEIGHT; y++) {
         for (let x = 0; x < WIDTH; x++) {
             const cell = gridArray[y][x];
             if (cell.type === "haus" && cell.active) {
                 newBewohner += 5;
             } else if (cell.type === "goldmine" && cell.active) {
-                gold += 2; // Goldminen bringen +2 Gold pro Überprüfung
+                gold += 2;
             } else if (cell.type === "smaragdmine" && cell.active) {
-                gold += 6; // Smaragdmine bringt +6 Gold pro Überprüfung
+                gold += 6;
             }
         }
     }

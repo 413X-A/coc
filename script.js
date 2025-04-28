@@ -239,19 +239,23 @@ setInterval(() => {
     let holzIncome = 0;
     let steinIncome = 0;
 
-    for (let row of gridArray) {
-        for (let cell of row) {
-            if (cell.active) {
+    for (let y = 0; y < HEIGHT; y++) {
+        for (let x = 0; x < WIDTH; x++) {
+            const cell = gridArray[y][x];
+            if (cell.active && cell.type) {
+                const key = `${x}_${y}`;
+                const level = buildingLevels[key] || 1; // Stufe 1, falls noch nicht gesetzt
+
                 if (cell.type === "goldmine") {
-                    goldIncome += 5;
+                    goldIncome += 5 * level;
                 } else if (cell.type === "smaragdmine") {
-                    smaragdIncome += 2; // Smaragdmine produziert 2 Smaragde
+                    smaragdIncome += 2 * level;
                 } else if (cell.type === "eisenerz") {
-                    eisenIncome += 3; // Eisenerzmine produziert 3 Eisen
+                    eisenIncome += 3 * level;
                 } else if (cell.type === "holzfaeller") {
-                    holzIncome += 4; // Holzfäller produziert 4 Holz
+                    holzIncome += 4 * level;
                 } else if (cell.type === "steinmetz") {
-                    steinIncome += 2; // Steinmetz produziert 2 Stein
+                    steinIncome += 2 * level;
                 }
             }
         }
@@ -265,6 +269,7 @@ setInterval(() => {
 
     updateInfo();
 }, 3000);
+
 
 // Hilfsfunktionen
 function isInBounds(x, y) {

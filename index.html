@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <title>Aufbauspiel</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <h1>Aufbauspiel</h1>
+    <div id="info">
+        Gold: <span id="gold">200</span> | Einwohner: <span id="bewohner">15</span>
+    </div>
+    <div id="baumenü">
+        <button onclick="setBuilding('haus')">Haus (150 Gold)</button>
+        <button onclick="setBuilding('weg')">Weg (10 Gold)</button>
+        <button onclick="setBuilding('goldmine')">Goldmine (250 Gold)</button>
+        <button onclick="setBuilding('smaragdmine')">Smaragdmine (780 Gold)</button>
+    </div>
+    <div id="grid"></div>
+
+    <script src="script.js"></script>
+</body>
+</html>

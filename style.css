@@ -1,0 +1,44 @@
+body {
+    font-family: Arial, sans-serif;
+    text-align: center;
+}
+
+#grid {
+    display: grid;
+    grid-template-columns: repeat(101, 10px);
+    grid-template-rows: repeat(75, 10px);
+    gap: 1px;
+    margin: 20px auto;
+    width: fit-content;
+}
+
+.cell {
+    width: 10px;
+    height: 10px;
+    background-color: lightgray;
+    border: 1px solid #ccc;
+}
+
+.rathaus {
+    background-color: darkblue;
+}
+
+.haus {
+    background-color: green;
+}
+
+.weg {
+    background-color: gray;
+}
+
+.goldmine {
+    background-color: gold;
+}
+
+.smaragdmine {
+    background-color: darkgreen;
+}
+
+#baumenü {
+    margin: 10px;
+}

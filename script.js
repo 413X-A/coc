@@ -98,6 +98,12 @@ function build(x, y) {
         sizeY = 1;
     }
 
+    // Überprüfen, ob genügend Einwohner vorhanden sind
+    if (bewohner + bewohnerChange < 0) {
+        alert("Nicht genug Einwohner für dieses Gebäude!");
+        return;
+    }
+
     // Gratis Bauten?
     if (freeBuildings[selectedBuilding] && freeBuildings[selectedBuilding] > 0) {
         freeBuildings[selectedBuilding]--;
@@ -125,10 +131,12 @@ function build(x, y) {
         return;
     }
 
+    // Ressourcen abziehen und Einwohner anpassen
     gold -= cost;
     bewohner += bewohnerChange;
     updateInfo();
 
+    // Gebäude bauen
     for (let dy = 0; dy < sizeY; dy++) {
         for (let dx = 0; dx < sizeX; dx++) {
             gridArray[y + dy][x + dx].type = selectedBuilding;
@@ -137,6 +145,7 @@ function build(x, y) {
         }
     }
 }
+
 
 // Menü beim Klick auf Gebäude
 function openBuildingMenu(x, y) {

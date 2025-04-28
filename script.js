@@ -1,67 +1,59 @@
 const grid = document.getElementById("grid");
+let selectedBuilding = null;
+let gold = 200;
+let bewohner = 15;
+const gridArray = [];
+let selectedCell = null;
 
 const WIDTH = 101;
 const HEIGHT = 75;
-
-let selectedBuilding = null;
-let selectedCell = null;
-let gold = 1000;
-let bewohner = 15;
-let holz = 0;
-let stein = 0;
-let eisen = 0;
-let smaragde = 0;
-
-const gridArray = [];
 
 const buildingInfo = {
     haus: {
         name: "Haus",
         desc: "Ein Haus erhöht die Einwohnerzahl.",
         cost: 150,
-        production: null,
+        production: "+5 Einwohner",
     },
     weg: {
         name: "Weg",
         desc: "Verbindet Gebäude miteinander.",
         cost: 10,
-        production: null,
+        production: "Keine Produktion",
     },
     holzfaeller: {
         name: "Holzfäller",
         desc: "Erzeugt Holz über Zeit.",
         cost: 280,
-        production: { holz: 2 },
+        production: "2 Holz pro Minute",
     },
     steinmetz: {
         name: "Steinmetz",
         desc: "Erzeugt Stein über Zeit.",
         cost: 400,
-        production: { stein: 2 },
+        production: "2 Stein pro Minute",
     },
     eisenerz: {
         name: "Eisenerzmine",
         desc: "Fördert Eisen.",
         cost: 1200,
-        production: { eisen: 1 },
+        production: "1 Eisen pro Minute",
     },
     goldmine: {
         name: "Goldmine",
         desc: "Fördert Gold.",
         cost: 600,
-        production: { gold: 5 },
+        production: "5 Gold pro Minute",
     },
     smaragdmine: {
         name: "Smaragdmine",
         desc: "Fördert Smaragde.",
         cost: 1500,
-        production: { smaragde: 1 },
+        production: "1 Smaragd pro 2 Minuten",
     }
 };
 
-// ---------------------------
-// GRID ERSTELLEN
-// ---------------------------
+// Grid erstellen
 for (let y = 0; y < HEIGHT; y++) {
     gridArray[y] = [];
     for (let x = 0; x < WIDTH; x++) {
@@ -69,13 +61,11 @@ for (let y = 0; y < HEIGHT; y++) {
         cell.className = "cell";
         cell.dataset.x = x;
         cell.dataset.y = y;
-        cell.addEventListener("click", () => {
+        cell.addEventListener("click", (e) => {
             if (selectedBuilding) {
                 build(x, y);
-                return; // Popup verhindern
-            }
-            if (gridArray[y][x].type) {
-                selectedCell = { x, y };
+            } else if (gridArray[y][x].type) {
+                selectedCell = {x: x, y: y};
                 openPopup(gridArray[y][x].type);
             }
         });
@@ -84,9 +74,7 @@ for (let y = 0; y < HEIGHT; y++) {
     }
 }
 
-// ---------------------------
-// RATHAUS IN DIE MITTE
-// ---------------------------
+// Rathaus in der Mitte setzen
 for (let y = 36; y <= 38; y++) {
     for (let x = 49; x <= 51; x++) {
         gridArray[y][x].type = "rathaus";
@@ -94,70 +82,71 @@ for (let y = 36; y <= 38; y++) {
     }
 }
 
-// ---------------------------
-// BUILDING-AUSWAHL
-// ---------------------------
 function setBuilding(building) {
     selectedBuilding = building;
 }
 
-// ---------------------------
-// BAUEN
-// ---------------------------
 function build(x, y) {
+    if (!selectedBuilding) return;
     const cell = gridArray[y][x];
-    if (cell.type) return; // Nur auf freie Felder bauen
+
+    if (cell.type) return; // Nur auf leeren Feldern bauen
+
     const info = buildingInfo[selectedBuilding];
     if (!info) return;
 
-    let effectiveCost = info.cost;
-
-    // Hier kannst du später Freikarten einbauen (freeHouse, freeWay etc.)
-
-    if (gold < effectiveCost) {
+    if (gold < info.cost) {
         alert("Nicht genug Gold!");
         return;
     }
 
-    gold -= effectiveCost;
-    if (selectedBuilding === "haus") {
-        bewohner += 5;
+    if (!isConnected(x, y, 1)) {
+        alert("Muss an Weg oder Rathaus anschließen!");
+        return;
     }
+
+    // Bauen
+    gold -= info.cost;
+    bewohner += (selectedBuilding === "haus") ? 5 : 0;
+    updateInfo();
 
     cell.type = selectedBuilding;
     cell.level = 1;
     cell.element.classList.add(selectedBuilding);
 
-    updateInfo();
+    selectedBuilding = null;
 }
 
-// ---------------------------
-// INFO AKTUALISIEREN
-// ---------------------------
 function updateInfo() {
     document.getElementById("gold").innerText = gold;
     document.getElementById("bewohner").innerText = bewohner;
-    document.getElementById("holz").innerText = holz;
-    document.getElementById("stein").innerText = stein;
-    document.getElementById("eisen").innerText = eisen;
-    document.getElementById("smaragde").innerText = smaragde;
 }
 
-// ---------------------------
-// POPUP ÖFFNEN
-// ---------------------------
+function isConnected(x, y, size) {
+    for (let dy = -1; dy <= size; dy++) {
+        for (let dx = -1; dx <= size; dx++) {
+            let nx = x + dx;
+            let ny = y + dy;
+            if (nx >= 0 && ny >= 0 && nx < WIDTH && ny < HEIGHT) {
+                let type = gridArray[ny][nx].type;
+                if (type === "weg" || type === "rathaus") {
+                    return true;
+                }
+            }
+        }
+    }
+    return false;
+}
+
+// Popup-Handling
 function openPopup(type) {
     const info = buildingInfo[type];
     if (!info) return;
 
     document.getElementById("popupTitle").innerText = info.name;
     document.getElementById("popupDesc").innerText = info.desc;
-    document.getElementById("popupCosts").innerText = info.production
-        ? "Upgrade-Kosten: " + (info.cost * 1.5 | 0) + " Gold"
-        : "Keine Upgrades";
-    document.getElementById("popupProduction").innerText = info.production
-        ? "Produktion: " + Object.entries(info.production).map(([res, amount]) => `${amount} ${res}`).join(", ")
-        : "Keine Produktion";
+    document.getElementById("popupCosts").innerText = "Upgrade-Kosten: " + (info.cost * 1.5 | 0) + " Gold";
+    document.getElementById("popupProduction").innerText = "Produktion: " + info.production;
     document.getElementById("popup").style.display = "block";
 }
 
@@ -165,15 +154,13 @@ function closePopup() {
     document.getElementById("popup").style.display = "none";
 }
 
-// ---------------------------
-// GEBÄUDE VERBESSERN
-// ---------------------------
+// Gebäude verbessern
 function improveBuilding() {
     if (!selectedCell) return;
-    const { x, y } = selectedCell;
-    const cell = gridArray[y][x];
+    const cell = gridArray[selectedCell.y][selectedCell.x];
     const info = buildingInfo[cell.type];
-    const upgradeCost = Math.floor(info.cost * 1.5 * cell.level);
+
+    const upgradeCost = Math.floor(info.cost * 1.5);
 
     if (gold >= upgradeCost) {
         gold -= upgradeCost;
@@ -186,41 +173,12 @@ function improveBuilding() {
     closePopup();
 }
 
-// ---------------------------
-// GEBÄUDE ABREISSEN
-// ---------------------------
+// Gebäude abreißen
 function removeBuilding() {
     if (!selectedCell) return;
-    const { x, y } = selectedCell;
-    const cell = gridArray[y][x];
+    const cell = gridArray[selectedCell.y][selectedCell.x];
     cell.type = null;
     cell.level = 1;
     cell.element.className = "cell";
     closePopup();
 }
-
-// ---------------------------
-// PRODUKTION ALLE 5 SEKUNDEN
-// ---------------------------
-let tick = 0;
-setInterval(() => {
-    tick++;
-    for (let y = 0; y < HEIGHT; y++) {
-        for (let x = 0; x < WIDTH; x++) {
-            const cell = gridArray[y][x];
-            if (cell.type && buildingInfo[cell.type] && buildingInfo[cell.type].production) {
-                const production = buildingInfo[cell.type].production;
-                for (const resource in production) {
-                    let amount = production[resource] * cell.level;
-                    if (cell.type === "smaragdmine" && tick % 2 !== 0) continue;
-                    if (resource === "gold") gold += amount;
-                    if (resource === "holz") holz += amount;
-                    if (resource === "stein") stein += amount;
-                    if (resource === "eisen") eisen += amount;
-                    if (resource === "smaragde") smaragde += amount;
-                }
-            }
-        }
-    }
-    updateInfo();
-}, 5000);

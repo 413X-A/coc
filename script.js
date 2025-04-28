@@ -1,7 +1,7 @@
 // Variablen
 const grid = document.getElementById("grid");
 let selectedBuilding = null;
-let gold = 200;
+let gold = 20000;
 let bewohner = 15;
 let holz = 0;
 let stein = 0;

@@ -7,7 +7,6 @@ const gridArray = [];
 const WIDTH = 101;
 const HEIGHT = 75;
 
-// Grid initialisieren
 for (let y = 0; y < HEIGHT; y++) {
     gridArray[y] = [];
     for (let x = 0; x < WIDTH; x++) {
@@ -17,14 +16,15 @@ for (let y = 0; y < HEIGHT; y++) {
         cell.dataset.y = y;
         cell.addEventListener("click", () => build(x, y));
         grid.appendChild(cell);
-        gridArray[y][x] = { type: null, element: cell };
+        gridArray[y][x] = { type: null, element: cell, active: false }; // <-- neu: active-Status
     }
 }
 
-// Rathaus in der Mitte setzen
+// Rathaus initialisieren
 for (let y = 36; y <= 38; y++) {
     for (let x = 49; x <= 51; x++) {
         gridArray[y][x].type = "rathaus";
+        gridArray[y][x].active = true;
         gridArray[y][x].element.classList.add("rathaus");
     }
 }
@@ -37,7 +37,7 @@ function build(x, y) {
     if (!selectedBuilding) return;
     const cell = gridArray[y][x];
 
-    if (cell.type) return; // Kann nur auf leere Felder bauen
+    if (cell.type) return;
 
     let cost = 0;
     let size = 1;
@@ -62,7 +62,6 @@ function build(x, y) {
         return;
     }
 
-    // Prüfen ob Gebäude Platz hat
     for (let dy = 0; dy < size; dy++) {
         for (let dx = 0; dx < size; dx++) {
             if (!isInBounds(x + dx, y + dy) || gridArray[y + dy][x + dx].type) {
@@ -72,23 +71,23 @@ function build(x, y) {
         }
     }
 
-    // Straßenanbindung prüfen
     if (!isConnected(x, y, size)) {
         alert("Gebäude muss an Straße anschließen!");
         return;
     }
 
-    // Bauen
     gold -= cost;
-    bewohner += bewohnerChange;
     updateInfo();
 
     for (let dy = 0; dy < size; dy++) {
         for (let dx = 0; dx < size; dx++) {
             gridArray[y + dy][x + dx].type = selectedBuilding;
+            gridArray[y + dy][x + dx].active = false; // Neu gebaute Gebäude sind erstmal inaktiv
             gridArray[y + dy][x + dx].element.classList.add(selectedBuilding);
         }
     }
+
+    checkConnections(); // nach jedem Bau neue Verbindungen prüfen
 }
 
 function isInBounds(x, y) {
@@ -114,4 +113,69 @@ function isConnected(x, y, size) {
         }
     }
     return false;
+}
+
+// Floodfill: Verbindungen prüfen
+function checkConnections() {
+    // Alle Gebäude deaktivieren
+    for (let row of gridArray) {
+        for (let cell of row) {
+            cell.active = false;
+        }
+    }
+
+    // Start bei Rathaus
+    const queue = [];
+    for (let y = 0; y < HEIGHT; y++) {
+        for (let x = 0; x < WIDTH; x++) {
+            if (gridArray[y][x].type === "rathaus") {
+                queue.push({x, y});
+                gridArray[y][x].active = true;
+            }
+        }
+    }
+
+    // Floodfill über Wege und Gebäude
+    while (queue.length > 0) {
+        const {x, y} = queue.shift();
+        const directions = [
+            {dx: 1, dy: 0},
+            {dx: -1, dy: 0},
+            {dx: 0, dy: 1},
+            {dx: 0, dy: -1}
+        ];
+
+        for (let dir of directions) {
+            const nx = x + dir.dx;
+            const ny = y + dir.dy;
+            if (isInBounds(nx, ny) && !gridArray[ny][nx].active) {
+                const type = gridArray[ny][nx].type;
+                if (type === "weg" || type === "haus" || type === "goldmine" || type === "smaragdmine") {
+                    gridArray[ny][nx].active = true;
+                    queue.push({x: nx, y: ny});
+                }
+            }
+        }
+    }
+
+    // Jetzt Einwohner und Gold anpassen
+    recalculatePopulation();
+}
+
+function recalculatePopulation() {
+    let newBewohner = 15; // Rathaus startet mit 15
+    for (let y = 0; y < HEIGHT; y++) {
+        for (let x = 0; x < WIDTH; x++) {
+            const cell = gridArray[y][x];
+            if (cell.type === "haus" && cell.active) {
+                newBewohner += 5;
+            } else if (cell.type === "goldmine" && cell.active) {
+                gold += 2; // Goldminen bringen +2 Gold pro Überprüfung
+            } else if (cell.type === "smaragdmine" && cell.active) {
+                gold += 6; // Smaragdmine bringt +6 Gold pro Überprüfung
+            }
+        }
+    }
+    bewohner = newBewohner;
+    updateInfo();
 }

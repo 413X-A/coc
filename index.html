@@ -7,34 +7,19 @@
 </head>
 <body>
     <h1>Aufbauspiel</h1>
-    
     <div id="info">
-        Gold: <span id="gold">200</span> | Einwohner: <span id="bewohner">15</span>
+        Gold: <span id="gold">200</span> | Einwohner: <span id="bewohner">15</span> | Holz: <span id="holz">0</span> | Stein: <span id="stein">0</span> | Eisen: <span id="eisen">0</span> | Smaragde: <span id="smaragde">0</span>
     </div>
-    
     <div id="baumenü">
-        <button onclick="setBuilding('haus')" title="Wohnhaus für mehr Einwohner.">Haus (150 Gold)</button>
-        <button onclick="setBuilding('weg')" title="Verbindet Gebäude miteinander.">Weg (10 Gold)</button>
-        <button onclick="setBuilding('holzfaeller')" title="Erzeugt Holz.">Holzfäller (280 Gold)</button>
-        <button onclick="setBuilding('steinmetz')" title="Erzeugt Stein.">Steinmetz (400 Gold)</button>
-        <button onclick="setBuilding('eisenerz')" title="Erzeugt Eisen.">Eisenerzmine (1200 Gold)</button>
-        <button onclick="setBuilding('goldmine')" title="Produziert Gold.">Goldmine (600 Gold)</button>
-        <button onclick="setBuilding('smaragdmine')" title="Produziert Smaragde.">Smaragdmine (1500 Gold)</button>
+        <button onclick="setBuilding('weg')">Weg (5 Gold)</button>
+        <button onclick="setBuilding('haus')">Haus (100 Gold)</button>
+        <button onclick="setBuilding('holzfaeller')">Holzfäller (150 Gold)</button>
+        <button onclick="setBuilding('steinmetz')">Steinmetz (300 Gold)</button>
+        <button onclick="setBuilding('eisenerz')">Eisenerz (800 Gold)</button>
+        <button onclick="setBuilding('goldmine')">Goldmine (600 Gold)</button>
+        <button onclick="setBuilding('smaragdmine')">Smaragdmine (1.500 Gold)</button>
     </div>
-
     <div id="grid"></div>
-
-    <div id="popup" style="display:none;">
-        <div id="popupContent">
-            <h2 id="popupTitle"></h2>
-            <p id="popupDesc"></p>
-            <p id="popupCosts"></p>
-            <p id="popupProduction"></p>
-            <button onclick="improveBuilding()">Verbessern</button>
-            <button onclick="removeBuilding()">Abreißen</button>
-            <button onclick="closePopup()">Schließen</button>
-        </div>
-    </div>
 
     <script src="script.js"></script>
 </body>

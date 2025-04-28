@@ -231,20 +231,38 @@ function checkConnectivity() {
     }
 }
 
-// Gold generieren alle paar Sekunden
+// Ressourcen generieren alle paar Sekunden
 setInterval(() => {
-    let income = 0;
+    let goldIncome = 0;
+    let smaragdIncome = 0;
+    let eisenIncome = 0;
+    let holzIncome = 0;
+    let steinIncome = 0;
+
     for (let row of gridArray) {
         for (let cell of row) {
-            if (cell.type === "goldmine" && cell.active) {
-                income += 5;
-            }
-            if (cell.type === "smaragdmine" && cell.active) {
-                income += 15;
+            if (cell.active) {
+                if (cell.type === "goldmine") {
+                    goldIncome += 5;
+                } else if (cell.type === "smaragdmine") {
+                    smaragdIncome += 2; // Smaragdmine produziert 2 Smaragde
+                } else if (cell.type === "eisenerz") {
+                    eisenIncome += 3; // Eisenerzmine produziert 3 Eisen
+                } else if (cell.type === "holzfaeller") {
+                    holzIncome += 4; // Holzfäller produziert 4 Holz
+                } else if (cell.type === "steinmetz") {
+                    steinIncome += 2; // Steinmetz produziert 2 Stein
+                }
             }
         }
     }
-    gold += income;
+
+    gold += goldIncome;
+    smaragde += smaragdIncome;
+    eisen += eisenIncome;
+    holz += holzIncome;
+    stein += steinIncome;
+
     updateInfo();
 }, 3000);
 

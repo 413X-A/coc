@@ -263,46 +263,83 @@ function isConnected(x, y, sizeX, sizeY) {
 
 // Ressourcen-Produktion starten
 function startProduction() {
-    // Goldminen
-    setInterval(() => {
-        produceResource("goldmine", "gold", 5);
-    }, 3000);
-
-    // Holzfäller
-    setInterval(() => {
-        produceResource("holzfaeller", "holz", 4);
-    }, 5000);
-
-    // Steinmetz
-    setInterval(() => {
-        produceResource("steinmetz", "stein", 2);
-    }, 6000);
-
-    // Eisenerzmine
-    setInterval(() => {
-        produceResource("eisenerz", "eisen", 3);
-    }, 8000);
-
-    // Smaragdmine
-    setInterval(() => {
-        produceResource("smaragdmine", "smaragde", 2);
-    }, 10000);
+    setInterval(produceGold, 3000);        // Goldminen alle 3 Sekunden
+    setInterval(produceHolz, 5000);         // Holzfäller alle 5 Sekunden
+    setInterval(produceStein, 6000);        // Steinmetze alle 6 Sekunden
+    setInterval(produceEisen, 8000);        // Eisenerzminen alle 8 Sekunden
+    setInterval(produceSmaragde, 10000);    // Smaragdmine alle 10 Sekunden
 }
 
-function produceResource(buildingType, resourceType, baseAmount) {
+function produceGold() {
     for (let y = 0; y < HEIGHT; y++) {
         for (let x = 0; x < WIDTH; x++) {
             const cell = gridArray[y][x];
-            if (cell.active && cell.type === buildingType) {
+            if (cell.active && cell.type === "goldmine") {
                 const key = `${x}_${y}`;
                 const level = buildingLevels[key] || 1;
-                const amount = baseAmount * level;
-                window[resourceType] += amount;
+                gold += 5 * level;
             }
         }
     }
     updateInfo();
 }
+
+function produceHolz() {
+    for (let y = 0; y < HEIGHT; y++) {
+        for (let x = 0; x < WIDTH; x++) {
+            const cell = gridArray[y][x];
+            if (cell.active && cell.type === "holzfaeller") {
+                const key = `${x}_${y}`;
+                const level = buildingLevels[key] || 1;
+                holz += 4 * level;
+            }
+        }
+    }
+    updateInfo();
+}
+
+function produceStein() {
+    for (let y = 0; y < HEIGHT; y++) {
+        for (let x = 0; x < WIDTH; x++) {
+            const cell = gridArray[y][x];
+            if (cell.active && cell.type === "steinmetz") {
+                const key = `${x}_${y}`;
+                const level = buildingLevels[key] || 1;
+                stein += 6 * level;
+            }
+        }
+    }
+    updateInfo();
+}
+
+function produceEisen() {
+    for (let y = 0; y < HEIGHT; y++) {
+        for (let x = 0; x < WIDTH; x++) {
+            const cell = gridArray[y][x];
+            if (cell.active && cell.type === "eisenerz") {
+                const key = `${x}_${y}`;
+                const level = buildingLevels[key] || 1;
+                eisen += 8 * level;
+            }
+        }
+    }
+    updateInfo();
+}
+
+function produceSmaragde() {
+    for (let y = 0; y < HEIGHT; y++) {
+        for (let x = 0; x < WIDTH; x++) {
+            const cell = gridArray[y][x];
+            if (cell.active && cell.type === "smaragdmine") {
+                const key = `${x}_${y}`;
+                const level = buildingLevels[key] || 1;
+                smaragde += 10 * level;
+            }
+        }
+    }
+    updateInfo();
+}
+
 
 // Produktion starten
 startProduction();

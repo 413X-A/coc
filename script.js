@@ -1,13 +1,68 @@
 const grid = document.getElementById("grid");
 let selectedBuilding = null;
-let gold = 20000;
+let gold = 1000;
 let bewohner = 15;
+let holz = 0;
+let stein = 0;
+let eisen = 0;
+let smaragde = 0;
 const gridArray = [];
+let selectedCell = null;
 
 const WIDTH = 101;
 const HEIGHT = 75;
 
-// Spielfeld aufbauen
+// Zähler für Gratis-Gebäude
+let freeWegCount = 10;
+let freeHausCount = 1;
+let freeGoldmineCount = 1;
+
+const buildingInfo = {
+    haus: {
+        name: "Haus",
+        desc: "Ein Haus erhöht die Einwohnerzahl.",
+        cost: 150,
+        production: null,
+    },
+    weg: {
+        name: "Weg",
+        desc: "Verbindet Gebäude miteinander.",
+        cost: 10,
+        production: null,
+    },
+    holzfaeller: {
+        name: "Holzfäller",
+        desc: "Erzeugt Holz über Zeit.",
+        cost: 280,
+        production: { holz: 2 },
+    },
+    steinmetz: {
+        name: "Steinmetz",
+        desc: "Erzeugt Stein über Zeit.",
+        cost: 400,
+        production: { stein: 2 },
+    },
+    eisenerz: {
+        name: "Eisenerzmine",
+        desc: "Fördert Eisen.",
+        cost: 1200,
+        production: { eisen: 1 },
+    },
+    goldmine: {
+        name: "Goldmine",
+        desc: "Fördert Gold über Zeit.",
+        cost: 600,
+        production: { gold: 5 },
+    },
+    smaragdmine: {
+        name: "Smaragdmine",
+        desc: "Fördert Smaragde (langsam).",
+        cost: 1500,
+        production: { smaragde: 1 },
+    }
+};
+
+// Grid erstellen
 for (let y = 0; y < HEIGHT; y++) {
     gridArray[y] = [];
     for (let x = 0; x < WIDTH; x++) {
@@ -15,17 +70,23 @@ for (let y = 0; y < HEIGHT; y++) {
         cell.className = "cell";
         cell.dataset.x = x;
         cell.dataset.y = y;
-        cell.addEventListener("click", () => build(x, y));
+        cell.addEventListener("click", () => {
+            if (selectedBuilding) {
+                build(x, y);
+            } else if (gridArray[y][x].type) {
+                selectedCell = { x: x, y: y };
+                openPopup(gridArray[y][x].type);
+            }
+        });
         grid.appendChild(cell);
-        gridArray[y][x] = { type: null, element: cell, active: false };
+        gridArray[y][x] = { type: null, element: cell, level: 1 };
     }
 }
 
-// Rathaus initialisieren (3x3)
+// Rathaus setzen
 for (let y = 36; y <= 38; y++) {
     for (let x = 49; x <= 51; x++) {
         gridArray[y][x].type = "rathaus";
-        gridArray[y][x].active = true;
         gridArray[y][x].element.classList.add("rathaus");
     }
 }
@@ -37,25 +98,20 @@ function setBuilding(building) {
 function build(x, y) {
     if (!selectedBuilding) return;
     const cell = gridArray[y][x];
+    if (cell.type) return; // Nur auf leeren Feldern bauen
 
-    if (cell.type) return;
+    const info = buildingInfo[selectedBuilding];
+    if (!info) return;
 
-    let cost = 0;
-    let size = 1;
-    let bewohnerChange = 0;
+    let cost = info.cost;
 
-    if (selectedBuilding === "haus") {
-        cost = 150;
-        size = 2;
-        bewohnerChange = 5;
-    } else if (selectedBuilding === "weg") {
-        cost = 10;
-    } else if (selectedBuilding === "goldmine") {
-        cost = 250;
-        bewohnerChange = -5;
-    } else if (selectedBuilding === "smaragdmine") {
-        cost = 780;
-        bewohnerChange = -25;
+    // Prüfen ob es kostenlos sein soll
+    if (selectedBuilding === "weg" && freeWegCount > 0) {
+        cost = 0;
+    } else if (selectedBuilding === "haus" && freeHausCount > 0) {
+        cost = 0;
+    } else if (selectedBuilding === "goldmine" && freeGoldmineCount > 0) {
+        cost = 0;
     }
 
     if (gold < cost) {
@@ -63,36 +119,32 @@ function build(x, y) {
         return;
     }
 
-    for (let dy = 0; dy < size; dy++) {
-        for (let dx = 0; dx < size; dx++) {
-            if (!isInBounds(x + dx, y + dy) || gridArray[y + dy][x + dx].type) {
-                alert("Kein Platz für das Gebäude!");
-                return;
-            }
-        }
-    }
-
-    if (!isConnected(x, y, size)) {
-        alert("Gebäude muss an Straße anschließen!");
+    if (!isConnected(x, y, 1)) {
+        alert("Muss an Weg oder Rathaus anschließen!");
         return;
     }
 
     gold -= cost;
-    updateInfo();
 
-    for (let dy = 0; dy < size; dy++) {
-        for (let dx = 0; dx < size; dx++) {
-            gridArray[y + dy][x + dx].type = selectedBuilding;
-            gridArray[y + dy][x + dx].active = false;
-            gridArray[y + dy][x + dx].element.classList.add(selectedBuilding);
-        }
+    // Nach Gratis-Bau Zähler verringern
+    if (selectedBuilding === "weg" && freeWegCount > 0) {
+        freeWegCount--;
+    } else if (selectedBuilding === "haus" && freeHausCount > 0) {
+        freeHausCount--;
+    } else if (selectedBuilding === "goldmine" && freeGoldmineCount > 0) {
+        freeGoldmineCount--;
     }
 
-    checkConnections();
-}
+    if (selectedBuilding === "haus") {
+        bewohner += 5;
+    }
+    updateInfo();
 
-function isInBounds(x, y) {
-    return x >= 0 && x < WIDTH && y >= 0 && y < HEIGHT;
+    cell.type = selectedBuilding;
+    cell.level = 1;
+    cell.element.classList.add(selectedBuilding);
+
+    selectedBuilding = null;
 }
 
 function updateInfo() {
@@ -100,89 +152,18 @@ function updateInfo() {
     document.getElementById("bewohner").innerText = bewohner;
 }
 
-// VERBESSERT: nur orthogonale Nachbarn prüfen
 function isConnected(x, y, size) {
-    const directions = [
-        {dx: 1, dy: 0},
-        {dx: -1, dy: 0},
-        {dx: 0, dy: 1},
-        {dx: 0, dy: -1}
-    ];
-
-    for (let dy = 0; dy < size; dy++) {
-        for (let dx = 0; dx < size; dx++) {
-            for (let dir of directions) {
-                let nx = x + dx + dir.dx;
-                let ny = y + dy + dir.dy;
-                if (isInBounds(nx, ny)) {
-                    let type = gridArray[ny][nx].type;
-                    if (type === "weg" || type === "rathaus") {
-                        return true;
-                    }
+    for (let dy = -1; dy <= size; dy++) {
+        for (let dx = -1; dx <= size; dx++) {
+            let nx = x + dx;
+            let ny = y + dy;
+            if (nx >= 0 && ny >= 0 && nx < WIDTH && ny < HEIGHT) {
+                let neighbor = gridArray[ny][nx];
+                if (neighbor.type === "weg" || neighbor.type === "rathaus") {
+                    return true;
                 }
             }
         }
     }
     return false;
-}
-
-// Floodfill: Wege & Gebäude verbinden
-function checkConnections() {
-    for (let row of gridArray) {
-        for (let cell of row) {
-            cell.active = false;
-        }
-    }
-
-    const queue = [];
-    for (let y = 0; y < HEIGHT; y++) {
-        for (let x = 0; x < WIDTH; x++) {
-            if (gridArray[y][x].type === "rathaus") {
-                queue.push({x, y});
-                gridArray[y][x].active = true;
-            }
-        }
-    }
-
-    while (queue.length > 0) {
-        const {x, y} = queue.shift();
-        const directions = [
-            {dx: 1, dy: 0},
-            {dx: -1, dy: 0},
-            {dx: 0, dy: 1},
-            {dx: 0, dy: -1}
-        ];
-
-        for (let dir of directions) {
-            const nx = x + dir.dx;
-            const ny = y + dir.dy;
-            if (isInBounds(nx, ny) && !gridArray[ny][nx].active) {
-                const type = gridArray[ny][nx].type;
-                if (type === "weg" || type === "haus" || type === "goldmine" || type === "smaragdmine") {
-                    gridArray[ny][nx].active = true;
-                    queue.push({x: nx, y: ny});
-                }
-            }
-        }
-    }
-
-    recalculatePopulation();
-}
-
-function recalculatePopulation() {
-    let newBewohner = 15; // Startbewohner durch Rathaus
-    for (let y = 0; y < HEIGHT; y++) {
-        for (let x = 0; x < WIDTH; x++) {
-            const cell = gridArray[y][x];
-            if (cell.type === "haus" && cell.active) {
-                newBewohner += 5;
-            } else if (cell.type === "goldmine" && cell.active) {
-                gold += 2;
-            } else if (cell.type === "smaragdmine" && cell.active) {
-                gold += 6;
-            }
-        }
-    }
-    bewohner = newBewohner;
-    updateInfo();
 }

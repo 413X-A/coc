@@ -99,18 +99,27 @@ function build(x, y) {
     const info = buildingInfo[selectedBuilding];
     if (!info) return;
 
-    if (gold < info.cost) {
+    let effectiveCost = info.cost;
+
+    // Gratis-Regelung
+    if (selectedBuilding === "weg" && freeWays > 0) {
+        effectiveCost = 0;
+        freeWays--;
+    } else if (selectedBuilding === "haus" && freeHouse > 0) {
+        effectiveCost = 0;
+        freeHouse--;
+    } else if (selectedBuilding === "goldmine" && freeGoldmine > 0) {
+        effectiveCost = 0;
+        freeGoldmine--;
+    }
+
+    if (gold < effectiveCost) {
         alert("Nicht genug Gold!");
         return;
     }
 
-    if (!isConnected(x, y, 1)) {
-        alert("Muss an Weg oder Rathaus anschließen!");
-        return;
-    }
-
     // Bauen
-    gold -= info.cost;
+    gold -= effectiveCost;
     if (selectedBuilding === "haus") {
         bewohner += 5;
     }
@@ -120,7 +129,7 @@ function build(x, y) {
     cell.level = 1;
     cell.element.classList.add(selectedBuilding);
 
-    selectedBuilding = null;
+    // selectedBuilding bleibt erhalten, NICHT zurücksetzen
 }
 
 function updateInfo() {

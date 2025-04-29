@@ -69,7 +69,7 @@ function loadGame(event) {
 
                 const cellObj = {
                     type: cellData.type,
-                    active: false, // wird unten ermittelt
+                    active: false,
                     element: cell
                 };
 
@@ -79,28 +79,21 @@ function loadGame(event) {
             }
         }
 
-        // Nachträglich aktive Zellen setzen
+        // Nachträglich aktive Zellen berechnen
         for (let y = 0; y < gridArray.length; y++) {
             for (let x = 0; x < gridArray[y].length; x++) {
                 const cell = gridArray[y][x];
+
                 if (cell.type && cell.type !== "wasser") {
-                    // Direkt bebaute Zelle ist aktiv, wenn sie mit Wegen verbunden ist
                     const visited = {};
+
                     if (
-                        cell.type !== "weg" &&
-                        isConnectedToCenter(x, y, visited)
+                        (cell.type !== "weg" && isConnectedToCenter(x, y, visited)) ||
+                        (cell.type === "weg" && isConnectedToCenter(x, y, {}))
                     ) {
                         cell.active = true;
                         cell.element.classList.add("active");
                     }
-
-                    // Wege, die verbunden sind
-                    if (cell.type === "weg" && isConnectedToCenter(x, y, {})) {
-                        cell.active = true;
-                        cell.element.classList.add("active");
-                    }
-
-                    // Gebäude ohne Verbindung bleiben inaktiv
                 }
             }
         }

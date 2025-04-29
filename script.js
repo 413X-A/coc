@@ -205,6 +205,52 @@ function build(x, y) {
 }
 
 
+// Menü beim Klick auf Gebäude
+function openBuildingMenu(x, y) {
+    const options = document.createElement("div");
+    options.className = "popup";
+    options.style.left = `${x * 11}px`;
+    options.style.top = `${y * 11}px`;
+
+    const abreißen = document.createElement("button");
+    abreißen.innerText = "Abreißen";
+    abreißen.onclick = () => {
+        removeBuilding(x, y);
+        document.body.removeChild(options);
+    };
+
+    const verbessern = document.createElement("button");
+    verbessern.innerText = "Verbessern";
+    verbessern.onclick = () => {
+        upgradeBuilding(x, y);
+        document.body.removeChild(options);
+    };
+
+    options.appendChild(abreißen);
+    options.appendChild(verbessern);
+    document.body.appendChild(options);
+}
+
+// Gebäude entfernen
+function removeBuilding(x, y) {
+    const type = gridArray[y][x].type;
+    if (!type) return;
+
+    for (let row of gridArray) {
+        for (let cell of row) {
+            if (cell.type === type && cell.element.classList.contains(type)) {
+                cell.type = null;
+                cell.active = true;
+                cell.element.className = "cell";
+            }
+        }
+    }
+
+    if (type === "weg") {
+        checkConnectivity();
+    }
+}
+
 // Gebäude verbessern
 function upgradeBuilding(x, y) {
     const key = `${x}_${y}`;
@@ -214,7 +260,6 @@ function upgradeBuilding(x, y) {
     let costType = null;
     let costAmount = 0;
 
-    // Bestimme den Ressourcentyp und die Kosten basierend auf der Gebäudelevel
     if (lvl <= 3) {
         costType = "holz";
         costAmount = 10 * lvl;
@@ -229,7 +274,6 @@ function upgradeBuilding(x, y) {
         costAmount = 50 * (lvl - 7);
     }
 
-    // Überprüfen, ob der Spieler genug Ressourcen hat
     if (window[costType] >= costAmount) {
         window[costType] -= costAmount;
         buildingLevels[key]++;
@@ -237,73 +281,6 @@ function upgradeBuilding(x, y) {
     } else {
         alert(`Nicht genug ${costType}!`);
     }
-}
-
-// Menü beim Klick auf Gebäude (mit Verbesserung)
-function openBuildingMenu(x, y) {
-    const options = document.createElement("div");
-    options.className = "popup";
-    options.style.left = `${x * 11}px`;
-    options.style.top = `${y * 11}px`;
-
-    // Bestimmen des Gebäudetyps und des aktuellen Levels
-    const key = `${x}_${y}`;
-    const lvl = buildingLevels[key];
-    let prodCost = 0;
-    let prodType = "";
-    let upgradeCost = 0;
-    let upgradeType = "";
-
-    if (lvl <= 3) {
-        prodCost = 10 * lvl;
-        prodType = "holz";
-        upgradeCost = 10 * (lvl + 1);
-        upgradeType = "holz";
-    } else if (lvl <= 5) {
-        prodCost = 20 * (lvl - 3);
-        prodType = "stein";
-        upgradeCost = 20 * (lvl - 2);
-        upgradeType = "stein";
-    } else if (lvl <= 7) {
-        prodCost = 30 * (lvl - 5);
-        prodType = "eisen";
-        upgradeCost = 30 * (lvl - 4);
-        upgradeType = "eisen";
-    } else {
-        prodCost = 50 * (lvl - 7);
-        prodType = "smaragde";
-        upgradeCost = 50 * (lvl - 6);
-        upgradeType = "smaragde";
-    }
-
-    // Informationen zum Gebäude anzeigen
-    const info = document.createElement("div");
-    info.innerHTML = `
-        <p>Gebäudetyp: ${key}</p>
-        <p>Produktionskosten: ${prodCost} ${prodType}</p>
-        <p>Verbesserungskosten: ${upgradeCost} ${upgradeType}</p>
-    `;
-    options.appendChild(info);
-
-    // Abreißen-Button
-    const abreißen = document.createElement("button");
-    abreißen.innerText = "Abreißen";
-    abreißen.onclick = () => {
-        removeBuilding(x, y);
-        document.body.removeChild(options);
-    };
-
-    // Verbessern-Button
-    const verbessern = document.createElement("button");
-    verbessern.innerText = "Verbessern";
-    verbessern.onclick = () => {
-        upgradeBuilding(x, y);
-        document.body.removeChild(options);
-    };
-
-    options.appendChild(abreißen);
-    options.appendChild(verbessern);
-    document.body.appendChild(options);
 }
 
 // Verbindung prüfen nach Abriss

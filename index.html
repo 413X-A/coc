@@ -45,6 +45,14 @@
     <!-- Das Spielfeld -->
     <div id="grid"></div>
 
+    <!-- Speichern und laden -->
+    <div style="margin-top: 20px;">
+        <button onclick="saveGame()">Speichern</button>
+        <input type="file" id="loadInput" accept=".txt" style="display: none;" onchange="loadGame(event)">
+        <button onclick="document.getElementById('loadInput').click()">Laden</button>
+    </div>
+
+
     <!-- Externe Skripte -->
     <script src="bauenFunktionen.js"></script>
     <script src="script.js"></script>

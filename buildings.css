@@ -1,0 +1,77 @@
+/* buildings.css */
+
+/* Style für die Buttons im Bau-Menü */
+.building-button {
+    margin: 5px;
+    padding: 10px 20px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.building-button:hover {
+    background-color: #45a049;
+}
+
+/* Style für den 'Nichts bauen'-Button */
+#no-build {
+    background-color: #f44336;
+}
+
+#no-build:hover {
+    background-color: #e53935;
+}
+
+/* Popup-Stil */
+#building-popup {
+    position: fixed;
+    top: 20%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: white;
+    border: 2px solid black;
+    padding: 20px;
+    z-index: 1000;
+    width: 300px;
+    box-shadow: 0px 0px 10px rgba(0,0,0,0.5);
+}
+
+/* Inhalt des Popups */
+#popup-content {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+/* Bestätigungsbutton im Popup */
+#confirm-build {
+    background-color: #4CAF50;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+#confirm-build:hover {
+    background-color: #45a049;
+}
+
+/* Schließ-Button im Popup */
+.close-btn {
+    background-color: transparent;
+    color: black;
+    font-size: 18px;
+    border: none;
+    cursor: pointer;
+    position: absolute;
+    top: 5px;
+    right: 5px;
+}
+
+.close-btn:hover {
+    color: red;
+}

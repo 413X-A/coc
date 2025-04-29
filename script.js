@@ -23,45 +23,72 @@ const WIDTH = 101;
 const HEIGHT = 75;
 const gridCenterX = Math.floor(WIDTH / 2);
 const gridCenterY = Math.floor(HEIGHT / 2);
-const islandRadius = Math.min(WIDTH, HEIGHT) * 0.4;
+const TOTAL_LAND = 1200; // Anzahl Landfelder
 
-// Grid erstellen mit Insel-Form
+// Grid mit Wasser füllen
 for (let y = 0; y < HEIGHT; y++) {
     gridArray[y] = [];
     for (let x = 0; x < WIDTH; x++) {
         const cell = document.createElement("div");
-        cell.className = "cell";
+        cell.className = "cell wasser";
         cell.dataset.x = x;
         cell.dataset.y = y;
-
-        const dx = x - gridCenterX;
-        const dy = y - gridCenterY;
-        const distance = Math.sqrt(dx * dx + dy * dy);
-
-        // leichte Verzerrung für eine unregelmäßige Insel
-        const noise = (Math.sin(x * 0.3) + Math.cos(y * 0.2)) * 3;
-
-        if (distance < islandRadius + noise) {
-            // Insel
-            gridArray[y][x] = { type: null, element: cell, active: true };
-        } else {
-            // Wasser
-            cell.classList.add("wasser");
-            gridArray[y][x] = { type: "wasser", element: cell, active: false };
-        }
-
+        gridArray[y][x] = { type: "wasser", element: cell, active: false };
         cell.addEventListener("click", (e) => onCellClick(e, x, y));
         grid.appendChild(cell);
     }
 }
 
-// Rathaus in der Mitte platzieren (7x7)
+// Zufällige Insel erzeugen mit Random-Walk
+const visited = new Set();
+const queue = [[gridCenterX, gridCenterY]];
+let landCount = 0;
+
+while (queue.length > 0 && landCount < TOTAL_LAND) {
+    const [x, y] = queue.shift();
+    const key = `${x},${y}`;
+
+    if (
+        x < 0 || y < 0 || x >= WIDTH || y >= HEIGHT ||
+        visited.has(key)
+    ) continue;
+
+    visited.add(key);
+    const cell = gridArray[y][x];
+    cell.type = null;
+    cell.active = true;
+    cell.element.classList.remove("wasser");
+    landCount++;
+
+    shuffle([
+        [1, 0], [-1, 0], [0, 1], [0, -1]
+    ]).forEach(([dx, dy]) => {
+        queue.push([x + dx, y + dy]);
+    });
+}
+
+// Rathaus in der Mitte platzieren (3x3)
 for (let y = gridCenterY - 1; y <= gridCenterY + 1; y++) {
     for (let x = gridCenterX - 1; x <= gridCenterX + 1; x++) {
-        gridArray[y][x].type = "rathaus";
-        gridArray[y][x].element.classList.add("rathaus");
+        const tile = gridArray[y][x];
+        tile.type = "rathaus";
+        tile.element.classList.remove("wasser");
+        tile.element.classList.add("rathaus");
+        tile.active = true;
     }
 }
+
+// Hilfsfunktion zum Mischen eines Arrays
+function shuffle(array) {
+    for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+    }
+    return array;
+}
+
+
+
 
 // Gebäude auswählen
 function setBuilding(building) {

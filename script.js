@@ -79,39 +79,8 @@ function onCellClick(e, x, y) {
 }
 
 
-// Funktion zum Bauen eines Weges
-function buildPath(x, y) {
-    const directions = [
-        [0, -1], // oben
-        [0, 1],  // unten
-        [-1, 0], // links
-        [1, 0],  // rechts
-    ];
-    let isNextToValid = false;
-
-    for (const [dx, dy] of directions) {
-        const nx = x + dx;
-        const ny = y + dy;
-        if (isInBounds(nx, ny)) {
-            const neighborType = gridArray[ny][nx].type;
-            if (neighborType === "weg" || neighborType === "rathaus" || neighborType === "marktplatz") {
-                isNextToValid = true;
-                break;
-            }
-        }
-    }
-
-    if (!isNextToValid) {
-        alert("Wege dürfen nur neben Straßen, dem Rathaus oder einem Marktplatz gebaut werden!");
-        return;
-    }
-
-    // Wenn Weg korrekt platziert wird
-    gridArray[y][x].type = "weg";
-    gridArray[y][x].element.classList.add("weg");
-}
-
-// Bauen
+// BAUEN
+// Bauen und Platzierungsregeln für alle Gebäude mit Drehung und Weg-Interaktion
 function build(x, y) {
     if (!selectedBuilding) return;
     const cell = gridArray[y][x];
@@ -123,60 +92,27 @@ function build(x, y) {
     let bewohnerChange = 0;
     let isFreeBuilding = false;
 
-    switch (selectedBuilding) {
-        case "haus":
-            cost = 150;
-            sizeX = 2;
-            sizeY = 2;
-            bewohnerChange = 5;
-            break;
-        case "marktplatz":
-            cost = 75;
-            sizeX = 2;
-            sizeY = 2;
-            break;
-        case "getreidefarm":
-            cost = 280;
-            sizeX = 3;
-            sizeY = 2;
-            bewohnerChange = -3;
-            break;
-        case "fischerhuette":
-            cost = 120;
-            sizeX = 2;
-            sizeY = 1;
-            bewohnerChange = -2;
-            break;
-        case "holzfaeller":
-            cost = 150;
-            sizeX = 3;
-            sizeY = 2;
-            bewohnerChange = -4;
-            break;
-        case "steinmetz":
-            cost = 300;
-            sizeX = 2;
-            sizeY = 2;
-            bewohnerChange = -4;
-            break;
-        case "eisenerz":
-            cost = 800;
-            sizeX = 2;
-            sizeY = 2;
-            bewohnerChange = -6;
-            break;
-        case "goldmine":
-            cost = 600;
-            sizeX = 2;
-            sizeY = 2;
-            bewohnerChange = -5;
-            break;
-        case "smaragdmine":
-            cost = 1500;
-            sizeX = 2;
-            sizeY = 2;
-            bewohnerChange = -8;
-            break;
+    // Daten für jedes Gebäude (Kosten, Größe, Einwohneränderung)
+    const buildingData = {
+        "haus": { cost: 150, sizeX: 2, sizeY: 2, bewohnerChange: 5 },
+        "weg": { cost: 10, sizeX: 1, sizeY: 1, bewohnerChange: 0 },
+        "marktplatz": { cost: 75, sizeX: 2, sizeY: 2, bewohnerChange: 0 },
+        "getreidefarm": { cost: 280, sizeX: 3, sizeY: 2, bewohnerChange: -3 },
+        "fischerhuette": { cost: 120, sizeX: 2, sizeY: 1, bewohnerChange: -2 },
+        "holzfaeller": { cost: 150, sizeX: 3, sizeY: 2, bewohnerChange: -4 },
+        "steinmetz": { cost: 300, sizeX: 2, sizeY: 2, bewohnerChange: -4 },
+        "eisenerz": { cost: 800, sizeX: 2, sizeY: 2, bewohnerChange: -6 },
+        "goldmine": { cost: 600, sizeX: 2, sizeY: 2, bewohnerChange: -5 },
+        "smaragdmine": { cost: 1500, sizeX: 2, sizeY: 2, bewohnerChange: -8 },
+    };
+
+    // Standardwerte setzen
+    const building = buildingData[selectedBuilding];
+    if (building) {
+        cost = building.cost;
+        sizeX = building.sizeX;
+        sizeY = building.sizeY;
+        bewohnerChange = building.bewohnerChange;
     }
 
     // Gratis-Bauten prüfen
@@ -189,37 +125,66 @@ function build(x, y) {
         return;
     }
 
-    // Wenn Weg gebaut werden soll
-    if (selectedBuilding === "weg") {
-        buildPath(x, y); // Hier wird die neue Funktion aufgerufen
-        return; // Beende die Funktion, nachdem der Weg gesetzt wurde
-    }
+    // Überprüfen, ob das Gebäude angrenzend an eine Straße gebaut werden kann
+    const directions = [
+        [0, -1],  // oben
+        [0, 1],   // unten
+        [-1, 0],  // links
+        [1, 0],   // rechts
+    ];
 
-    // Nur für Nicht-Wege: Platz prüfen und Verbindung zu Straße
-    if (selectedBuilding !== "weg") {
-        // Platz prüfen
-        for (let dy = 0; dy < sizeY; dy++) {
-            for (let dx = 0; dx < sizeX; dx++) {
-                if (!isInBounds(x + dx, y + dy) || gridArray[y + dy][x + dx].type) {
-                    alert("Kein Platz für das Gebäude!");
-                    return;
-                }
+    let isNextToRoad = false;
+    let roadDirection = null;
+    for (const [dx, dy] of directions) {
+        const nx = x + dx;
+        const ny = y + dy;
+        if (isInBounds(nx, ny)) {
+            const neighborType = gridArray[ny][nx].type;
+            if (neighborType === "weg" || neighborType === "rathaus" || neighborType === "marktplatz") {
+                isNextToRoad = true;
+                roadDirection = [dx, dy];
+                break;
             }
         }
+    }
 
-        // Gebäude muss an Straße angrenzen (außer Marktplatz)
-        if (selectedBuilding !== "marktplatz" && !isConnected(x, y, sizeX, sizeY)) {
-            alert("Gebäude muss an Straße anschließen!");
-            return;
+    if (!isNextToRoad) {
+        alert("Gebäude muss an eine Straße angrenzen!");
+        return;
+    }
+
+    // Wenn Straße vorhanden ist, aber Weg 1x1 ist, dann nur auf freien Platz achten
+    let validPlacement = false;
+    if (roadDirection) {
+        // Gebäude wird ausgerichtet, wenn auf einem 1x1-Weg
+        if (roadDirection[0] === 0) {
+            // Straße ist horizontal (oben oder unten)
+            [sizeX, sizeY] = [sizeY, sizeX]; // Vertikal ausrichten
+        } else {
+            // Straße ist vertikal (links oder rechts)
+            [sizeX, sizeY] = [sizeY, sizeX]; // Horizontal ausrichten
         }
+    }
+
+    // Platz für das Gebäude prüfen
+    for (let dy = 0; dy < sizeY; dy++) {
+        for (let dx = 0; dx < sizeX; dx++) {
+            if (!isInBounds(x + dx, y + dy) || gridArray[y + dy][x + dx].type) {
+                validPlacement = false;
+                break;
+            } else {
+                validPlacement = true;
+            }
+        }
+    }
+
+    if (!validPlacement) {
+        alert("Kein Platz für das Gebäude!");
+        return;
     }
 
     // Gratis-Bauten nur dann verbrauchen, wenn korrekt platziert
     if (isFreeBuilding) {
-        if (selectedBuilding !== "marktplatz" && !isValidPlacement(x, y, sizeX, sizeY)) {
-            alert("Das gratis Gebäude wurde falsch platziert und wird nicht verbraucht.");
-            return;
-        }
         freeBuildings[selectedBuilding]--;
         cost = 0;
     }
@@ -239,6 +204,7 @@ function build(x, y) {
         for (let dx = 0; dx < sizeX; dx++) {
             gridArray[y + dy][x + dx].type = selectedBuilding;
             gridArray[y + dy][x + dx].element.classList.add(selectedBuilding);
+            buildingLevels[`${x + dx}_${y + dy}`] = 1;
         }
     }
 }

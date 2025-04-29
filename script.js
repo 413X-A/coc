@@ -82,8 +82,7 @@ function onCellClick(e, x, y) {
 function build(x, y) {
     if (!selectedBuilding) return;
     const cell = gridArray[y][x];
-
-    if (cell.type) return;
+    if (cell.type) return; // Nur leere Felder
 
     let cost = 0;
     let sizeX = 1;
@@ -150,13 +149,23 @@ function build(x, y) {
             break;
     }
 
+    // Gratis-Bauten prüfen
+    if (freeBuildings[selectedBuilding] && freeBuildings[selectedBuilding] > 0) {
+        isFreeBuilding = true;
+    }
+
+    if (bewohner + bewohnerChange < 0) {
+        alert("Nicht genug Einwohner für dieses Gebäude!");
+        return;
+    }
+
     // Platzierungsregel für Wege
     if (selectedBuilding === "weg") {
         const directions = [
-            [0, -1], // oben
-            [0, 1],  // unten
-            [-1, 0], // links
-            [1, 0],  // rechts
+            [0, -1],
+            [0, 1],
+            [-1, 0],
+            [1, 0],
         ];
         let isNextToValid = false;
         for (const [dx, dy] of directions) {
@@ -176,17 +185,26 @@ function build(x, y) {
         }
     }
 
-    // Gratis-Bauten prüfen
-    if (freeBuildings[selectedBuilding] && freeBuildings[selectedBuilding] > 0) {
-        isFreeBuilding = true;
+    // Nur für Nicht-Wege: Platz prüfen und Verbindung zu Straße
+    if (selectedBuilding !== "weg") {
+        // Platz prüfen
+        for (let dy = 0; dy < sizeY; dy++) {
+            for (let dx = 0; dx < sizeX; dx++) {
+                if (!isInBounds(x + dx, y + dy) || gridArray[y + dy][x + dx].type) {
+                    alert("Kein Platz für das Gebäude!");
+                    return;
+                }
+            }
+        }
+
+        // Gebäude muss an Straße angrenzen (außer Marktplatz)
+        if (selectedBuilding !== "marktplatz" && !isConnected(x, y, sizeX, sizeY)) {
+            alert("Gebäude muss an Straße anschließen!");
+            return;
+        }
     }
 
-    if (bewohner + bewohnerChange < 0) {
-        alert("Nicht genug Einwohner für dieses Gebäude!");
-        return;
-    }
-
-    // Gratis-Bauten prüfen und sicherstellen, dass das Gebäude nur verbraucht wird, wenn es korrekt platziert wurde
+    // Gratis-Bauten nur dann verbrauchen, wenn korrekt platziert
     if (isFreeBuilding) {
         if (selectedBuilding !== "marktplatz" && !isValidPlacement(x, y, sizeX, sizeY)) {
             alert("Das gratis Gebäude wurde falsch platziert und wird nicht verbraucht.");
@@ -201,28 +219,12 @@ function build(x, y) {
         return;
     }
 
-    // Platz prüfen
-    for (let dy = 0; dy < sizeY; dy++) {
-        for (let dx = 0; dx < sizeX; dx++) {
-            if (!isInBounds(x + dx, y + dy) || gridArray[y + dy][x + dx].type) {
-                alert("Kein Platz für das Gebäude!");
-                return;
-            }
-        }
-    }
-
-    // Wenn das Gebäude ein Marktplatz ist, keine angrenzende Prüfung an Weg oder Rathaus
-    if (selectedBuilding !== "marktplatz" && selectedBuilding !== "weg" && !isConnected(x, y, sizeX, sizeY)) {
-        alert("Gebäude muss an Straße anschließen!");
-        return;
-    }
-
     // Ressourcen abziehen und Einwohner anpassen
     gold -= cost;
     bewohner += bewohnerChange;
     updateInfo();
 
-    // Gebäude bauen
+    // Gebäude setzen
     for (let dy = 0; dy < sizeY; dy++) {
         for (let dx = 0; dx < sizeX; dx++) {
             gridArray[y + dy][x + dx].type = selectedBuilding;

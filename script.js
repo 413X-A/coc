@@ -15,15 +15,16 @@ let freeBuildings = {
 };
 
 const gridArray = [];
-const buildingLevels = {};
+
+const buildingLevels = {}; // Speichert Upgrades der Gebäude
+
 const WIDTH = 101;
 const HEIGHT = 75;
 const gridCenterX = Math.floor(WIDTH / 2);
 const gridCenterY = Math.floor(HEIGHT / 2);
 const islandRadius = Math.min(WIDTH, HEIGHT) * 0.4;
 
-const rathausCoords = [];
-
+// Grid erstellen mit Insel-Form
 for (let y = 0; y < HEIGHT; y++) {
     gridArray[y] = [];
     for (let x = 0; x < WIDTH; x++) {
@@ -35,11 +36,15 @@ for (let y = 0; y < HEIGHT; y++) {
         const dx = x - gridCenterX;
         const dy = y - gridCenterY;
         const distance = Math.sqrt(dx * dx + dy * dy);
+
+        // leichte Verzerrung für eine unregelmäßige Insel
         const noise = (Math.sin(x * 0.3) + Math.cos(y * 0.2)) * 3;
 
         if (distance < islandRadius + noise) {
+            // Insel
             gridArray[y][x] = { type: null, element: cell, active: true };
         } else {
+            // Wasser
             cell.classList.add("wasser");
             gridArray[y][x] = { type: "wasser", element: cell, active: false };
         }
@@ -49,14 +54,17 @@ for (let y = 0; y < HEIGHT; y++) {
     }
 }
 
-// Rathaus (7x7)
-for (let y = gridCenterY - 3; y <= gridCenterY + 3; y++) {
-    for (let x = gridCenterX - 3; x <= gridCenterX + 3; x++) {
+// Rathaus in der Mitte platzieren (3x3)
+for (let y = gridCenterY - 1; y <= gridCenterY + 1; y++) {
+    for (let x = gridCenterX - 1; x <= gridCenterX + 1; x++) {
         gridArray[y][x].type = "rathaus";
         gridArray[y][x].element.classList.add("rathaus");
-        rathausCoords.push({ x, y });
     }
 }
+
+// Marktplatz in der Nähe des Rathauses
+gridArray[gridCenterY][gridCenterX + 3].type = "marktplatz";
+gridArray[gridCenterY][gridCenterX + 3].element.classList.add("marktplatz");
 
 // Gebäude auswählen
 function setBuilding(building) {
@@ -66,6 +74,7 @@ function setBuilding(building) {
 // Beim Klicken auf Zelle
 function onCellClick(e, x, y) {
     const cell = gridArray[y][x];
+
     if (cell.type && !selectedBuilding) {
         openBuildingMenu(x, y);
     } else {
@@ -76,32 +85,52 @@ function onCellClick(e, x, y) {
 // Gebäude bauen
 function build(x, y) {
     if (!selectedBuilding) return;
-
     const cell = gridArray[y][x];
-    if (cell.type) {
-        alert("Hier steht bereits ein Gebäude!");
+
+    if (cell.type) return; // Nur leere Felder
+
+    let cost = 0;
+    let sizeX = 1;
+    let sizeY = 1;
+    let bewohnerChange = 0;
+
+    if (selectedBuilding === "haus") {
+        cost = 150;
+        sizeX = 2;
+        sizeY = 2;
+        bewohnerChange = 5;
+    } else if (selectedBuilding === "weg") {
+        cost = 10;
+    } else if (selectedBuilding === "goldmine") {
+        cost = 250;
+        bewohnerChange = -5;
+    } else if (selectedBuilding === "smaragdmine") {
+        cost = 780;
+        bewohnerChange = -25;
+    } else if (selectedBuilding === "holzfaeller") {
+        cost = 280;
+        sizeX = 3;
+        sizeY = 3;
+    } else if (selectedBuilding === "steinmetz") {
+        cost = 400;
+        sizeX = 2;
+        sizeY = 2;
+    } else if (selectedBuilding === "eisenerz") {
+        cost = 1200;
+        sizeX = 2;
+        sizeY = 1;
+    }
+
+    // Überprüfen, ob genügend Einwohner vorhanden sind
+    if (bewohner + bewohnerChange < 0) {
+        alert("Nicht genug Einwohner für dieses Gebäude!");
         return;
     }
 
-    let cost = 0, sizeX = 1, sizeY = 1, bewohnerChange = 0;
-
-    switch (selectedBuilding) {
-        case "haus":
-            cost = 100; sizeX = 2; sizeY = 2; bewohnerChange = 5; break;
-        case "weg":
-            cost = 5; break;
-        case "goldmine":
-            cost = 600; bewohnerChange = -5; break;
-        case "smaragdmine":
-            cost = 1500; bewohnerChange = -25; break;
-        case "holzfaeller":
-            cost = 150; sizeX = 3; sizeY = 3; break;
-        case "steinmetz":
-            cost = 300; sizeX = 2; sizeY = 2; break;
-        case "eisenerz":
-            cost = 800; sizeX = 2; sizeY = 1; break;
-        case "marktplatz":
-            cost = 1000; sizeX = 4; sizeY = 4; break;
+    // Gratis Bauten?
+    if (freeBuildings[selectedBuilding] && freeBuildings[selectedBuilding] > 0) {
+        freeBuildings[selectedBuilding]--;
+        cost = 0;
     }
 
     if (gold < cost) {
@@ -109,51 +138,38 @@ function build(x, y) {
         return;
     }
 
-    if (bewohner + bewohnerChange < 0) {
-        alert("Nicht genug Einwohner!");
-        return;
-    }
-
     // Platz prüfen
     for (let dy = 0; dy < sizeY; dy++) {
         for (let dx = 0; dx < sizeX; dx++) {
             if (!isInBounds(x + dx, y + dy) || gridArray[y + dy][x + dx].type) {
-                alert("Kein Platz für dieses Gebäude!");
+                alert("Kein Platz für das Gebäude!");
                 return;
             }
         }
     }
 
-    // Straßenzugang prüfen
-    if (selectedBuilding !== "weg" && !isAdjacentTo("weg", x, y, sizeX, sizeY)) {
-        alert("Gebäude muss an einer Straße liegen!");
+    // Anschluss prüfen
+    if (!isConnected(x, y, sizeX, sizeY)) {
+        alert("Gebäude muss an Straße anschließen!");
         return;
     }
 
-    // Wegverbindung zum Rathaus prüfen
-    if (selectedBuilding !== "weg" && !isNearMarketplaceOrRathaus(x, y, sizeX, sizeY)) {
-        alert("Zu weit vom Rathaus oder Marktplatz entfernt!");
-        return;
-    }
-
-    if (selectedBuilding === "weg" && !isConnectedToRathaus(x, y)) {
-        alert("Straße muss mit Rathaus verbunden sein!");
-        return;
-    }
-
+    // Ressourcen abziehen und Einwohner anpassen
     gold -= cost;
     bewohner += bewohnerChange;
     updateInfo();
 
+    // Gebäude bauen
     for (let dy = 0; dy < sizeY; dy++) {
         for (let dx = 0; dx < sizeX; dx++) {
             gridArray[y + dy][x + dx].type = selectedBuilding;
             gridArray[y + dy][x + dx].element.classList.add(selectedBuilding);
+            buildingLevels[`${x+dx}_${y+dy}`] = 1; // Stufe 1 bei Bau
         }
     }
 }
 
-// Menü anzeigen
+// Menü beim Klick auf Gebäude
 function openBuildingMenu(x, y) {
     const options = document.createElement("div");
     options.className = "popup";
@@ -202,23 +218,36 @@ function removeBuilding(x, y) {
 // Gebäude verbessern
 function upgradeBuilding(x, y) {
     const key = `${x}_${y}`;
-    const lvl = buildingLevels[key] || 1;
+    if (!buildingLevels[key]) return;
 
-    let costType = "", costAmount = 0;
-    if (lvl <= 3) { costType = "holz"; costAmount = 10 * lvl; }
-    else if (lvl <= 5) { costType = "stein"; costAmount = 20 * (lvl - 3); }
-    else if (lvl <= 7) { costType = "eisen"; costAmount = 30 * (lvl - 5); }
-    else { costType = "smaragde"; costAmount = 50 * (lvl - 7); }
+    const lvl = buildingLevels[key];
+    let costType = null;
+    let costAmount = 0;
+
+    if (lvl <= 3) {
+        costType = "holz";
+        costAmount = 10 * lvl;
+    } else if (lvl <= 5) {
+        costType = "stein";
+        costAmount = 20 * (lvl - 3);
+    } else if (lvl <= 7) {
+        costType = "eisen";
+        costAmount = 30 * (lvl - 5);
+    } else {
+        costType = "smaragde";
+        costAmount = 50 * (lvl - 7);
+    }
 
     if (window[costType] >= costAmount) {
         window[costType] -= costAmount;
-        buildingLevels[key] = lvl + 1;
+        buildingLevels[key]++;
         alert(`Gebäude auf Stufe ${buildingLevels[key]} verbessert!`);
     } else {
         alert(`Nicht genug ${costType}!`);
     }
 }
 
+// Verbindung prüfen nach Abriss
 function checkConnectivity() {
     for (let row of gridArray) {
         for (let cell of row) {
@@ -233,114 +262,28 @@ function checkConnectivity() {
     }
 }
 
+// Hilfsfunktionen
 function isInBounds(x, y) {
     return x >= 0 && x < WIDTH && y >= 0 && y < HEIGHT;
 }
 
-function isAdjacentTo(type, x, y, sizeX, sizeY) {
-    for (let dy = -1; dy <= sizeY; dy++) {
-        for (let dx = -1; dx <= sizeX; dx++) {
-            const nx = x + dx, ny = y + dy;
-            if (isInBounds(nx, ny) && gridArray[ny][nx].type === type) {
-                return true;
+// Funktion für Weg-Verbindung überprüfen
+function isConnected(x, y, sizeX, sizeY) {
+    // Überprüfen, ob das Gebäude neben einem Weg ist
+    let connected = false;
+
+    for (let dy = -1; dy <= 1; dy++) {
+        for (let dx = -1; dx <= 1; dx++) {
+            if (isInBounds(x + dx, y + dy) && gridArray[y + dy] && gridArray[y + dy][x + dx].type === "weg") {
+                connected = true;
+                break;
             }
         }
     }
-    return false;
+    return connected;
 }
 
-function isConnectedToRathaus(x, y) {
-    const visited = new Set();
-    const queue = [{ x, y }];
-
-    while (queue.length) {
-        const current = queue.shift();
-        const key = `${current.x},${current.y}`;
-        if (visited.has(key)) continue;
-        visited.add(key);
-
-        const cell = gridArray[current.y][current.x];
-        if (cell.type === "rathaus") return true;
-
-        for (let [dx, dy] of [[0,1],[1,0],[-1,0],[0,-1]]) {
-            const nx = current.x + dx, ny = current.y + dy;
-            if (isInBounds(nx, ny) && gridArray[ny][nx].type === "weg") {
-                queue.push({ x: nx, y: ny });
-            }
-        }
-    }
-
-    return false;
-}
-
-function isNearMarketplaceOrRathaus(x, y, sizeX, sizeY) {
-    const rangeToRathaus = 25;
-    const rangeToMarktplatz = 15;
-
-    for (let dy = 0; dy < sizeY; dy++) {
-        for (let dx = 0; dx < sizeX; dx++) {
-            const cx = x + dx, cy = y + dy;
-
-            // Check Marktplatz-Nähe
-            for (let oy = -rangeToMarktplatz; oy <= rangeToMarktplatz; oy++) {
-                for (let ox = -rangeToMarktplatz; ox <= rangeToMarktplatz; ox++) {
-                    const nx = cx + ox, ny = cy + oy;
-                    if (isInBounds(nx, ny) && gridArray[ny][nx].type === "marktplatz") {
-                        return true;
-                    }
-                }
-            }
-
-            // Check Rathaus-Nähe
-            for (const r of rathausCoords) {
-                const dx = cx - r.x, dy = cy - r.y;
-                if (Math.sqrt(dx * dx + dy * dy) <= rangeToRathaus) return true;
-            }
-        }
-    }
-
-    return false;
-}
-
-// Produktionsfunktionen
-function produceGold() {
-    gold += gridArray.flat().reduce((sum, cell) =>
-        cell.active && cell.type === "goldmine" ? sum + 5 * (buildingLevels[`${cell.element.dataset.x}_${cell.element.dataset.y}`] || 1) : sum, 0);
-    updateInfo();
-}
-
-function produceHolz() {
-    holz += gridArray.flat().reduce((sum, cell) =>
-        cell.active && cell.type === "holzfaeller" ? sum + 4 * (buildingLevels[`${cell.element.dataset.x}_${cell.element.dataset.y}`] || 1) : sum, 0);
-    updateInfo();
-}
-
-function produceStein() {
-    stein += gridArray.flat().reduce((sum, cell) =>
-        cell.active && cell.type === "steinmetz" ? sum + 6 * (buildingLevels[`${cell.element.dataset.x}_${cell.element.dataset.y}`] || 1) : sum, 0);
-    updateInfo();
-}
-
-function produceEisen() {
-    eisen += gridArray.flat().reduce((sum, cell) =>
-        cell.active && cell.type === "eisenerz" ? sum + 8 * (buildingLevels[`${cell.element.dataset.x}_${cell.element.dataset.y}`] || 1) : sum, 0);
-    updateInfo();
-}
-
-function produceSmaragde() {
-    smaragde += gridArray.flat().reduce((sum, cell) =>
-        cell.active && cell.type === "smaragdmine" ? sum + 10 * (buildingLevels[`${cell.element.dataset.x}_${cell.element.dataset.y}`] || 1) : sum, 0);
-    updateInfo();
-}
-
-function startProduction() {
-    setInterval(produceGold, 3000);
-    setInterval(produceHolz, 5000);
-    setInterval(produceStein, 6000);
-    setInterval(produceEisen, 8000);
-    setInterval(produceSmaragde, 10000);
-}
-
+// Update der Anzeige für Ressourcen
 function updateInfo() {
     document.getElementById("gold").innerText = gold;
     document.getElementById("bewohner").innerText = bewohner;
@@ -348,6 +291,69 @@ function updateInfo() {
     document.getElementById("stein").innerText = stein;
     document.getElementById("eisen").innerText = eisen;
     document.getElementById("smaragde").innerText = smaragde;
+}
+
+// Produktion starten
+function startProduction() {
+    setInterval(produceGold, 3000);        // Goldminen alle 3 Sekunden
+    setInterval(produceHolz, 5000);        // Holzfäller alle 5 Sekunden
+    setInterval(produceStein, 6000);       // Steinmetze alle 6 Sekunden
+    setInterval(produceEisen, 8000);       // Eisenerzminen alle 8 Sekunden
+    setInterval(produceSmaragde, 10000);   // Smaragdmine alle 10 Sekunden
+}
+
+// Produktion der Ressourcen
+function produceGold() {
+    gold += gridArray.flat().reduce((sum, cell) => {
+        if (cell.active && cell.type === "goldmine") {
+            const key = `${cell.element.dataset.x}_${cell.element.dataset.y}`;
+            const level = buildingLevels[key] || 1;
+            return sum + 5 * level;  // Beispiel: Goldmine gibt 5 Gold pro Level
+        }
+        return sum;
+    }, 0);
+    updateInfo();
+}
+
+// Ressourcenproduktion (Holz, Stein, Eisen, Smaragde)
+function produceHolz() {
+    holz += gridArray.flat().reduce((sum, cell) => {
+        if (cell.active && cell.type === "holzfaeller") {
+            return sum + 5;
+        }
+        return sum;
+    }, 0);
+    updateInfo();
+}
+
+function produceStein() {
+    stein += gridArray.flat().reduce((sum, cell) => {
+        if (cell.active && cell.type === "steinmetz") {
+            return sum + 5;
+        }
+        return sum;
+    }, 0);
+    updateInfo();
+}
+
+function produceEisen() {
+    eisen += gridArray.flat().reduce((sum, cell) => {
+        if (cell.active && cell.type === "eisenerz") {
+            return sum + 5;
+        }
+        return sum;
+    }, 0);
+    updateInfo();
+}
+
+function produceSmaragde() {
+    smaragde += gridArray.flat().reduce((sum, cell) => {
+        if (cell.active && cell.type === "smaragdmine") {
+            return sum + 5;
+        }
+        return sum;
+    }, 0);
+    updateInfo();
 }
 
 startProduction();

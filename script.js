@@ -1,5 +1,4 @@
 // Variablen
-// Variablen
 const grid = document.getElementById("grid");
 let selectedBuilding = null;
 let gold = 20000;

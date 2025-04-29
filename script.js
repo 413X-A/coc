@@ -81,7 +81,9 @@ function onCellClick(e, x, y) {
 function build(x, y) {
     if (!selectedBuilding) return;
     const cell = gridArray[y][x];
-    if (cell.type) return; // Nur leere Felder
+
+    // Nur auf leere Felder bauen – außer bei Wegen, die dürfen nur auf leeren Feldern gebaut werden
+    if (cell.type) return;
 
     let cost = 0;
     let sizeX = 1;
@@ -148,6 +150,32 @@ function build(x, y) {
             break;
     }
 
+    // Platzierungsregel für Wege
+    if (selectedBuilding === "weg") {
+        const directions = [
+            [0, -1], // oben
+            [0, 1],  // unten
+            [-1, 0], // links
+            [1, 0],  // rechts
+        ];
+        let isNextToValid = false;
+        for (const [dx, dy] of directions) {
+            const nx = x + dx;
+            const ny = y + dy;
+            if (isInBounds(nx, ny)) {
+                const neighborType = gridArray[ny][nx].type;
+                if (neighborType === "weg" || neighborType === "rathaus" || neighborType === "marktplatz") {
+                    isNextToValid = true;
+                    break;
+                }
+            }
+        }
+        if (!isNextToValid) {
+            alert("Wege dürfen nur neben Straßen, dem Rathaus oder einem Marktplatz gebaut werden!");
+            return;
+        }
+    }
+
     // Gratis-Bauten prüfen
     if (freeBuildings[selectedBuilding] && freeBuildings[selectedBuilding] > 0) {
         isFreeBuilding = true;
@@ -184,7 +212,7 @@ function build(x, y) {
     }
 
     // Wenn das Gebäude ein Marktplatz ist, keine angrenzende Prüfung an Weg oder Rathaus
-    if (selectedBuilding !== "marktplatz" && !isConnected(x, y, sizeX, sizeY)) {
+    if (selectedBuilding !== "marktplatz" && selectedBuilding !== "weg" && !isConnected(x, y, sizeX, sizeY)) {
         alert("Gebäude muss an Straße anschließen!");
         return;
     }

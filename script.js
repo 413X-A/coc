@@ -26,6 +26,7 @@ const islandRadius = Math.min(WIDTH, HEIGHT) * 0.4;
 const rathausCoords = [];
 
 // Grid erstellen mit Insel-Form
+// Grid erstellen mit Insel-Form
 for (let y = 0; y < HEIGHT; y++) {
     gridArray[y] = [];
     for (let x = 0; x < WIDTH; x++) {
@@ -55,12 +56,11 @@ for (let y = 0; y < HEIGHT; y++) {
     }
 }
 
-// Rathaus (7x7)
-for (let y = gridCenterY - 3; y <= gridCenterY + 3; y++) {
-    for (let x = gridCenterX - 3; x <= gridCenterX + 3; x++) {
+// Rathaus in der Mitte platzieren (3x3)
+for (let y = gridCenterY - 1; y <= gridCenterY + 1; y++) {
+    for (let x = gridCenterX - 1; x <= gridCenterX + 1; x++) {
         gridArray[y][x].type = "rathaus";
         gridArray[y][x].element.classList.add("rathaus");
-        rathausCoords.push({ x, y });
     }
 }
 

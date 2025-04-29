@@ -333,7 +333,7 @@ function produceGold() {
         if (cell.active && cell.type === "goldmine") {
             const key = `${cell.element.dataset.x}_${cell.element.dataset.y}`;
             const level = buildingLevels[key] || 1;
-            return sum + 5 * level;  // Beispiel: Goldmine gibt 5 Gold pro Level
+            return sum + 1 * level;  // Beispiel: Goldmine gibt 5 Gold pro Level
         }
         return sum;
     }, 0);
@@ -344,7 +344,7 @@ function produceGold() {
 function produceHolz() {
     holz += gridArray.flat().reduce((sum, cell) => {
         if (cell.active && cell.type === "holzfaeller") {
-            return sum + 5;
+            return sum + 1;
         }
         return sum;
     }, 0);
@@ -354,7 +354,7 @@ function produceHolz() {
 function produceStein() {
     stein += gridArray.flat().reduce((sum, cell) => {
         if (cell.active && cell.type === "steinmetz") {
-            return sum + 5;
+            return sum + 1;
         }
         return sum;
     }, 0);
@@ -364,7 +364,7 @@ function produceStein() {
 function produceEisen() {
     eisen += gridArray.flat().reduce((sum, cell) => {
         if (cell.active && cell.type === "eisenerz") {
-            return sum + 5;
+            return sum + 1;
         }
         return sum;
     }, 0);
@@ -374,7 +374,7 @@ function produceEisen() {
 function produceSmaragde() {
     smaragde += gridArray.flat().reduce((sum, cell) => {
         if (cell.active && cell.type === "smaragdmine") {
-            return sum + 5;
+            return sum + 1;
         }
         return sum;
     }, 0);

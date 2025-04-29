@@ -54,9 +54,9 @@ for (let y = 0; y < HEIGHT; y++) {
     }
 }
 
-// Rathaus in der Mitte platzieren (3x3)
-for (let y = gridCenterY - 1; y <= gridCenterY + 1; y++) {
-    for (let x = gridCenterX - 1; x <= gridCenterX + 1; x++) {
+// Rathaus in der Mitte platzieren (7x7)
+for (let y = gridCenterY - 3; y <= gridCenterY + 3; y++) {
+    for (let x = gridCenterX - 3; x <= gridCenterX + 3; x++) {
         gridArray[y][x].type = "rathaus";
         gridArray[y][x].element.classList.add("rathaus");
     }
@@ -146,8 +146,8 @@ function build(x, y) {
             break;
         case "smaragdmine":
             cost = 1500;
-            sizeX = 2;
-            sizeY = 2;
+            sizeX = 3;
+            sizeY = 3;
             bewohnerChange = -60;
             break;
     }
@@ -360,7 +360,7 @@ function produceGold() {
         if (cell.active && cell.type === "goldmine") {
             const key = `${cell.element.dataset.x}_${cell.element.dataset.y}`;
             const level = buildingLevels[key] || 1;
-            return sum + 1 * level;  // Beispiel: Goldmine gibt 5 Gold pro Level
+            return ((sum + 1) / 4) * level;  // Beispiel: Goldmine gibt 5 Gold pro Level
         }
         return sum;
     }, 0);
@@ -371,7 +371,7 @@ function produceGold() {
 function produceHolz() {
     holz += gridArray.flat().reduce((sum, cell) => {
         if (cell.active && cell.type === "holzfaeller") {
-            return sum + 1;
+            return (sum + 1) / 6;
         }
         return sum;
     }, 0);
@@ -381,7 +381,7 @@ function produceHolz() {
 function produceStein() {
     stein += gridArray.flat().reduce((sum, cell) => {
         if (cell.active && cell.type === "steinmetz") {
-            return sum + 1;
+            return (sum + 1) / 4;
         }
         return sum;
     }, 0);
@@ -391,7 +391,7 @@ function produceStein() {
 function produceEisen() {
     eisen += gridArray.flat().reduce((sum, cell) => {
         if (cell.active && cell.type === "eisenerz") {
-            return sum + 1;
+            return (sum + 1) / 4;
         }
         return sum;
     }, 0);
@@ -401,7 +401,7 @@ function produceEisen() {
 function produceSmaragde() {
     smaragde += gridArray.flat().reduce((sum, cell) => {
         if (cell.active && cell.type === "smaragdmine") {
-            return sum + 1;
+            return (sum + 1) / 9;
         }
         return sum;
     }, 0);

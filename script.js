@@ -78,11 +78,11 @@ function onCellClick(e, x, y) {
     }
 }
 
+// Bauen
 function build(x, y) {
     if (!selectedBuilding) return;
     const cell = gridArray[y][x];
 
-    // Nur auf leere Felder bauen – außer bei Wegen, die dürfen nur auf leeren Feldern gebaut werden
     if (cell.type) return;
 
     let cost = 0;

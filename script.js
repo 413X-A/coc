@@ -350,78 +350,91 @@ function startProduction() {
 
 // Produktion der Ressourcen
 function produceGold() {
-    gold += gridArray.flat().reduce((sum, cell) => {
+    let goldProduced = gridArray.flat().reduce((sum, cell) => {
         if (cell.active && cell.type === "goldmine") {
             const key = `${cell.element.dataset.x}_${cell.element.dataset.y}`;
             const level = buildingLevels[key] || 1;
-            return sum + 1 * level;  // Beispiel: Goldmine gibt 5 Gold pro Level
+            return sum + 1 * level;  // Beispiel: Goldmine gibt Gold pro Level
         }
         return sum;
     }, 0);
-    gold = Math.floor(gold / 4); // Ganzzahlig teilen
+    goldProduced = Math.floor(goldProduced / 4); // Zwischenwert geteilt durch 4
+    gold += goldProduced; // Wert zu Gold hinzufügen
     updateInfo();
 }
 
-// Ressourcenproduktion (Holz, Stein, Eisen, Smaragde)
 function produceHolz() {
-    holz += gridArray.flat().reduce((sum, cell) => {
+    let holzProduced = gridArray.flat().reduce((sum, cell) => {
         if (cell.active && cell.type === "holzfaeller") {
             return sum + 1;
         }
-        return sum + 1;
+        return sum;
     }, 0);
-    holz = Math.floor(holz / 6); // Ganzzahlig teilen
+    holzProduced = Math.floor(holzProduced / 6); // Zwischenwert geteilt durch 6
+    holz += holzProduced; // Wert zu Holz hinzufügen
     updateInfo();
 }
 
 function produceStein() {
-    stein += gridArray.flat().reduce((sum, cell) => {
+    let steinProduced = gridArray.flat().reduce((sum, cell) => {
         if (cell.active && cell.type === "steinmetz") {
             return sum + 1;
         }
         return sum;
     }, 0);
-    stein = Math.floor(stein / 4); // Ganzzahlig teilen
+    steinProduced = Math.floor(steinProduced / 4); // Zwischenwert geteilt durch 4
+    stein += steinProduced; // Wert zu Stein hinzufügen
     updateInfo();
 }
 
 function produceEisen() {
-    eisen += gridArray.flat().reduce((sum, cell) => {
+    let eisenProduced = gridArray.flat().reduce((sum, cell) => {
         if (cell.active && cell.type === "eisenerz") {
             return sum + 1;
         }
         return sum;
     }, 0);
-    eisen = Math.floor(eisen / 4); // Ganzzahlig teilen
+    eisenProduced = Math.floor(eisenProduced / 4); // Zwischenwert geteilt durch 4
+    eisen += eisenProduced; // Wert zu Eisen hinzufügen
     updateInfo();
 }
 
 function produceSmaragde() {
-    smaragde += gridArray.flat().reduce((sum, cell) => {
+    let smaragdeProduced = gridArray.flat().reduce((sum, cell) => {
         if (cell.active && cell.type === "smaragdmine") {
             return sum + 1;
         }
         return sum;
     }, 0);
-    smaragde = Math.floor(smaragde / 1); // Ganzzahlig teilen
+    smaragdeProduced = Math.floor(smaragdeProduced / 1); // Keine Division, da es durch 1 geteilt wird
+    smaragde += smaragdeProduced; // Wert zu Smaragden hinzufügen
     updateInfo();
 }
 
 function produceNahrung() {
-    nahrung += gridArray.flat().reduce((sum, cell) => {
+    let nahrungProduced = gridArray.flat().reduce((sum, cell) => {
         if (cell.active) {
             if (cell.type === "getreidefarm") {
-                return sum + 1 / 6; // Getreidefarm wird durch 6 geteilt
+                return sum + 1; // 1 für jede Getreidefarm
             }
             if (cell.type === "fischerhuette") {
-                return sum + 1 / 2; // Fischerhütte wird durch 2 geteilt
+                return sum + 1; // 1 für jede Fischerhütte
             }
         }
         return sum;
     }, 0);
-    nahrung = Math.floor(nahrung); // Ganzzahliger Wert
+
+    // Nahrung von Getreidefarm geteilt durch 6 und von Fischerhütten geteilt durch 2
+    let getreideFarms = gridArray.flat().filter(cell => cell.active && cell.type === "getreidefarm").length;
+    let fischerhuetten = gridArray.flat().filter(cell => cell.active && cell.type === "fischerhuette").length;
+    
+    nahrungProduced = Math.floor(nahrungProduced / 6); // Nahrung von Getreidefarm
+    nahrungProduced += Math.floor(fischerhuetten / 2); // Nahrung von Fischerhütten
+
+    nahrung += nahrungProduced; // Wert zu Nahrung hinzufügen
     updateInfo();
 }
+
 
 
 

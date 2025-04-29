@@ -230,10 +230,17 @@ function build(x, y) {
         for (let dx = 0; dx < sizeX; dx++) {
             gridArray[y + dy][x + dx].type = selectedBuilding;
             gridArray[y + dy][x + dx].element.classList.add(selectedBuilding);
-            buildingLevels[`${x + dx}_${y + dy}`] = 1;
         }
     }
+
+    // Wenn Weg platziert wurde
+    if (selectedBuilding === "weg") {
+        // Stelle sicher, dass der Weg korrekt auf das ausgewählte Feld gesetzt wird
+        gridArray[y][x].type = "weg";
+        gridArray[y][x].element.classList.add("weg");
+    }
 }
+
 
 
 // Menü beim Klick auf Gebäude

@@ -55,8 +55,8 @@ for (let y = 0; y < HEIGHT; y++) {
 }
 
 // Rathaus in der Mitte platzieren (7x7)
-for (let y = gridCenterY - 3; y <= gridCenterY + 3; y++) {
-    for (let x = gridCenterX - 3; x <= gridCenterX + 3; x++) {
+for (let y = gridCenterY - 1; y <= gridCenterY + 1; y++) {
+    for (let x = gridCenterX - 1; x <= gridCenterX + 1; x++) {
         gridArray[y][x].type = "rathaus";
         gridArray[y][x].element.classList.add("rathaus");
     }

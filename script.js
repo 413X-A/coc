@@ -62,10 +62,6 @@ for (let y = gridCenterY - 3; y <= gridCenterY + 3; y++) {
     }
 }
 
-// Marktplatz in der Nähe des Rathauses
-gridArray[gridCenterY][gridCenterX + 3].type = "marktplatz";
-gridArray[gridCenterY][gridCenterX + 3].element.classList.add("marktplatz");
-
 // Gebäude auswählen
 function setBuilding(building) {
     selectedBuilding = building;

@@ -93,6 +93,10 @@ function build(x, y) {
             cost = 5; break;
         case "marktplatz":
             cost = 75; bewohnerChange = 0; sizeX = 4; sizeY = 4; break;
+        case "getreidefarm":
+            cost = 280; bewohnerChange = -5; sizeX = 2; sizeY = 2; break;
+        case "fischerhuette":
+            cost = 120; bewohnerChange = 0; sizeX = 1; sizeY = 1; break;
         case "holzfaeller":
             cost = 150; bewohnerChange = -3; sizeX = 3; sizeY = 3; break;
         case "steinmetz":

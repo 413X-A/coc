@@ -25,6 +25,7 @@ const islandRadius = Math.min(WIDTH, HEIGHT) * 0.4;
 
 const rathausCoords = [];
 
+// Grid erstellen mit Insel-Form
 for (let y = 0; y < HEIGHT; y++) {
     gridArray[y] = [];
     for (let x = 0; x < WIDTH; x++) {
@@ -36,11 +37,15 @@ for (let y = 0; y < HEIGHT; y++) {
         const dx = x - gridCenterX;
         const dy = y - gridCenterY;
         const distance = Math.sqrt(dx * dx + dy * dy);
+
+        // leichte Verzerrung für eine unregelmäßige Insel
         const noise = (Math.sin(x * 0.3) + Math.cos(y * 0.2)) * 3;
 
         if (distance < islandRadius + noise) {
+            // Insel
             gridArray[y][x] = { type: null, element: cell, active: true };
         } else {
+            // Wasser
             cell.classList.add("wasser");
             gridArray[y][x] = { type: "wasser", element: cell, active: false };
         }

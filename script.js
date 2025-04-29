@@ -19,13 +19,13 @@ const gridArray = [];
 
 const buildingLevels = {}; // Speichert Upgrades der Gebäude
 
-function generateIsland() {
-    const WIDTH = 101;
-    const HEIGHT = 75;
-    const gridCenterX = Math.floor(WIDTH / 2);
-    const gridCenterY = Math.floor(HEIGHT / 2);
-    const islandRadius = Math.min(WIDTH, HEIGHT) * 0.4;
+const WIDTH = 101;
+const HEIGHT = 75;
+const gridCenterX = Math.floor(WIDTH / 2);
+const gridCenterY = Math.floor(HEIGHT / 2);
+const islandRadius = Math.min(WIDTH, HEIGHT) * 0.4;
 
+function generateIsland() {
     for (let y = 0; y < HEIGHT; y++) {
         gridArray[y] = [];
 

@@ -80,7 +80,6 @@ function onCellClick(e, x, y) {
 
 
 // BAUEN
-// Bauen und Platzierungsregeln für alle Gebäude mit Drehung und Weg-Interaktion
 function build(x, y) {
     if (!selectedBuilding) return;
     const cell = gridArray[y][x];
@@ -92,7 +91,6 @@ function build(x, y) {
     let bewohnerChange = 0;
     let isFreeBuilding = false;
 
-    // Daten für jedes Gebäude (Kosten, Größe, Einwohneränderung)
     const buildingData = {
         "haus": { cost: 150, sizeX: 2, sizeY: 2, bewohnerChange: 5 },
         "weg": { cost: 10, sizeX: 1, sizeY: 1, bewohnerChange: 0 },
@@ -106,7 +104,6 @@ function build(x, y) {
         "smaragdmine": { cost: 1500, sizeX: 2, sizeY: 2, bewohnerChange: -8 },
     };
 
-    // Standardwerte setzen
     const building = buildingData[selectedBuilding];
     if (building) {
         cost = building.cost;
@@ -115,7 +112,6 @@ function build(x, y) {
         bewohnerChange = building.bewohnerChange;
     }
 
-    // Gratis-Bauten prüfen
     if (freeBuildings[selectedBuilding] && freeBuildings[selectedBuilding] > 0) {
         isFreeBuilding = true;
     }
@@ -125,12 +121,8 @@ function build(x, y) {
         return;
     }
 
-    // Überprüfen, ob das Gebäude angrenzend an eine Straße gebaut werden kann
     const directions = [
-        [0, -1],  // oben
-        [0, 1],   // unten
-        [-1, 0],  // links
-        [1, 0],   // rechts
+        [0, -1], [0, 1], [-1, 0], [1, 0]
     ];
 
     let isNextToRoad = false;
@@ -153,28 +145,55 @@ function build(x, y) {
         return;
     }
 
-    // Wenn Straße vorhanden ist, aber Weg 1x1 ist, dann nur auf freien Platz achten
-    let validPlacement = false;
+    // Orientierung anpassen (Ausrichtung je nach Straßenseite)
     if (roadDirection) {
-        // Gebäude wird ausgerichtet, wenn auf einem 1x1-Weg
         if (roadDirection[0] === 0) {
-            // Straße ist horizontal (oben oder unten)
-            [sizeX, sizeY] = [sizeY, sizeX]; // Vertikal ausrichten
+            // Straße ist oben/unten -> vertikal ausrichten
+            [sizeX, sizeY] = [sizeY, sizeX];
         } else {
-            // Straße ist vertikal (links oder rechts)
-            [sizeX, sizeY] = [sizeY, sizeX]; // Horizontal ausrichten
+            // Straße ist links/rechts -> horizontal ausrichten
+            [sizeX, sizeY] = [sizeY, sizeX];
         }
     }
 
-    // Platz für das Gebäude prüfen
-    for (let dy = 0; dy < sizeY; dy++) {
-        for (let dx = 0; dx < sizeX; dx++) {
-            if (!isInBounds(x + dx, y + dy) || gridArray[y + dy][x + dx].type) {
-                validPlacement = false;
-                break;
-            } else {
-                validPlacement = true;
+    function isAreaFree(startX, startY, w, h) {
+        for (let dy = 0; dy < h; dy++) {
+            for (let dx = 0; dx < w; dx++) {
+                if (!isInBounds(startX + dx, startY + dy) || gridArray[startY + dy][startX + dx].type) {
+                    return false;
+                }
             }
+        }
+        return true;
+    }
+
+    let placementX = x;
+    let placementY = y;
+    let finalSizeX = sizeX;
+    let finalSizeY = sizeY;
+
+    let validPlacement = isAreaFree(placementX, placementY, sizeX, sizeY);
+
+    // Falls ungültig, versuche gespiegelte Platzierung
+    if (!validPlacement && roadDirection) {
+        let newX = x;
+        let newY = y;
+        let flipped = false;
+
+        if (roadDirection[0] !== 0) {
+            // Straße liegt links/rechts -> horizontal spiegeln
+            newX = x - (sizeX - 1) * roadDirection[0];
+            flipped = true;
+        } else {
+            // Straße liegt oben/unten -> vertikal spiegeln
+            newY = y - (sizeY - 1) * roadDirection[1];
+            flipped = true;
+        }
+
+        if (isAreaFree(newX, newY, sizeX, sizeY)) {
+            placementX = newX;
+            placementY = newY;
+            validPlacement = true;
         }
     }
 
@@ -183,7 +202,6 @@ function build(x, y) {
         return;
     }
 
-    // Gratis-Bauten nur dann verbrauchen, wenn korrekt platziert
     if (isFreeBuilding) {
         freeBuildings[selectedBuilding]--;
         cost = 0;
@@ -200,14 +218,17 @@ function build(x, y) {
     updateInfo();
 
     // Gebäude setzen
-    for (let dy = 0; dy < sizeY; dy++) {
-        for (let dx = 0; dx < sizeX; dx++) {
-            gridArray[y + dy][x + dx].type = selectedBuilding;
-            gridArray[y + dy][x + dx].element.classList.add(selectedBuilding);
-            buildingLevels[`${x + dx}_${y + dy}`] = 1;
+    for (let dy = 0; dy < finalSizeY; dy++) {
+        for (let dx = 0; dx < finalSizeX; dx++) {
+            const tileX = placementX + dx;
+            const tileY = placementY + dy;
+            gridArray[tileY][tileX].type = selectedBuilding;
+            gridArray[tileY][tileX].element.classList.add(selectedBuilding);
+            buildingLevels[`${tileX}_${tileY}`] = 1;
         }
     }
 }
+
 
 
 

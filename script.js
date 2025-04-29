@@ -16,12 +16,15 @@ let freeBuildings = {
 
 const gridArray = [];
 
-const WIDTH = 101;
-const HEIGHT = 75;
-
 const buildingLevels = {}; // Speichert Upgrades der Gebäude
 
-// Grid erstellen
+const WIDTH = 101;
+const HEIGHT = 75;
+const gridCenterX = Math.floor(WIDTH / 2);
+const gridCenterY = Math.floor(HEIGHT / 2);
+const islandRadius = Math.min(WIDTH, HEIGHT) * 0.4;
+
+// Grid erstellen mit Insel-Form
 for (let y = 0; y < HEIGHT; y++) {
     gridArray[y] = [];
     for (let x = 0; x < WIDTH; x++) {
@@ -29,15 +32,31 @@ for (let y = 0; y < HEIGHT; y++) {
         cell.className = "cell";
         cell.dataset.x = x;
         cell.dataset.y = y;
+
+        const dx = x - gridCenterX;
+        const dy = y - gridCenterY;
+        const distance = Math.sqrt(dx * dx + dy * dy);
+
+        // leichte Verzerrung für eine unregelmäßige Insel
+        const noise = (Math.sin(x * 0.3) + Math.cos(y * 0.2)) * 3;
+
+        if (distance < islandRadius + noise) {
+            // Insel
+            gridArray[y][x] = { type: null, element: cell, active: true };
+        } else {
+            // Wasser
+            cell.classList.add("wasser");
+            gridArray[y][x] = { type: "wasser", element: cell, active: false };
+        }
+
         cell.addEventListener("click", (e) => onCellClick(e, x, y));
         grid.appendChild(cell);
-        gridArray[y][x] = { type: null, element: cell, active: true };
     }
 }
 
-// Rathaus platzieren
-for (let y = 36; y <= 38; y++) {
-    for (let x = 49; x <= 51; x++) {
+// Rathaus in der Mitte platzieren (3x3)
+for (let y = gridCenterY - 1; y <= gridCenterY + 1; y++) {
+    for (let x = gridCenterX - 1; x <= gridCenterX + 1; x++) {
         gridArray[y][x].type = "rathaus";
         gridArray[y][x].element.classList.add("rathaus");
     }

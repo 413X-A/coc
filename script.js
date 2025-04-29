@@ -1,4 +1,5 @@
 // Variablen
+// Variablen
 const grid = document.getElementById("grid");
 let selectedBuilding = null;
 let gold = 20000;
@@ -19,13 +20,13 @@ const gridArray = [];
 
 const buildingLevels = {}; // Speichert Upgrades der Gebäude
 
-const WIDTH = 101;
-const HEIGHT = 75;
-const gridCenterX = Math.floor(WIDTH / 2);
-const gridCenterY = Math.floor(HEIGHT / 2);
-const islandRadius = Math.min(WIDTH, HEIGHT) * 0.4;
-
 function generateIsland() {
+    const WIDTH = 101;
+    const HEIGHT = 75;
+    const gridCenterX = Math.floor(WIDTH / 2);
+    const gridCenterY = Math.floor(HEIGHT / 2);
+    const islandRadius = Math.min(WIDTH, HEIGHT) * 0.4;
+
     for (let y = 0; y < HEIGHT; y++) {
         gridArray[y] = [];
 
@@ -69,13 +70,31 @@ function generateIsland() {
         for (let x = gridCenterX - 1; x <= gridCenterX + 1; x++) {
             gridArray[y][x].type = "rathaus";
             gridArray[y][x].element.classList.add("rathaus");
+            gridArray[y][x].active = true;  // Das Rathaus als aktiv markieren
+        }
+    }
+
+    // Gebäude nach dem Laden aktivieren
+    activateBuildings();
+}
+
+// Funktion, um nur aktive Gebäude beim Laden zu aktivieren
+function activateBuildings() {
+    for (let row of gridArray) {
+        for (let cell of row) {
+            if (cell.type && cell.active) {
+                // Wenn das Gebäude aktiv ist, setzen wir die Filter zurück
+                cell.element.style.filter = "";
+            } else if (cell.type === "wasser") {
+                // Wasserzellen bleiben unverändert
+                cell.element.style.filter = "";
+            } else {
+                // Alle anderen Zellen (Insel) werden ebenfalls aktiviert
+                cell.element.style.filter = "";
+            }
         }
     }
 }
-
-
-
-
 
 // Hilfsfunktion zum Mischen eines Arrays
 function shuffle(array) {
@@ -85,6 +104,24 @@ function shuffle(array) {
     }
     return array;
 }
+
+// Gebäude auswählen
+function setBuilding(building) {
+    selectedBuilding = building;
+}
+
+// Beim Klicken auf Zelle
+function onCellClick(e, x, y) {
+    const cell = gridArray[y][x];
+
+    if (cell.type && !selectedBuilding) {
+        openBuildingMenu(x, y);
+    } else {
+        build(x, y);
+    }
+}
+
+
 
 // Gebäude auswählen
 function setBuilding(building) {

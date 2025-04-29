@@ -82,7 +82,6 @@ function onCellClick(e, x, y) {
     }
 }
 
-// Baumenü
 function build(x, y) {
     if (!selectedBuilding) return;
     const cell = gridArray[y][x];
@@ -92,6 +91,7 @@ function build(x, y) {
     let sizeX = 1;
     let sizeY = 1;
     let bewohnerChange = 0;
+    let isFreeBuilding = false;
 
     switch (selectedBuilding) {
         case "haus":
@@ -152,13 +152,22 @@ function build(x, y) {
             break;
     }
 
+    // Gratis-Bauten prüfen
+    if (freeBuildings[selectedBuilding] && freeBuildings[selectedBuilding] > 0) {
+        isFreeBuilding = true;
+    }
+
     if (bewohner + bewohnerChange < 0) {
         alert("Nicht genug Einwohner für dieses Gebäude!");
         return;
     }
 
-    // Gratis-Bauten prüfen
-    if (freeBuildings[selectedBuilding] && freeBuildings[selectedBuilding] > 0) {
+    // Gratis-Bauten prüfen und sicherstellen, dass das Gebäude nur verbraucht wird, wenn es korrekt platziert wurde
+    if (isFreeBuilding) {
+        if (selectedBuilding !== "marktplatz" && !isValidPlacement(x, y, sizeX, sizeY)) {
+            alert("Das gratis Gebäude wurde falsch platziert und wird nicht verbraucht.");
+            return;
+        }
         freeBuildings[selectedBuilding]--;
         cost = 0;
     }
@@ -178,31 +187,10 @@ function build(x, y) {
         }
     }
 
-    // Anschluss prüfen
-    if (selectedBuilding === "weg") {
-        const adjacentTypes = ["weg", "rathaus", "marktplatz"];
-        let hasValidNeighbor = false;
-        const neighbors = [[0, -1], [0, 1], [-1, 0], [1, 0]];
-        for (const [dx, dy] of neighbors) {
-            const nx = x + dx;
-            const ny = y + dy;
-            if (isInBounds(nx, ny)) {
-                const neighborType = gridArray[ny][nx].type;
-                if (adjacentTypes.includes(neighborType)) {
-                    hasValidNeighbor = true;
-                    break;
-                }
-            }
-        }
-        if (!hasValidNeighbor) {
-            alert("Wege müssen an bestehende Wege, ein Rathaus oder einen Marktplatz angrenzen!");
-            return;
-        }
-    } else {
-        if (!isConnected(x, y, sizeX, sizeY)) {
-            alert("Gebäude muss an Straße anschließen!");
-            return;
-        }
+    // Wenn das Gebäude ein Marktplatz ist, keine angrenzende Prüfung an Weg oder Rathaus
+    if (selectedBuilding !== "marktplatz" && !isConnected(x, y, sizeX, sizeY)) {
+        alert("Gebäude muss an Straße anschließen!");
+        return;
     }
 
     // Ressourcen abziehen und Einwohner anpassen

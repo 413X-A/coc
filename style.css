@@ -20,36 +20,44 @@ body {
     cursor: pointer;
 }
 
-.rathaus {
-    background-color: darkblue;
-}
-
 .haus {
-    background-color: green;
+    background-color: green; /* Haus */
 }
 
 .weg {
-    background-color: gray;
+    background-color: gray; /* Weg */
 }
 
-.goldmine {
-    background-color: gold;
+.marktplatz {
+    background-color: #FFD700; /* Marktplatz (Gold) */
 }
 
-.smaragdmine {
-    background-color: darkgreen;
+.getreidefarm {
+    background-color: wheat; /* Getreidefarm */
+}
+
+.fischerhuette {
+    background-color: lightblue; /* Fischerhütte */
 }
 
 .holzfaeller {
-    background-color: saddlebrown;
+    background-color: saddlebrown; /* Holzfäller */
 }
 
 .steinmetz {
-    background-color: dimgray;
+    background-color: dimgray; /* Steinmetz */
 }
 
 .eisenerz {
-    background-color: darkred;
+    background-color: darkred; /* Eisenerz */
+}
+
+.goldmine {
+    background-color: gold; /* Goldmine */
+}
+
+.smaragdmine {
+    background-color: darkgreen; /* Smaragdmine */
 }
 
 #baumenü {
@@ -72,8 +80,3 @@ body {
 #popupContent {
     text-align: center;
 }
-
-.wasser {
-    background-color: #3399ff;
-}
-

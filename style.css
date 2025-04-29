@@ -60,6 +60,14 @@ body {
     background-color: darkgreen; /* Smaragdmine */
 }
 
+.rathaus {
+    background-color: darkblue; /* Rathaus */
+}
+
+.wasser {
+    background-color: #3399ff; /* Wasser */
+}
+
 #baumenü {
     margin: 10px;
 }

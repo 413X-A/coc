@@ -1,11 +1,12 @@
 // Variablen
 const grid = document.getElementById("grid");
 let selectedBuilding = null;
-let gold = 20000;
 let bewohner = 15;
+let nahrung = 0;
 let holz = 0;
 let stein = 0;
 let eisen = 0;
+let gold = 20000;
 let smaragde = 0;
 
 let freeBuildings = {
@@ -90,18 +91,18 @@ function build(x, y) {
             cost = 100; sizeX = 2; sizeY = 2; bewohnerChange = 5; break;
         case "weg":
             cost = 5; break;
-        case "goldmine":
-            cost = 600; bewohnerChange = -5; break;
-        case "smaragdmine":
-            cost = 1500; bewohnerChange = -25; break;
-        case "holzfaeller":
-            cost = 150; sizeX = 3; sizeY = 3; break;
-        case "steinmetz":
-            cost = 300; sizeX = 2; sizeY = 2; break;
-        case "eisenerz":
-            cost = 800; sizeX = 2; sizeY = 1; break;
         case "marktplatz":
-            cost = 1000; sizeX = 4; sizeY = 4; break;
+            cost = 75; bewohnerChange = 0; sizeX = 4; sizeY = 4; break;
+        case "holzfaeller":
+            cost = 150; bewohnerChange = -3; sizeX = 3; sizeY = 3; break;
+        case "steinmetz":
+            cost = 300; bewohnerChange = -8; sizeX = 2; sizeY = 2; break;
+        case "eisenerz":
+            cost = 600; bewohnerChange = -15; sizeX = 2; sizeY = 1; break;
+        case "goldmine":
+            cost = 800; bewohnerChange = -25; sizeX = 2; sizeY = 2; break;
+        case "smaragdmine":
+            cost = 2500; bewohnerChange = -35; sizeX = 1; sizeY = 1; break;
     }
 
     if (gold < cost) {
@@ -204,18 +205,21 @@ function upgradeBuilding(x, y) {
     const key = `${x}_${y}`;
     const lvl = buildingLevels[key] || 1;
 
-    let costType = "", costAmount = 0;
-    if (lvl <= 3) { costType = "holz"; costAmount = 10 * lvl; }
-    else if (lvl <= 5) { costType = "stein"; costAmount = 20 * (lvl - 3); }
-    else if (lvl <= 7) { costType = "eisen"; costAmount = 30 * (lvl - 5); }
-    else { costType = "smaragde"; costAmount = 50 * (lvl - 7); }
+    if (lvl >= 5) {
+        alert("Maximale Stufe erreicht!");
+        return;
+    }
 
-    if (window[costType] >= costAmount) {
-        window[costType] -= costAmount;
+    const upgradeCosts = [150, 300, 450, 600, 750];
+    const cost = upgradeCosts[lvl - 1]; // lvl-1, da Index bei 0 startet
+
+    if (gold >= cost) {
+        gold -= cost;
         buildingLevels[key] = lvl + 1;
         alert(`Gebäude auf Stufe ${buildingLevels[key]} verbessert!`);
+        updateInfo();
     } else {
-        alert(`Nicht genug ${costType}!`);
+        alert(`Nicht genug Gold für Upgrade! (${cost} Gold benötigt)`);
     }
 }
 
@@ -303,33 +307,41 @@ function isNearMarketplaceOrRathaus(x, y, sizeX, sizeY) {
 }
 
 // Produktionsfunktionen
+function produceNahrung() {
+    gold += gridArray.flat().reduce((sum, cell) =>
+        cell.active && cell.type === "getreidefarm" ? sum + 1 * (buildingLevels[`${cell.element.dataset.x}_${cell.element.dataset.y}`] || 1) : sum, 0);
+        cell.active && cell.type === "fischerhuette" ? sum + 1 * (buildingLevels[`${cell.element.dataset.x}_${cell.element.dataset.y}`] || 1) : sum, 0);
+        cell.active && cell.type === "metzgerei" ? sum + 2 * (buildingLevels[`${cell.element.dataset.x}_${cell.element.dataset.y}`] || 1) : sum, 0);
+    updateInfo();
+}
+
 function produceGold() {
     gold += gridArray.flat().reduce((sum, cell) =>
-        cell.active && cell.type === "goldmine" ? sum + 5 * (buildingLevels[`${cell.element.dataset.x}_${cell.element.dataset.y}`] || 1) : sum, 0);
+        cell.active && cell.type === "goldmine" ? sum + 1 * (buildingLevels[`${cell.element.dataset.x}_${cell.element.dataset.y}`] || 1) : sum, 0);
     updateInfo();
 }
 
 function produceHolz() {
     holz += gridArray.flat().reduce((sum, cell) =>
-        cell.active && cell.type === "holzfaeller" ? sum + 4 * (buildingLevels[`${cell.element.dataset.x}_${cell.element.dataset.y}`] || 1) : sum, 0);
+        cell.active && cell.type === "holzfaeller" ? sum + 1* (buildingLevels[`${cell.element.dataset.x}_${cell.element.dataset.y}`] || 1) : sum, 0);
     updateInfo();
 }
 
 function produceStein() {
     stein += gridArray.flat().reduce((sum, cell) =>
-        cell.active && cell.type === "steinmetz" ? sum + 6 * (buildingLevels[`${cell.element.dataset.x}_${cell.element.dataset.y}`] || 1) : sum, 0);
+        cell.active && cell.type === "steinmetz" ? sum + 1 * (buildingLevels[`${cell.element.dataset.x}_${cell.element.dataset.y}`] || 1) : sum, 0);
     updateInfo();
 }
 
 function produceEisen() {
     eisen += gridArray.flat().reduce((sum, cell) =>
-        cell.active && cell.type === "eisenerz" ? sum + 8 * (buildingLevels[`${cell.element.dataset.x}_${cell.element.dataset.y}`] || 1) : sum, 0);
+        cell.active && cell.type === "eisenerz" ? sum + 1 * (buildingLevels[`${cell.element.dataset.x}_${cell.element.dataset.y}`] || 1) : sum, 0);
     updateInfo();
 }
 
 function produceSmaragde() {
     smaragde += gridArray.flat().reduce((sum, cell) =>
-        cell.active && cell.type === "smaragdmine" ? sum + 10 * (buildingLevels[`${cell.element.dataset.x}_${cell.element.dataset.y}`] || 1) : sum, 0);
+        cell.active && cell.type === "smaragdmine" ? sum + 1 * (buildingLevels[`${cell.element.dataset.x}_${cell.element.dataset.y}`] || 1) : sum, 0);
     updateInfo();
 }
 
@@ -339,14 +351,16 @@ function startProduction() {
     setInterval(produceStein, 6000);
     setInterval(produceEisen, 8000);
     setInterval(produceSmaragde, 10000);
+    setInterval(produceNahrung, 15000);
 }
 
 function updateInfo() {
-    document.getElementById("gold").innerText = gold;
     document.getElementById("bewohner").innerText = bewohner;
+    document.getElementById("nahrung").innerText = nahrung;
     document.getElementById("holz").innerText = holz;
     document.getElementById("stein").innerText = stein;
     document.getElementById("eisen").innerText = eisen;
+    document.getElementById("gold").innerText = gold;
     document.getElementById("smaragde").innerText = smaragde;
 }
 

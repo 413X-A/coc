@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <title>Aufbauspiel</title>
+    <link rel="stylesheet" href="style.css"> <!-- Dein externes CSS -->
+</head>
+<body>
+    <h1>1870</h1>
+    <div>
+        Bewohner: <span id="bewohner">15</span>
+         |  Nahrung: <span id="nahrung">100</span>
+         |  Gold: <span id="gold">20000</span>
+         |  Holz: <span id="holz">0</span>
+         |  Stein: <span id="stein">0</span>
+         |  Eisen: <span id="eisen">0</span>
+         |  Smaragde: <span id="smaragde">0</span>
+    </div>
+
+    <!-- Bereich für Bau-Menü -->
+    <div id="baumenü">
+        <button class="building-button" data-building="haus">Haus</button>
+        <button class="building-button" data-building="weg">Weg</button>
+        <button class="building-button" data-building="marktplatz">Marktplatz</button>
+        <button class="building-button" data-building="getreidefarm">Getreidefarm</button>
+        <button class="building-button" data-building="fischerhuette">Fischerhütte</button>
+        <button class="building-button" data-building="holzfaeller">Holzfäller</button>
+        <button class="building-button" data-building="steinmetz">Steinmetz</button>
+        <button class="building-button" data-building="eisenerz">Eisenerz</button>
+        <button class="building-button" data-building="goldmine">Goldmine</button>
+        <button class="building-button" data-building="smaragdmine">Smaragdmine</button>
+
+        <!-- Button für "Nichts bauen" -->
+        <button id="no-build">Nichts bauen</button>
+    </div>
+
+    <!-- Popup für Gebäude-Details -->
+    <div id="building-popup" class="popup">
+        <button class="close-btn" onclick="closePopup()">X</button>
+        <div id="popup-content"></div>
+        <button id="confirm-build">Bauen</button>
+    </div>
+
+    <!-- Das Spielfeld -->
+    <div id="grid"></div>
+
+    <!-- Externe Skripte -->
+    <script src="bauenFunktionen.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>

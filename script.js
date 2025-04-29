@@ -425,11 +425,11 @@ function produceNahrung() {
         return sum;
     }, 0);
 
-    // Nahrung von Getreidefarm geteilt durch 6 und von Fischerhütten geteilt durch 2
+    // Nahrung von Getreidefarm geteilt durch 2 und von Fischerhütten geteilt durch 2
     let getreideFarms = gridArray.flat().filter(cell => cell.active && cell.type === "getreidefarm").length;
     let fischerhuetten = gridArray.flat().filter(cell => cell.active && cell.type === "fischerhuette").length;
     
-    nahrungProduced = Math.floor(nahrungProduced / 6); // Nahrung von Getreidefarm
+    nahrungProduced = Math.floor(nahrungProduced / 2); // Nahrung von Getreidefarm
     nahrungProduced += Math.floor(fischerhuetten / 2); // Nahrung von Fischerhütten
 
     nahrung += nahrungProduced; // Wert zu Nahrung hinzufügen

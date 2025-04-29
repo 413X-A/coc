@@ -73,25 +73,7 @@ function generateIsland() {
     }
 
     // Gebäude nach dem Laden aktivieren
-    activateBuildings();
-}
-
-// Funktion, um nur aktive Gebäude beim Laden zu aktivieren
-function activateBuildings() {
-    for (let row of gridArray) {
-        for (let cell of row) {
-            if (cell.type && cell.active) {
-                // Wenn das Gebäude aktiv ist, setzen wir die Filter zurück
-                cell.element.style.filter = "";
-            } else if (cell.type === "wasser") {
-                // Wasserzellen bleiben unverändert
-                cell.element.style.filter = "";
-            } else {
-                // Alle anderen Zellen (Insel) werden ebenfalls aktiviert
-                cell.element.style.filter = "";
-            }
-        }
-    }
+    
 }
 
 // Hilfsfunktion zum Mischen eines Arrays
@@ -517,4 +499,3 @@ function produceNahrung() {
 
 generateIsland();
 startProduction();
-activateBuildings();

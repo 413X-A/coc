@@ -80,7 +80,6 @@ function onCellClick(e, x, y) {
 }
 
 
-// BAUEN
 function build(x, y) {
     if (!selectedBuilding) return;
     const cell = gridArray[y][x];
@@ -115,13 +114,11 @@ function build(x, y) {
 
     if (bewohner + bewohnerChange < 0) {
         alert("Nicht genug Einwohner für dieses Gebäude!");
-        console.log("Fehler: Nicht genug Einwohner.");
         return;
     }
 
     if (freeBuildings[selectedBuilding] && freeBuildings[selectedBuilding] > 0) {
         isFreeBuilding = true;
-        console.log(`Gebäude '${selectedBuilding}' ist kostenlos (verfügbare Gratis-Bauten: ${freeBuildings[selectedBuilding]}).`);
     }
 
     function isAreaFree(startX, startY, w, h) {
@@ -138,77 +135,103 @@ function build(x, y) {
     }
 
     const rotations = [
-        { dx: 0, dy: 0, sx: baseSizeX, sy: baseSizeY }, // 0°
-        { dx: -(baseSizeY - 1), dy: 0, sx: baseSizeY, sy: baseSizeX }, // 90°
-        { dx: -(baseSizeX - 1), dy: -(baseSizeY - 1), sx: baseSizeX, sy: baseSizeY }, // 180°
-        { dx: 0, dy: -(baseSizeX - 1), sx: baseSizeY, sy: baseSizeX }  // 270°
+        { dx: 0, dy: 0, sx: baseSizeX, sy: baseSizeY },
+        { dx: -(baseSizeY - 1), dy: 0, sx: baseSizeY, sy: baseSizeX },
+        { dx: -(baseSizeX - 1), dy: -(baseSizeY - 1), sx: baseSizeX, sy: baseSizeY },
+        { dx: 0, dy: -(baseSizeX - 1), sx: baseSizeY, sy: baseSizeX }
     ];
 
     let placed = false;
+
     for (let rot of rotations) {
         const startX = x + rot.dx;
         const startY = y + rot.dy;
 
-        if (isAreaFree(startX, startY, rot.sx, rot.sy)) {
-            let adjacentToRoad = false;
+        if (!isAreaFree(startX, startY, rot.sx, rot.sy)) continue;
+
+        let adjacentToRoad = false;
+        for (let dy = -1; dy <= rot.sy; dy++) {
+            for (let dx = -1; dx <= rot.sx; dx++) {
+                const nx = startX + dx;
+                const ny = startY + dy;
+                if (isInBounds(nx, ny)) {
+                    const neighborType = gridArray[ny][nx].type;
+                    if (neighborType === "weg" || neighborType === "rathaus" || neighborType === "marktplatz") {
+                        adjacentToRoad = true;
+                        break;
+                    }
+                }
+            }
+            if (adjacentToRoad) break;
+        }
+
+        // Sonderfall: MARKTPLATZ darf ohne Straße gebaut werden
+        if (selectedBuilding !== "marktplatz" && !adjacentToRoad) {
+            continue;
+        }
+
+        // Sonderfall: FISCHERHÜTTE braucht Wasser in der Nähe
+        if (selectedBuilding === "fischerhuette") {
+            let adjacentToWater = false;
             for (let dy = -1; dy <= rot.sy; dy++) {
                 for (let dx = -1; dx <= rot.sx; dx++) {
                     const nx = startX + dx;
                     const ny = startY + dy;
                     if (isInBounds(nx, ny)) {
                         const neighborType = gridArray[ny][nx].type;
-                        if (neighborType === "weg" || neighborType === "rathaus" || neighborType === "marktplatz") {
-                            adjacentToRoad = true;
+                        if (neighborType === "wasser") {
+                            adjacentToWater = true;
                             break;
                         }
                     }
                 }
-                if (adjacentToRoad) break;
+                if (adjacentToWater) break;
+            }
+
+            if (!adjacentToWater) {
+                alert("Fischerhütten müssen an Wasser gebaut werden!");
+                continue;
             }
 
             if (!adjacentToRoad) {
-                console.log("Kein angrenzender Weg bei Rotation.");
+                alert("Fischerhütten müssen auch an Straßen angrenzen!");
                 continue;
-            } else {
-                console.log("Angrenzender Weg gefunden.");
             }
-
-            if (!isFreeBuilding && gold < cost) {
-                alert("Nicht genug Gold für dieses Gebäude!");
-                console.log("Fehler: Nicht genug Gold.");
-                return;
-            }
-
-            if (isFreeBuilding) {
-                freeBuildings[selectedBuilding]--;
-                cost = 0;
-            }
-
-            gold -= cost;
-            bewohner += bewohnerChange;
-            updateInfo();
-
-            for (let dy = 0; dy < rot.sy; dy++) {
-                for (let dx = 0; dx < rot.sx; dx++) {
-                    const tileX = startX + dx;
-                    const tileY = startY + dy;
-                    gridArray[tileY][tileX].type = selectedBuilding;
-                    gridArray[tileY][tileX].element.classList.add(selectedBuilding);
-                    buildingLevels[`${tileX}_${tileY}`] = 1;
-                }
-            }
-
-            console.log(`Gebäude '${selectedBuilding}' erfolgreich platziert (Rotation ausprobiert).`);
-            placed = true;
-            break;
         }
+
+        if (!isFreeBuilding && gold < cost) {
+            alert("Nicht genug Gold!");
+            return;
+        }
+
+        if (isFreeBuilding) {
+            freeBuildings[selectedBuilding]--;
+            cost = 0;
+        }
+
+        gold -= cost;
+        bewohner += bewohnerChange;
+        updateInfo();
+
+        for (let dy = 0; dy < rot.sy; dy++) {
+            for (let dx = 0; dx < rot.sx; dx++) {
+                const tileX = startX + dx;
+                const tileY = startY + dy;
+                gridArray[tileY][tileX].type = selectedBuilding;
+                gridArray[tileY][tileX].element.classList.add(selectedBuilding);
+                buildingLevels[`${tileX}_${tileY}`] = 1;
+            }
+        }
+
+        placed = true;
+        break;
     }
 
     if (!placed) {
-        alert("Kein Platz oder keine Straße in einer der vier Richtungen!");
-        console.log("Fehler: Keine gültige Rotation gefunden.");
+        alert("Kein Platz oder keine gültige Anbindung!");
     }
 }
+
 
 
 

@@ -335,6 +335,7 @@ function updateInfo() {
     document.getElementById("stein").innerText = stein;
     document.getElementById("eisen").innerText = eisen;
     document.getElementById("smaragde").innerText = smaragde;
+    document.getElementById("nahrung").innerText = nahrung;
 }
 
 // Produktion starten
@@ -344,6 +345,7 @@ function startProduction() {
     setInterval(produceStein, 6000);       // Steinmetze alle 6 Sekunden
     setInterval(produceEisen, 8000);       // Eisenerzminen alle 8 Sekunden
     setInterval(produceSmaragde, 10000);   // Smaragdmine alle 10 Sekunden
+    setInterval(produceNahrung, 15000);   // Nahrung alle 15 Sekunden
 }
 
 // Produktion der Ressourcen
@@ -356,6 +358,7 @@ function produceGold() {
         }
         return sum;
     }, 0);
+    gold = Math.floor(gold / 4); // Ganzzahlig teilen
     updateInfo();
 }
 
@@ -365,8 +368,9 @@ function produceHolz() {
         if (cell.active && cell.type === "holzfaeller") {
             return sum + 1;
         }
-        return sum;
+        return sum + 1;
     }, 0);
+    holz = Math.floor(holz / 6); // Ganzzahlig teilen
     updateInfo();
 }
 
@@ -377,6 +381,7 @@ function produceStein() {
         }
         return sum;
     }, 0);
+    stein = Math.floor(stein / 4); // Ganzzahlig teilen
     updateInfo();
 }
 
@@ -387,6 +392,7 @@ function produceEisen() {
         }
         return sum;
     }, 0);
+    eisen = Math.floor(eisen / 4); // Ganzzahlig teilen
     updateInfo();
 }
 
@@ -397,7 +403,26 @@ function produceSmaragde() {
         }
         return sum;
     }, 0);
+    smaragde = Math.floor(smaragde / 1); // Ganzzahlig teilen
     updateInfo();
 }
+
+function produceNahrung() {
+    nahrung += gridArray.flat().reduce((sum, cell) => {
+        if (cell.active) {
+            if (cell.type === "getreidefarm") {
+                return sum + 1 / 6; // Getreidefarm wird durch 6 geteilt
+            }
+            if (cell.type === "fischerhuette") {
+                return sum + 1 / 2; // Fischerhütte wird durch 2 geteilt
+            }
+        }
+        return sum;
+    }, 0);
+    nahrung = Math.floor(nahrung); // Ganzzahliger Wert
+    updateInfo();
+}
+
+
 
 startProduction();

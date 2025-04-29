@@ -150,43 +150,52 @@ function build(x, y) {
         if (!isAreaFree(startX, startY, rot.sx, rot.sy)) continue;
 
         let adjacentToStreet = false;
-        for (let dy = -1; dy <= rot.sy; dy++) {
-            for (let dx = -1; dx <= rot.sx; dx++) {
+        let adjacentToValidWegTarget = false;
+        let adjacentToWater = false;
+
+        for (let dy = 0; dy < rot.sy; dy++) {
+            for (let dx = 0; dx < rot.sx; dx++) {
                 const nx = startX + dx;
                 const ny = startY + dy;
-                if (isInBounds(nx, ny)) {
-                    if (gridArray[ny][nx].type === "weg") {
+
+                const neighbors = [
+                    { x: nx, y: ny - 1 },
+                    { x: nx + 1, y: ny },
+                    { x: nx, y: ny + 1 },
+                    { x: nx - 1, y: ny }
+                ];
+
+                for (let n of neighbors) {
+                    if (!isInBounds(n.x, n.y)) continue;
+                    const neighborType = gridArray[n.y][n.x].type;
+
+                    if (neighborType === "weg") {
                         adjacentToStreet = true;
-                        break;
+                    }
+
+                    if (["weg", "marktplatz", "rathaus"].includes(neighborType)) {
+                        adjacentToValidWegTarget = true;
+                    }
+
+                    if (gridArray[n.y][n.x].type === "wasser") {
+                        adjacentToWater = true;
                     }
                 }
             }
-            if (adjacentToStreet) break;
         }
 
-        // Ausnahme: Marktplatz darf auch ohne Straße
-        if (selectedBuilding !== "marktplatz" && !adjacentToStreet) {
-            continue;
-        }
-
-        // Fischerhütten müssen an Wasser UND Straße grenzen
-        if (selectedBuilding === "fischerhuette") {
-            let adjacentToWater = false;
-            for (let dy = -1; dy <= rot.sy; dy++) {
-                for (let dx = -1; dx <= rot.sx; dx++) {
-                    const nx = startX + dx;
-                    const ny = startY + dy;
-                    if (isInBounds(nx, ny)) {
-                        if (gridArray[ny][nx].type === "wasser") {
-                            adjacentToWater = true;
-                        }
-                    }
-                }
-            }
-            if (!adjacentToWater || !adjacentToStreet) {
-                alert("Fischerhütten müssen an Wasser und Straße angrenzen!");
+        // Regeln prüfen:
+        if (selectedBuilding === "marktplatz") {
+            // darf überall
+        } else if (selectedBuilding === "weg") {
+            if (!adjacentToValidWegTarget) continue;
+        } else if (selectedBuilding === "fischerhuette") {
+            if (!adjacentToStreet || !adjacentToWater) {
+                alert("Fischerhütten müssen an Straße und Wasser angrenzen!");
                 continue;
             }
+        } else {
+            if (!adjacentToStreet) continue;
         }
 
         if (!isFreeBuilding && gold < cost) {
@@ -218,9 +227,10 @@ function build(x, y) {
     }
 
     if (!placed) {
-        alert("Kein Platz oder keine gültige Straßenanbindung!");
+        alert("Kein Platz oder keine gültige Anbindung!");
     }
 }
+
 
 
 // Menü beim Klick auf Gebäude

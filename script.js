@@ -300,9 +300,13 @@ function isNearMarketplaceOrRathaus(x, y, sizeX, sizeY) {
             }
 
             // Check Rathaus-Nähe
-            for (const r of rathausCoords) {
-                const dx = cx - r.x, dy = cy - r.y;
-                if (Math.sqrt(dx * dx + dy * dy) <= rangeToRathaus) return true;
+            for (let oy = -rangeToRathaus; oy <= rangeToRathaus; oy++) {
+                for (let ox = -rangeToRathaus; ox <= rangeToRathaus; ox++) {
+                    const nx = cx + ox, ny = cy + oy;
+                    if (isInBounds(nx, ny) && gridArray[ny][nx].type === "rathaus") {
+                        return true;
+                    }
+                }
             }
         }
     }

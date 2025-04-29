@@ -19,63 +19,49 @@ const gridArray = [];
 
 const buildingLevels = {}; // Speichert Upgrades der Gebäude
 
-const WIDTH = 101;
-const HEIGHT = 75;
-const gridCenterX = Math.floor(WIDTH / 2);
-const gridCenterY = Math.floor(HEIGHT / 2);
-const TOTAL_LAND = 1200; // Anzahl Landfelder
+function generateIsland() {
+    const maxRadius = Math.sqrt(WIDTH * WIDTH + HEIGHT * HEIGHT) / 2;
+    const islandRadius = maxRadius * Math.sqrt(0.6); // ca. 60% Fläche
 
-// Grid mit Wasser füllen
-const WIDTH = 101;
-const HEIGHT = 75;
-const gridCenterX = Math.floor(WIDTH / 2);
-const gridCenterY = Math.floor(HEIGHT / 2);
+    for (let y = 0; y < HEIGHT; y++) {
+        gridArray[y] = [];
+        for (let x = 0; x < WIDTH; x++) {
+            const cell = document.createElement("div");
+            cell.className = "cell";
+            cell.dataset.x = x;
+            cell.dataset.y = y;
 
-// Ziel: ca. 60% Land -> daraus ergibt sich ein Ziel-Radius
-const targetLandRatio = 0.6;
-const maxRadius = Math.sqrt(WIDTH * WIDTH + HEIGHT * HEIGHT) / 2;
-const islandRadius = maxRadius * Math.sqrt(targetLandRatio);
+            const dx = x - gridCenterX;
+            const dy = y - gridCenterY;
+            const distance = Math.sqrt(dx * dx + dy * dy);
 
-// Grid erstellen mit Insel-Form
-for (let y = 0; y < HEIGHT; y++) {
-    gridArray[y] = [];
-    for (let x = 0; x < WIDTH; x++) {
-        const cell = document.createElement("div");
-        cell.className = "cell";
-        cell.dataset.x = x;
-        cell.dataset.y = y;
+            // Natürlichere, runde Insel mit etwas Unregelmäßigkeit
+            const angle = Math.atan2(dy, dx);
+            const noise = Math.sin(angle * 3 + Math.random()) * 5 + Math.cos(angle * 2 + Math.random()) * 4;
 
-        const dx = x - gridCenterX;
-        const dy = y - gridCenterY;
-        const distance = Math.sqrt(dx * dx + dy * dy);
+            const threshold = islandRadius + noise;
 
-        // leichte Verzerrung für eine unregelmäßige Insel
-        const angle = Math.atan2(dy, dx);
-        const noise = Math.sin(x * 0.15 + Math.random()) * 4 + Math.cos(y * 0.1 + Math.random()) * 3;
+            if (distance < threshold) {
+                gridArray[y][x] = { type: null, element: cell, active: true };
+            } else {
+                cell.classList.add("wasser");
+                gridArray[y][x] = { type: "wasser", element: cell, active: false };
+            }
 
-        const threshold = islandRadius + noise;
-
-        if (distance < threshold) {
-            // Insel
-            gridArray[y][x] = { type: null, element: cell, active: true };
-        } else {
-            // Wasser
-            cell.classList.add("wasser");
-            gridArray[y][x] = { type: "wasser", element: cell, active: false };
+            cell.addEventListener("click", (e) => onCellClick(e, x, y));
+            grid.appendChild(cell);
         }
+    }
 
-        cell.addEventListener("click", (e) => onCellClick(e, x, y));
-        grid.appendChild(cell);
+    // Rathaus in der Mitte platzieren (3x3)
+    for (let y = gridCenterY - 1; y <= gridCenterY + 1; y++) {
+        for (let x = gridCenterX - 1; x <= gridCenterX + 1; x++) {
+            gridArray[y][x].type = "rathaus";
+            gridArray[y][x].element.classList.add("rathaus");
+        }
     }
 }
 
-// Rathaus in der Mitte platzieren (3x3)
-for (let y = gridCenterY - 1; y <= gridCenterY + 1; y++) {
-    for (let x = gridCenterX - 1; x <= gridCenterX + 1; x++) {
-        gridArray[y][x].type = "rathaus";
-        gridArray[y][x].element.classList.add("rathaus");
-    }
-}
 
 
 // Hilfsfunktion zum Mischen eines Arrays
@@ -484,5 +470,5 @@ function produceNahrung() {
 
 
 
-
+generateIsland();
 startProduction();

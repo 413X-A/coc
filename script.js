@@ -311,7 +311,6 @@ function produceNahrung() {
     gold += gridArray.flat().reduce((sum, cell) =>
         cell.active && cell.type === "getreidefarm" ? sum + 1 * (buildingLevels[`${cell.element.dataset.x}_${cell.element.dataset.y}`] || 1) : sum, 0);
         cell.active && cell.type === "fischerhuette" ? sum + 1 * (buildingLevels[`${cell.element.dataset.x}_${cell.element.dataset.y}`] || 1) : sum, 0);
-        cell.active && cell.type === "metzgerei" ? sum + 2 * (buildingLevels[`${cell.element.dataset.x}_${cell.element.dataset.y}`] || 1) : sum, 0);
     updateInfo();
 }
 

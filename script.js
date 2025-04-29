@@ -517,3 +517,4 @@ function produceNahrung() {
 
 generateIsland();
 startProduction();
+activateBuildings();

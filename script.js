@@ -159,6 +159,7 @@ function build(x, y) {
     }
 }
 
+
 // Menü beim Klick auf Gebäude
 function openBuildingMenu(x, y) {
     const options = document.createElement("div");

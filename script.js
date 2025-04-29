@@ -84,8 +84,13 @@ function build(x, y) {
 
     const cell = gridArray[y][x];
 
-    if (cell.type) return; // Nur leere Felder dürfen belegt werden.
+    // Wenn das Feld bereits ein Gebäude hat, kann nichts gebaut werden.
+    if (cell.type) {
+        alert("Hier steht bereits ein Gebäude!");
+        return;
+    }
 
+    // Ressourcen und Kosten für jedes Gebäude
     let cost = 0;
     let sizeX = 1;
     let sizeY = 1;
@@ -118,37 +123,26 @@ function build(x, y) {
         sizeY = 1;
     }
 
+    // Überprüfen, ob genügend Ressourcen vorhanden sind
+    if (gold < cost) {
+        alert("Nicht genug Gold!");
+        return;
+    }
+
     // Überprüfen, ob genügend Einwohner vorhanden sind
     if (bewohner + bewohnerChange < 0) {
         alert("Nicht genug Einwohner für dieses Gebäude!");
         return;
     }
 
-    // Gratis Bauten?
-    if (freeBuildings[selectedBuilding] && freeBuildings[selectedBuilding] > 0) {
-        freeBuildings[selectedBuilding]--;
-        cost = 0;
-    }
-
-    if (gold < cost) {
-        alert("Nicht genug Gold!");
-        return;
-    }
-
-    // Platz prüfen
+    // Platz prüfen (ob es genügend freien Platz für das Gebäude gibt)
     for (let dy = 0; dy < sizeY; dy++) {
         for (let dx = 0; dx < sizeX; dx++) {
             if (!isInBounds(x + dx, y + dy) || gridArray[y + dy][x + dx].type) {
-                alert("Kein Platz für das Gebäude!");
+                alert("Kein Platz für dieses Gebäude!");
                 return;
             }
         }
-    }
-
-    // Anschluss prüfen (Verbindung zum Weg)
-    if (!isConnected(x, y, sizeX, sizeY)) {
-        alert("Gebäude muss an Straße anschließen!");
-        return;
     }
 
     // Ressourcen abziehen und Einwohner anpassen
@@ -156,16 +150,14 @@ function build(x, y) {
     bewohner += bewohnerChange;
     updateInfo();
 
-    // Gebäude bauen
+    // Gebäude platzieren (die Zellen im Grid aktualisieren)
     for (let dy = 0; dy < sizeY; dy++) {
         for (let dx = 0; dx < sizeX; dx++) {
             gridArray[y + dy][x + dx].type = selectedBuilding;
             gridArray[y + dy][x + dx].element.classList.add(selectedBuilding);
-            buildingLevels[`${x + dx}_${y + dy}`] = 1; // Stufe 1 bei Bau
         }
     }
 }
-
 
 // Menü beim Klick auf Gebäude
 function openBuildingMenu(x, y) {

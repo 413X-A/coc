@@ -78,7 +78,39 @@ function onCellClick(e, x, y) {
     }
 }
 
-// Bauen
+
+// Funktion zum Bauen eines Weges
+function buildPath(x, y) {
+    const directions = [
+        [0, -1], // oben
+        [0, 1],  // unten
+        [-1, 0], // links
+        [1, 0],  // rechts
+    ];
+    let isNextToValid = false;
+
+    for (const [dx, dy] of directions) {
+        const nx = x + dx;
+        const ny = y + dy;
+        if (isInBounds(nx, ny)) {
+            const neighborType = gridArray[ny][nx].type;
+            if (neighborType === "weg" || neighborType === "rathaus" || neighborType === "marktplatz") {
+                isNextToValid = true;
+                break;
+            }
+        }
+    }
+
+    if (!isNextToValid) {
+        alert("Wege dürfen nur neben Straßen, dem Rathaus oder einem Marktplatz gebaut werden!");
+        return;
+    }
+
+    // Wenn Weg korrekt platziert wird
+    gridArray[y][x].type = "weg";
+    gridArray[y][x].element.classList.add("weg");
+}
+
 // Bauen
 function build(x, y) {
     if (!selectedBuilding) return;
@@ -97,9 +129,6 @@ function build(x, y) {
             sizeX = 2;
             sizeY = 2;
             bewohnerChange = 5;
-            break;
-        case "weg":
-            cost = 10;
             break;
         case "marktplatz":
             cost = 75;
@@ -160,30 +189,10 @@ function build(x, y) {
         return;
     }
 
-    // Platzierungsregel für Wege
+    // Wenn Weg gebaut werden soll
     if (selectedBuilding === "weg") {
-        const directions = [
-            [0, -1], // oben
-            [0, 1],  // unten
-            [-1, 0], // links
-            [1, 0],  // rechts
-        ];
-        let isNextToValid = false;
-        for (const [dx, dy] of directions) {
-            const nx = x + dx;
-            const ny = y + dy;
-            if (isInBounds(nx, ny)) {
-                const neighborType = gridArray[ny][nx].type;
-                if (neighborType === "weg" || neighborType === "rathaus" || neighborType === "marktplatz") {
-                    isNextToValid = true;
-                    break;
-                }
-            }
-        }
-        if (!isNextToValid) {
-            alert("Wege dürfen nur neben Straßen, dem Rathaus oder einem Marktplatz gebaut werden!");
-            return;
-        }
+        buildPath(x, y); // Hier wird die neue Funktion aufgerufen
+        return; // Beende die Funktion, nachdem der Weg gesetzt wurde
     }
 
     // Nur für Nicht-Wege: Platz prüfen und Verbindung zu Straße
@@ -231,13 +240,6 @@ function build(x, y) {
             gridArray[y + dy][x + dx].type = selectedBuilding;
             gridArray[y + dy][x + dx].element.classList.add(selectedBuilding);
         }
-    }
-
-    // Wenn Weg platziert wurde
-    if (selectedBuilding === "weg") {
-        // Stelle sicher, dass der Weg korrekt auf das ausgewählte Feld gesetzt wird
-        gridArray[y][x].type = "weg";
-        gridArray[y][x].element.classList.add("weg");
     }
 }
 

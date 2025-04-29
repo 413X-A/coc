@@ -82,7 +82,6 @@ function onCellClick(e, x, y) {
     }
 }
 
-// Gebäude bauen
 function build(x, y) {
     if (!selectedBuilding) return;
     const cell = gridArray[y][x];
@@ -149,9 +148,35 @@ function build(x, y) {
     }
 
     // Anschluss prüfen
-    if (!isConnected(x, y, sizeX, sizeY)) {
-        alert("Gebäude muss an Straße anschließen!");
-        return;
+    if (selectedBuilding === "weg") {
+        const adjacentTypes = ["weg", "rathaus", "marktplatz"];
+        let hasValidNeighbor = false;
+        const neighbors = [
+            [0, -1], // oben
+            [0, 1],  // unten
+            [-1, 0], // links
+            [1, 0]   // rechts
+        ];
+        for (const [dx, dy] of neighbors) {
+            const nx = x + dx;
+            const ny = y + dy;
+            if (isInBounds(nx, ny)) {
+                const neighborType = gridArray[ny][nx].type;
+                if (adjacentTypes.includes(neighborType)) {
+                    hasValidNeighbor = true;
+                    break;
+                }
+            }
+        }
+        if (!hasValidNeighbor) {
+            alert("Wege müssen an bestehende Wege, ein Rathaus oder einen Marktplatz angrenzen!");
+            return;
+        }
+    } else {
+        if (!isConnected(x, y, sizeX, sizeY)) {
+            alert("Gebäude muss an Straße anschließen!");
+            return;
+        }
     }
 
     // Ressourcen abziehen und Einwohner anpassen
@@ -164,7 +189,7 @@ function build(x, y) {
         for (let dx = 0; dx < sizeX; dx++) {
             gridArray[y + dy][x + dx].type = selectedBuilding;
             gridArray[y + dy][x + dx].element.classList.add(selectedBuilding);
-            buildingLevels[`${x+dx}_${y+dy}`] = 1; // Stufe 1 bei Bau
+            buildingLevels[`${x + dx}_${y + dy}`] = 1; // Stufe 1 bei Bau
         }
     }
 }

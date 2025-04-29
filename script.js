@@ -54,9 +54,9 @@ for (let y = 0; y < HEIGHT; y++) {
     }
 }
 
-// Rathaus in der Mitte platzieren (3x3)
-for (let y = gridCenterY - 1; y <= gridCenterY + 1; y++) {
-    for (let x = gridCenterX - 1; x <= gridCenterX + 1; x++) {
+// Rathaus in der Mitte platzieren (7x7)
+for (let y = gridCenterY - 3; y <= gridCenterY + 3; y++) {
+    for (let x = gridCenterX - 3; x <= gridCenterX + 3; x++) {
         gridArray[y][x].type = "rathaus";
         gridArray[y][x].element.classList.add("rathaus");
     }
@@ -82,10 +82,10 @@ function onCellClick(e, x, y) {
     }
 }
 
+// Baumenü
 function build(x, y) {
     if (!selectedBuilding) return;
     const cell = gridArray[y][x];
-
     if (cell.type) return; // Nur leere Felder
 
     let cost = 0;
@@ -93,40 +93,71 @@ function build(x, y) {
     let sizeY = 1;
     let bewohnerChange = 0;
 
-    if (selectedBuilding === "haus") {
-        cost = 150;
-        sizeX = 2;
-        sizeY = 2;
-        bewohnerChange = 5;
-    } else if (selectedBuilding === "weg") {
-        cost = 10;
-    } else if (selectedBuilding === "goldmine") {
-        cost = 250;
-        bewohnerChange = -5;
-    } else if (selectedBuilding === "smaragdmine") {
-        cost = 780;
-        bewohnerChange = -25;
-    } else if (selectedBuilding === "holzfaeller") {
-        cost = 280;
-        sizeX = 3;
-        sizeY = 3;
-    } else if (selectedBuilding === "steinmetz") {
-        cost = 400;
-        sizeX = 2;
-        sizeY = 2;
-    } else if (selectedBuilding === "eisenerz") {
-        cost = 1200;
-        sizeX = 2;
-        sizeY = 1;
+    switch (selectedBuilding) {
+        case "haus":
+            cost = 150;
+            sizeX = 2;
+            sizeY = 2;
+            bewohnerChange = 5;
+            break;
+        case "weg":
+            cost = 10;
+            break;
+        case "marktplatz":
+            cost = 450;
+            sizeX = 4;
+            sizeY = 4;
+            break;
+        case "getreidefarm":
+            cost = 280;
+            sizeX = 3;
+            sizeY = 3;
+            bewohnerChange = -3;
+            break;
+        case "fischerhuette":
+            cost = 120;
+            sizeX = 1;
+            sizeY = 1;
+            bewohnerChange = -2;
+            break;
+        case "holzfaeller":
+            cost = 150;
+            sizeX = 3;
+            sizeY = 2;
+            bewohnerChange = -5;
+            break;
+        case "steinmetz":
+            cost = 300;
+            sizeX = 2;
+            sizeY = 2;
+            bewohnerChange = -8;
+            break;
+        case "eisenerz":
+            cost = 800;
+            sizeX = 2;
+            sizeY = 2;
+            bewohnerChange = -15;
+            break;
+        case "goldmine":
+            cost = 600;
+            sizeX = 2;
+            sizeY = 2;
+            bewohnerChange = -25;
+            break;
+        case "smaragdmine":
+            cost = 1500;
+            sizeX = 3;
+            sizeY = 3;
+            bewohnerChange = -60;
+            break;
     }
 
-    // Überprüfen, ob genügend Einwohner vorhanden sind
     if (bewohner + bewohnerChange < 0) {
         alert("Nicht genug Einwohner für dieses Gebäude!");
         return;
     }
 
-    // Gratis Bauten?
+    // Gratis-Bauten prüfen
     if (freeBuildings[selectedBuilding] && freeBuildings[selectedBuilding] > 0) {
         freeBuildings[selectedBuilding]--;
         cost = 0;
@@ -151,12 +182,7 @@ function build(x, y) {
     if (selectedBuilding === "weg") {
         const adjacentTypes = ["weg", "rathaus", "marktplatz"];
         let hasValidNeighbor = false;
-        const neighbors = [
-            [0, -1], // oben
-            [0, 1],  // unten
-            [-1, 0], // links
-            [1, 0]   // rechts
-        ];
+        const neighbors = [[0, -1], [0, 1], [-1, 0], [1, 0]];
         for (const [dx, dy] of neighbors) {
             const nx = x + dx;
             const ny = y + dy;
@@ -189,10 +215,11 @@ function build(x, y) {
         for (let dx = 0; dx < sizeX; dx++) {
             gridArray[y + dy][x + dx].type = selectedBuilding;
             gridArray[y + dy][x + dx].element.classList.add(selectedBuilding);
-            buildingLevels[`${x + dx}_${y + dy}`] = 1; // Stufe 1 bei Bau
+            buildingLevels[`${x + dx}_${y + dy}`] = 1;
         }
     }
 }
+
 
 // Menü beim Klick auf Gebäude
 function openBuildingMenu(x, y) {

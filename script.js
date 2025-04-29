@@ -19,48 +19,46 @@ const gridArray = [];
 
 const buildingLevels = {}; // Speichert Upgrades der Gebäude
 
+// Grid erstellen mit Insel-Form (mit Zufalls-Noise)
 function generateIsland() {
-    const maxRadius = Math.sqrt(WIDTH * WIDTH + HEIGHT * HEIGHT) / 2;
-    const islandRadius = maxRadius * Math.sqrt(0.6); // ca. 60% Fläche
+for (let y = 0; y < HEIGHT; y++) {
+    gridArray[y] = [];
+    for (let x = 0; x < WIDTH; x++) {
+        const cell = document.createElement("div");
+        cell.className = "cell";
+        cell.dataset.x = x;
+        cell.dataset.y = y;
 
-    for (let y = 0; y < HEIGHT; y++) {
-        gridArray[y] = [];
-        for (let x = 0; x < WIDTH; x++) {
-            const cell = document.createElement("div");
-            cell.className = "cell";
-            cell.dataset.x = x;
-            cell.dataset.y = y;
+        const dx = x - gridCenterX;
+        const dy = y - gridCenterY;
+        const distance = Math.sqrt(dx * dx + dy * dy);
 
-            const dx = x - gridCenterX;
-            const dy = y - gridCenterY;
-            const distance = Math.sqrt(dx * dx + dy * dy);
+        // leichte Verzerrung + Zufalls-Noise für unregelmäßige Insel
+        const noise = (Math.sin(x * 0.3) + Math.cos(y * 0.2)) * 3 + (Math.random() - 0.5) * 6;
 
-            // Natürlichere, runde Insel mit etwas Unregelmäßigkeit
-            const angle = Math.atan2(dy, dx);
-            const noise = Math.sin(angle * 3 + Math.random()) * 5 + Math.cos(angle * 2 + Math.random()) * 4;
-
-            const threshold = islandRadius + noise;
-
-            if (distance < threshold) {
-                gridArray[y][x] = { type: null, element: cell, active: true };
-            } else {
-                cell.classList.add("wasser");
-                gridArray[y][x] = { type: "wasser", element: cell, active: false };
-            }
-
-            cell.addEventListener("click", (e) => onCellClick(e, x, y));
-            grid.appendChild(cell);
+        if (distance < islandRadius + noise) {
+            // Insel
+            gridArray[y][x] = { type: null, element: cell, active: true };
+        } else {
+            // Wasser
+            cell.classList.add("wasser");
+            gridArray[y][x] = { type: "wasser", element: cell, active: false };
         }
-    }
 
-    // Rathaus in der Mitte platzieren (3x3)
-    for (let y = gridCenterY - 1; y <= gridCenterY + 1; y++) {
-        for (let x = gridCenterX - 1; x <= gridCenterX + 1; x++) {
-            gridArray[y][x].type = "rathaus";
-            gridArray[y][x].element.classList.add("rathaus");
-        }
+        cell.addEventListener("click", (e) => onCellClick(e, x, y));
+        grid.appendChild(cell);
     }
 }
+
+// Rathaus in der Mitte platzieren (3x3)
+for (let y = gridCenterY - 1; y <= gridCenterY + 1; y++) {
+    for (let x = gridCenterX - 1; x <= gridCenterX + 1; x++) {
+        gridArray[y][x].type = "rathaus";
+        gridArray[y][x].element.classList.add("rathaus");
+    }
+}
+}
+
 
 
 
@@ -72,9 +70,6 @@ function shuffle(array) {
     }
     return array;
 }
-
-
-
 
 // Gebäude auswählen
 function setBuilding(building) {

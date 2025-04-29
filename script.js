@@ -79,6 +79,7 @@ function onCellClick(e, x, y) {
 }
 
 // Bauen
+// Bauen
 function build(x, y) {
     if (!selectedBuilding) return;
     const cell = gridArray[y][x];
@@ -162,10 +163,10 @@ function build(x, y) {
     // Platzierungsregel für Wege
     if (selectedBuilding === "weg") {
         const directions = [
-            [0, -1],
-            [0, 1],
-            [-1, 0],
-            [1, 0],
+            [0, -1], // oben
+            [0, 1],  // unten
+            [-1, 0], // links
+            [1, 0],  // rechts
         ];
         let isNextToValid = false;
         for (const [dx, dy] of directions) {

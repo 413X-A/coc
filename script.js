@@ -4,6 +4,7 @@ let selectedBuilding = null;
 let gold = 20000;
 let bewohner = 15;
 let holz = 0;
+let mahrung = 100;
 let stein = 0;
 let eisen = 0;
 let smaragde = 0;

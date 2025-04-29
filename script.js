@@ -104,19 +104,19 @@ function build(x, y) {
             cost = 10;
             break;
         case "marktplatz":
-            cost = 450;
-            sizeX = 4;
-            sizeY = 4;
+            cost = 75;
+            sizeX = 2;
+            sizeY = 2;
             break;
         case "getreidefarm":
             cost = 280;
             sizeX = 3;
-            sizeY = 3;
+            sizeY = 2;
             bewohnerChange = -3;
             break;
         case "fischerhuette":
             cost = 120;
-            sizeX = 1;
+            sizeX = 2;
             sizeY = 1;
             bewohnerChange = -2;
             break;
@@ -124,31 +124,31 @@ function build(x, y) {
             cost = 150;
             sizeX = 3;
             sizeY = 2;
-            bewohnerChange = -5;
+            bewohnerChange = -4;
             break;
         case "steinmetz":
             cost = 300;
             sizeX = 2;
             sizeY = 2;
-            bewohnerChange = -8;
+            bewohnerChange = -4;
             break;
         case "eisenerz":
             cost = 800;
             sizeX = 2;
             sizeY = 2;
-            bewohnerChange = -15;
+            bewohnerChange = -6;
             break;
         case "goldmine":
             cost = 600;
             sizeX = 2;
             sizeY = 2;
-            bewohnerChange = -25;
+            bewohnerChange = -5;
             break;
         case "smaragdmine":
             cost = 1500;
-            sizeX = 3;
-            sizeY = 3;
-            bewohnerChange = -60;
+            sizeX = 2;
+            sizeY = 2;
+            bewohnerChange = -8;
             break;
     }
 

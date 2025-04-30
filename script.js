@@ -79,58 +79,72 @@ function generateIsland() {
         }
     }
 
-    // 3 natürlich aussehende Berge generieren
+    // 3 wirklich natürliche Berge erzeugen
 for (let i = 0; i < 3; i++) {
-    let mountainX, mountainY, attempts = 0, valid = false;
+    let startX, startY, attempts = 0;
+    let isValid = false;
 
-    while (attempts < 1000 && !valid) {
-        mountainX = Math.floor(Math.random() * WIDTH);
-        mountainY = Math.floor(Math.random() * HEIGHT);
-        const dx = mountainX - gridCenterX;
-        const dy = mountainY - gridCenterY;
-        const distToTownhall = Math.sqrt(dx * dx + dy * dy);
+    while (attempts < 1000 && !isValid) {
+        startX = Math.floor(Math.random() * WIDTH);
+        startY = Math.floor(Math.random() * HEIGHT);
 
-        if (distToTownhall > 10 && gridArray[mountainY][mountainX].active && !gridArray[mountainY][mountainX].type) {
-            valid = true;
+        const dx = startX - gridCenterX;
+        const dy = startY - gridCenterY;
+        const distanceToCenter = Math.sqrt(dx * dx + dy * dy);
+
+        if (
+            distanceToCenter > 12 &&  // genug Abstand zum Rathaus
+            gridArray[startY][startX].active &&
+            !gridArray[startY][startX].type
+        ) {
+            isValid = true;
         }
         attempts++;
     }
 
-    if (valid) {
-        const maxTiles = Math.floor(Math.random() * 20) + 20; // Größe des Berges
-        const queue = [{ x: mountainX, y: mountainY }];
-        const visited = new Set();
-        let placed = 0;
+    if (!isValid) continue;
 
-        while (queue.length > 0 && placed < maxTiles) {
-            const { x, y } = queue.shift();
-            const key = `${x},${y}`;
-            if (visited.has(key)) continue;
-            visited.add(key);
+    const maxTiles = Math.floor(Math.random() * 30) + 20;
+    const open = [{ x: startX, y: startY }];
+    const visited = new Set();
+    let placed = 0;
 
-            if (
-                x >= 0 && x < WIDTH &&
-                y >= 0 && y < HEIGHT &&
-                gridArray[y][x].active &&
-                !gridArray[y][x].type &&
-                Math.random() < 0.95 // kleine Lücken im Berg
-            ) {
-                gridArray[y][x].type = "berg";
-                gridArray[y][x].element.classList.add("berg");
-                placed++;
+    while (open.length > 0 && placed < maxTiles) {
+        const current = open.shift();
+        const key = `${current.x},${current.y}`;
+        if (visited.has(key)) continue;
+        visited.add(key);
 
-                // zufällige Richtungen mischen
-                const directions = [
-                    { dx: -1, dy: 0 }, { dx: 1, dy: 0 },
-                    { dx: 0, dy: -1 }, { dx: 0, dy: 1 },
-                    { dx: -1, dy: -1 }, { dx: 1, dy: 1 },
-                    { dx: -1, dy: 1 }, { dx: 1, dy: -1 }
-                ].sort(() => Math.random() - 0.5);
+        if (
+            current.x >= 0 && current.x < WIDTH &&
+            current.y >= 0 && current.y < HEIGHT &&
+            gridArray[current.y][current.x].active &&
+            !gridArray[current.y][current.x].type &&
+            Math.random() < 0.95 // Lücken & Ausfransung
+        ) {
+            gridArray[current.y][current.x].type = "berg";
+            gridArray[current.y][current.x].element.classList.add("berg");
+            placed++;
 
-                for (const dir of directions) {
-                    if (Math.random() < 0.7) {
-                        queue.push({ x: x + dir.dx, y: y + dir.dy });
-                    }
+            // Richtungen zufällig durchmischen für unregelmäßige Form
+            const directions = [
+                { dx: -1, dy: 0 },
+                { dx: 1, dy: 0 },
+                { dx: 0, dy: -1 },
+                { dx: 0, dy: 1 },
+                { dx: -1, dy: -1 },
+                { dx: 1, dy: 1 },
+                { dx: -1, dy: 1 },
+                { dx: 1, dy: -1 }
+            ].sort(() => Math.random() - 0.5);
+
+            // Mehr Ausbreitung in eine zufällige Richtung erzeugt Verästelungen
+            for (const dir of directions) {
+                if (Math.random() < 0.6) {
+                    open.push({
+                        x: current.x + dir.dx,
+                        y: current.y + dir.dy
+                    });
                 }
             }
         }

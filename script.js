@@ -79,15 +79,13 @@ function generateIsland() {
         }
     }
 
-    // 3 Berge generieren (mit Zufallspositionen)
+    // 3 natürlich aussehende Berge generieren
 for (let i = 0; i < 3; i++) {
     let mountainX, mountainY, attempts = 0, valid = false;
 
-    // Bergplatzierung
     while (attempts < 1000 && !valid) {
         mountainX = Math.floor(Math.random() * WIDTH);
         mountainY = Math.floor(Math.random() * HEIGHT);
-
         const dx = mountainX - gridCenterX;
         const dy = mountainY - gridCenterY;
         const distToTownhall = Math.sqrt(dx * dx + dy * dy);
@@ -98,15 +96,14 @@ for (let i = 0; i < 3; i++) {
         attempts++;
     }
 
-    // Natürliche Bergform erzeugen
     if (valid) {
-        const size = Math.floor(Math.random() * 6) + 6; // Größe der Ausbreitung
-        const cellsToCheck = [{ x: mountainX, y: mountainY }];
+        const maxTiles = Math.floor(Math.random() * 20) + 20; // Größe des Berges
+        const queue = [{ x: mountainX, y: mountainY }];
         const visited = new Set();
+        let placed = 0;
 
-        let count = 0;
-        while (cellsToCheck.length > 0 && count < size * 5) {
-            const { x, y } = cellsToCheck.shift();
+        while (queue.length > 0 && placed < maxTiles) {
+            const { x, y } = queue.shift();
             const key = `${x},${y}`;
             if (visited.has(key)) continue;
             visited.add(key);
@@ -116,28 +113,30 @@ for (let i = 0; i < 3; i++) {
                 y >= 0 && y < HEIGHT &&
                 gridArray[y][x].active &&
                 !gridArray[y][x].type &&
-                Math.random() < 0.9 // zufällige Lücken für Unregelmäßigkeit
+                Math.random() < 0.95 // kleine Lücken im Berg
             ) {
                 gridArray[y][x].type = "berg";
                 gridArray[y][x].element.classList.add("berg");
-                count++;
+                placed++;
 
-                // zufällig neue Zellen anhängen (unregelmäßige Ausbreitung)
-                const dirs = [
+                // zufällige Richtungen mischen
+                const directions = [
                     { dx: -1, dy: 0 }, { dx: 1, dy: 0 },
                     { dx: 0, dy: -1 }, { dx: 0, dy: 1 },
                     { dx: -1, dy: -1 }, { dx: 1, dy: 1 },
                     { dx: -1, dy: 1 }, { dx: 1, dy: -1 }
-                ];
-                for (const dir of dirs) {
-                    if (Math.random() < 0.6) {
-                        cellsToCheck.push({ x: x + dir.dx, y: y + dir.dy });
+                ].sort(() => Math.random() - 0.5);
+
+                for (const dir of directions) {
+                    if (Math.random() < 0.7) {
+                        queue.push({ x: x + dir.dx, y: y + dir.dy });
                     }
                 }
             }
         }
     }
 }
+
 
 
 

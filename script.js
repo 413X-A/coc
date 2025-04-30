@@ -30,7 +30,7 @@ function generateIsland() {
     const HEIGHT = 75;
     const gridCenterX = Math.floor(WIDTH / 2);
     const gridCenterY = Math.floor(HEIGHT / 2);
-    const islandRadius = Math.min(WIDTH, HEIGHT) * 0.3; // Inselradius als Basis
+    const islandRadius = Math.min(WIDTH, HEIGHT) * 0.35; // Basisradius für Insel
     const minDistanceToTownhall = 10;
     const mountainCount = 3;
 
@@ -38,6 +38,7 @@ function generateIsland() {
     grid.innerHTML = "";
     const gridArray = [];
 
+    // Inselgenerierung mit zufälligem Rauschen
     for (let y = 0; y < HEIGHT; y++) {
         gridArray[y] = [];
         for (let x = 0; x < WIDTH; x++) {
@@ -50,15 +51,15 @@ function generateIsland() {
             const dy = y - gridCenterY;
             const distance = Math.sqrt(dx * dx + dy * dy);
 
-            // Verzerrtes Noise für eine unregelmäßige Insel
-            const noiseX = Math.sin(x * 0.15) * 1.5; // Horizontale Verzerrung
-            const noiseY = Math.cos(y * 0.15) * 1.2; // Vertikale Verzerrung
-            const randomNoise = (Math.random() - 0.5) * 1.0; // Zufälliges Noise für Variation
+            // Zufällige Verzerrungen in X und Y Richtung
+            const noiseX = Math.sin(x * 0.1) * Math.random() * 2;  // Horizontale Verzerrung
+            const noiseY = Math.cos(y * 0.1) * Math.random() * 2;  // Vertikale Verzerrung
+            const randomNoise = (Math.random() - 0.5) * 2;  // Zufälliges Noise für Auswüchse
 
-            // Gesamtes Noise, das die Insel verzerrt
+            // Berechnung der Verzerrung der Inselgrenze
             const distortion = noiseX + noiseY + randomNoise;
 
-            // Berechnung der Inselgrenze mit Verzerrung
+            // Berechnung, ob Zelle zur Insel gehört
             if (distance < islandRadius + distortion) {
                 gridArray[y][x] = { type: null, element: cell, active: true };
             } else {
@@ -131,6 +132,7 @@ function generateIsland() {
 
     window.gridArray = gridArray;
 }
+
 
 
 

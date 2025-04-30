@@ -75,7 +75,7 @@ function generateIsland() {
 
     // Berge generieren – mit Abstand zum Rathaus
     const mountainCount = 3;
-    const minDistanceToTownhall = 10;
+    const minDistanceToTownhall = 15;
 
     for (let i = 0; i < mountainCount; i++) {
         let mountainX, mountainY, distanceToTownhall;

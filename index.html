@@ -27,9 +27,13 @@
         <button class="building-button" data-building="fischerhuette">Fischerhütte</button>
         <button class="building-button" data-building="holzfaeller">Holzfäller</button>
         <button class="building-button" data-building="steinmetz">Steinmetz</button>
-        <button class="building-button" data-building="eisenerz">Eisenerz</button>
-        <button class="building-button" data-building="goldmine">Goldmine</button>
-        <button class="building-button" data-building="smaragdmine">Smaragdmine</button>
+        <button class="building-button" data-building="eisenschmiede">Eisenschmiede</button>
+        <button class="building-button" data-building="goldschmiede">Goldschmiede</button>
+        <button class="building-button" data-building="smaragdschmiede">Smaragdschmiede</button>
+        <button class="building-button" data-building="steinbruch">Steinbruch</button>
+        <button class="building-button" data-building="eisenbruch">Eisenbruch</button>
+        <button class="building-button" data-building="goldbruch">Goldbruch</button>
+        <button class="building-button" data-building="smaragdbruch">Smaragdbruch</button>
 
         <!-- Button für "Nichts bauen" -->
         <button id="no-build">Nichts bauen</button>
@@ -37,10 +41,10 @@
 
     <!-- Popup für Gebäude-Details -->
     <div id="building-popup" class="popup" style="display: none;">
-    <button class="close-btn" onclick="closePopup()">X</button>
-    <div id="popup-content"></div>
-    <button id="confirm-build">Bauen</button>
-</div>
+        <button class="close-btn" onclick="closePopup()">X</button>
+        <div id="popup-content"></div>
+        <button id="confirm-build">Bauen</button>
+    </div>
 
     <!-- Das Spielfeld -->
     <div id="grid"></div>
@@ -51,7 +55,6 @@
         <input type="file" id="loadInput" accept=".txt" style="display: none;" onchange="loadGame(event)">
         <button onclick="document.getElementById('loadInput').click()">Laden</button>
     </div>
-
 
     <!-- Externe Skripte -->
     <script src="bauenFunktionen.js"></script>

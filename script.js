@@ -31,7 +31,7 @@ function generateIsland() {
     const HEIGHT = 75;
     const gridCenterX = Math.floor(WIDTH / 2);
     const gridCenterY = Math.floor(HEIGHT / 2);
-    const islandRadius = Math.min(WIDTH, HEIGHT) * 0.4;
+    const islandRadius = Math.min(WIDTH, HEIGHT) * 0.35;
     const minDistanceToTownhall = 10;
     const mountainCount = 3;
 
@@ -51,14 +51,17 @@ function generateIsland() {
             const dy = y - gridCenterY;
             const distance = Math.sqrt(dx * dx + dy * dy);
 
-            // Natürlichere Inselform durch verzerrten Noise
-            const angleNoise = Math.sin(x * 0.2) + Math.cos(y * 0.18);
-            const rippleNoise = Math.sin(x * 0.05 + y * 0.03) * 5;
-            const randomNoise = (Math.random() - 0.5) * 5;
+            // Natürliches, aber rundes Terrain
+            const waveNoise = (
+                Math.sin(x * 0.08) +
+                Math.sin(y * 0.08 + x * 0.04) +
+                Math.cos((x + y) * 0.05)
+            ) * 1.2;
 
-            const totalNoise = angleNoise * 4 + rippleNoise + randomNoise;
+            const randomNoise = (Math.random() - 0.5) * 1.5;
+            const noise = waveNoise + randomNoise;
 
-            if (distance < islandRadius + totalNoise) {
+            if (distance < islandRadius + noise) {
                 gridArray[y][x] = { type: null, element: cell, active: true };
             } else {
                 cell.classList.add("wasser");
@@ -70,7 +73,7 @@ function generateIsland() {
         }
     }
 
-    // Rathaus (3x3)
+    // Rathaus in der Mitte (3x3)
     for (let y = gridCenterY - 1; y <= gridCenterY + 1; y++) {
         for (let x = gridCenterX - 1; x <= gridCenterX + 1; x++) {
             gridArray[y][x].type = "rathaus";
@@ -79,7 +82,7 @@ function generateIsland() {
         }
     }
 
-    // Berge generieren
+    // 3 Berge generieren (nicht zu nah am Rathaus)
     for (let i = 0; i < mountainCount; i++) {
         let mountainX, mountainY, attempts = 0, valid = false;
 
@@ -117,9 +120,9 @@ function generateIsland() {
                     const dx = x - mountainX;
                     const dy = y - mountainY;
                     const dist = Math.sqrt(dx * dx + dy * dy);
-                    const noise = (Math.random() - 0.5) * 1.5;
+                    const n = (Math.random() - 0.5) * 1.5;
 
-                    if (dist + noise <= radius) {
+                    if (dist + n <= radius) {
                         gridArray[y][x].type = "berg";
                         gridArray[y][x].element.classList.add("berg");
                     }
@@ -128,7 +131,7 @@ function generateIsland() {
         }
     }
 
-    window.gridArray = gridArray;
+    window.gridArray = gridArray; // Optional global speichern
 }
 
 

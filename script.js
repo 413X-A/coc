@@ -30,7 +30,7 @@ function generateIsland() {
     const HEIGHT = 75;
     const gridCenterX = Math.floor(WIDTH / 2);
     const gridCenterY = Math.floor(HEIGHT / 2);
-    const islandRadius = Math.min(WIDTH, HEIGHT) * 0.35; // Inselradius
+    const islandRadius = Math.min(WIDTH, HEIGHT) * 0.3; // Inselradius als Basis
     const minDistanceToTownhall = 10;
     const mountainCount = 3;
 
@@ -50,17 +50,16 @@ function generateIsland() {
             const dy = y - gridCenterY;
             const distance = Math.sqrt(dx * dx + dy * dy);
 
-            // Unregelmäßige Inselform durch Kombination von Sinus- und Rauschfunktionen
-            const wave1 = Math.sin(x * 0.05) * 1.8;  // Horizontale Wellen
-            const wave2 = Math.cos(y * 0.05) * 1.6;  // Vertikale Wellen
-            const wave3 = Math.sin((x + y) * 0.03) * 1.2; // Diagonale Wellen
-            const randomNoise = (Math.random() - 0.5) * 1.2;  // Mildes zufälliges Rauschen
+            // Verzerrtes Noise für eine unregelmäßige Insel
+            const noiseX = Math.sin(x * 0.15) * 1.5; // Horizontale Verzerrung
+            const noiseY = Math.cos(y * 0.15) * 1.2; // Vertikale Verzerrung
+            const randomNoise = (Math.random() - 0.5) * 1.0; // Zufälliges Noise für Variation
 
-            // Kombination der Wellen und des Rauschens
-            const noise = wave1 + wave2 + wave3 + randomNoise;
+            // Gesamtes Noise, das die Insel verzerrt
+            const distortion = noiseX + noiseY + randomNoise;
 
-            // Berechnung, ob das Land innerhalb der Inselform liegt
-            if (distance < islandRadius + noise) {
+            // Berechnung der Inselgrenze mit Verzerrung
+            if (distance < islandRadius + distortion) {
                 gridArray[y][x] = { type: null, element: cell, active: true };
             } else {
                 cell.classList.add("wasser");
@@ -81,7 +80,7 @@ function generateIsland() {
         }
     }
 
-    // Berge generieren mit Abstand zum Rathaus
+    // 3 Berge generieren mit Abstand zum Rathaus
     for (let i = 0; i < mountainCount; i++) {
         let mountainX, mountainY, attempts = 0, valid = false;
 
@@ -132,6 +131,7 @@ function generateIsland() {
 
     window.gridArray = gridArray;
 }
+
 
 
 

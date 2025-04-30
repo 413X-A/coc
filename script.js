@@ -30,7 +30,7 @@ function generateIsland() {
     const HEIGHT = 75;
     const gridCenterX = Math.floor(WIDTH / 2);
     const gridCenterY = Math.floor(HEIGHT / 2);
-    const islandRadius = Math.min(WIDTH, HEIGHT) * 0.3;
+    const islandRadius = Math.min(WIDTH, HEIGHT) * 0.35; // Inselradius
     const minDistanceToTownhall = 10;
     const mountainCount = 3;
 
@@ -50,15 +50,16 @@ function generateIsland() {
             const dy = y - gridCenterY;
             const distance = Math.sqrt(dx * dx + dy * dy);
 
-            // Natürliche Noise-Komponenten
-            const wave1 = Math.sin(x * 0.07) * 1.5;
-            const wave2 = Math.cos(y * 0.05 + x * 0.02) * 1.2;
-            const wave3 = Math.sin((x + y) * 0.03) * 1.0;
-            const randomNoise = (Math.random() - 0.5) * 0.8;
+            // Unregelmäßige Inselform durch Kombination von Sinus- und Rauschfunktionen
+            const wave1 = Math.sin(x * 0.05) * 1.8;  // Horizontale Wellen
+            const wave2 = Math.cos(y * 0.05) * 1.6;  // Vertikale Wellen
+            const wave3 = Math.sin((x + y) * 0.03) * 1.2; // Diagonale Wellen
+            const randomNoise = (Math.random() - 0.5) * 1.2;  // Mildes zufälliges Rauschen
 
+            // Kombination der Wellen und des Rauschens
             const noise = wave1 + wave2 + wave3 + randomNoise;
 
-            // "Kreis mit organischer Kante"
+            // Berechnung, ob das Land innerhalb der Inselform liegt
             if (distance < islandRadius + noise) {
                 gridArray[y][x] = { type: null, element: cell, active: true };
             } else {
@@ -80,7 +81,7 @@ function generateIsland() {
         }
     }
 
-    // 3 natürlich verteilte Berge
+    // Berge generieren mit Abstand zum Rathaus
     for (let i = 0; i < mountainCount; i++) {
         let mountainX, mountainY, attempts = 0, valid = false;
 
@@ -131,6 +132,7 @@ function generateIsland() {
 
     window.gridArray = gridArray;
 }
+
 
 
 

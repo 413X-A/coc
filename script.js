@@ -25,80 +25,82 @@ const gridCenterX = Math.floor(WIDTH / 2);
 const gridCenterY = Math.floor(HEIGHT / 2);
 const islandRadius = Math.min(WIDTH, HEIGHT) * 0.4;
 // Grid erstellen mit Insel-Form
-for (let y = 0; y < HEIGHT; y++) {
-    gridArray[y] = [];
-    for (let x = 0; x < WIDTH; x++) {
-        const cell = document.createElement("div");
-        cell.className = "cell";
-        cell.dataset.x = x;
-        cell.dataset.y = y;
+function generateIsland() {
+    for (let y = 0; y < HEIGHT; y++) {
+        gridArray[y] = [];
+        for (let x = 0; x < WIDTH; x++) {
+            const cell = document.createElement("div");
+            cell.className = "cell";
+            cell.dataset.x = x;
+            cell.dataset.y = y;
 
-        const dx = x - gridCenterX;
-        const dy = y - gridCenterY;
-        const distance = Math.sqrt(dx * dx + dy * dy);
+            const dx = x - gridCenterX;
+            const dy = y - gridCenterY;
+            const distance = Math.sqrt(dx * dx + dy * dy);
 
-        // leichte Verzerrung für eine unregelmäßige Insel
-        const noise = (Math.sin(x * 0.3) + Math.cos(y * 0.2)) * 3;
+            // leichte Verzerrung für eine unregelmäßige Insel
+            const noise = (Math.sin(x * 0.3) + Math.cos(y * 0.2)) * 3;
 
-        if (distance < islandRadius + noise) {
-            // Insel
-            gridArray[y][x] = { type: null, element: cell, active: true };
-        } else {
-            // Wasser
-            cell.classList.add("wasser");
-            gridArray[y][x] = { type: "wasser", element: cell, active: false };
+            if (distance < islandRadius + noise) {
+                // Insel
+                gridArray[y][x] = { type: null, element: cell, active: true };
+            } else {
+                // Wasser
+                cell.classList.add("wasser");
+                gridArray[y][x] = { type: "wasser", element: cell, active: false };
+            }
+
+            cell.addEventListener("click", (e) => onCellClick(e, x, y));
+            grid.appendChild(cell);
         }
-
-        cell.addEventListener("click", (e) => onCellClick(e, x, y));
-        grid.appendChild(cell);
     }
-}
 
-// Rathaus in der Mitte platzieren (3x3)
-for (let y = gridCenterY - 1; y <= gridCenterY + 1; y++) {
-    for (let x = gridCenterX - 1; x <= gridCenterX + 1; x++) {
-        gridArray[y][x].type = "rathaus";
-        gridArray[y][x].element.classList.add("rathaus");
+    // Rathaus in der Mitte platzieren (3x3)
+    for (let y = gridCenterY - 1; y <= gridCenterY + 1; y++) {
+        for (let x = gridCenterX - 1; x <= gridCenterX + 1; x++) {
+            gridArray[y][x].type = "rathaus";
+            gridArray[y][x].element.classList.add("rathaus");
+        }
     }
-}
 
-// Berge platzieren
-const minDistanceFromCenter = 10;
-const numMountains = 3;
-let mountainsPlaced = 0;
+    // Berge platzieren
+    const minDistanceFromCenter = 10;
+    const numMountains = 3;
+    let mountainsPlaced = 0;
 
-while (mountainsPlaced < numMountains) {
-    const mountainX = Math.floor(Math.random() * WIDTH);
-    const mountainY = Math.floor(Math.random() * HEIGHT);
+    while (mountainsPlaced < numMountains) {
+        const mountainX = Math.floor(Math.random() * WIDTH);
+        const mountainY = Math.floor(Math.random() * HEIGHT);
 
-    const dx = mountainX - gridCenterX;
-    const dy = mountainY - gridCenterY;
-    const distanceToCenter = Math.sqrt(dx * dx + dy * dy);
+        const dx = mountainX - gridCenterX;
+        const dy = mountainY - gridCenterY;
+        const distanceToCenter = Math.sqrt(dx * dx + dy * dy);
 
-    // Stelle sicher, dass der Berg weit genug vom Zentrum entfernt ist
-    if (distanceToCenter < minDistanceFromCenter) continue;
+        // Stelle sicher, dass der Berg weit genug vom Zentrum entfernt ist
+        if (distanceToCenter < minDistanceFromCenter) continue;
 
-    const mountainRadius = 3 + Math.floor(Math.random() * 2); // Radius 3–4
-    for (let y = mountainY - mountainRadius; y <= mountainY + mountainRadius; y++) {
-        for (let x = mountainX - mountainRadius; x <= mountainX + mountainRadius; x++) {
-            if (x >= 0 && y >= 0 && x < WIDTH && y < HEIGHT) {
-                const dx = x - mountainX;
-                const dy = y - mountainY;
-                const dist = Math.sqrt(dx * dx + dy * dy);
-                const distortion = (Math.sin(x * 0.5) + Math.cos(y * 0.4)) * 0.8;
+        const mountainRadius = 3 + Math.floor(Math.random() * 2); // Radius 3–4
+        for (let y = mountainY - mountainRadius; y <= mountainY + mountainRadius; y++) {
+            for (let x = mountainX - mountainRadius; x <= mountainX + mountainRadius; x++) {
+                if (x >= 0 && y >= 0 && x < WIDTH && y < HEIGHT) {
+                    const dx = x - mountainX;
+                    const dy = y - mountainY;
+                    const dist = Math.sqrt(dx * dx + dy * dy);
+                    const distortion = (Math.sin(x * 0.5) + Math.cos(y * 0.4)) * 0.8;
 
-                if (dist < mountainRadius + distortion) {
-                    const cellData = gridArray[y][x];
-                    if (cellData && cellData.type === null) {
-                        cellData.type = "berg";
-                        cellData.element.classList.add("berg");
+                    if (dist < mountainRadius + distortion) {
+                        const cellData = gridArray[y][x];
+                        if (cellData && cellData.type === null) {
+                            cellData.type = "berg";
+                            cellData.element.classList.add("berg");
+                        }
                     }
                 }
             }
         }
-    }
 
-    mountainsPlaced++;
+        mountainsPlaced++;
+    }
 }
 
 

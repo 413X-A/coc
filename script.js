@@ -499,7 +499,7 @@ function produceSmaragde() {
         }
         return sum;
     }, 0);
-    smaragdeProduced = Math.floor(smaragdeProduced / 1); // Keine Division, da es durch 1 geteilt wird
+    smaragdeProduced = Math.floor(smaragdeProduced / 4); // Keine Division, da es durch 1 geteilt wird
     smaragde += smaragdeProduced; // Wert zu Smaragden hinzufügen
     updateInfo();
 }

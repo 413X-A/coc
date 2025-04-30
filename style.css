@@ -1,3 +1,4 @@
+/* Grundlegende Styles */
 body {
     font-family: Arial, sans-serif;
     text-align: center;
@@ -20,6 +21,9 @@ body {
     cursor: pointer;
 }
 
+/* Verschiedene Gebäudearten */
+
+/* Allgemeine Gebäude */
 .haus {
     background-color: green; /* Haus */
 }
@@ -69,13 +73,42 @@ body {
 }
 
 .berg {
-    background-color: #C0C0C0;
+    background-color: #C0C0C0; /* Berg */
 }
 
-#baumenü {
-    margin: 10px;
+/* Neue Gebäudearten: Brüche und Schmieden */
+
+/* Brüche */
+.steinbruch {
+    background-color: #dcdcdc; /* Helles Grau für Steinbruch */
 }
 
+.eisenbruch {
+    background-color: #b0bec5; /* Blau-Grau für Eisenbruch */
+}
+
+.goldbruch {
+    background-color: #ffeb3b; /* Gelb für Goldbruch */
+}
+
+.smaragdbruch {
+    background-color: #4caf50; /* Grün für Smaragdbruch */
+}
+
+/* Schmieden */
+.eisenschmiede {
+    background-color: #f1f8e9; /* Sehr helles Grün für Eisenschmiede */
+}
+
+.goldschmiede {
+    background-color: #fffde7; /* Sehr helles Gelb für Goldschmiede */
+}
+
+.smaragdschmiede {
+    background-color: #e8f5e9; /* Sehr helles Grün für Smaragdschmiede */
+}
+
+/* Popup-Stil */
 #popup {
     position: fixed;
     top: 20%;
@@ -89,6 +122,36 @@ body {
     box-shadow: 0px 0px 10px rgba(0,0,0,0.5);
 }
 
+/* Inhalt des Popups */
 #popupContent {
     text-align: center;
+}
+
+/* Menü */
+#baumenü {
+    margin: 10px;
+}
+
+/* Spezifische Styles für Buttons */
+.building-button {
+    margin: 5px;
+    padding: 10px 20px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.building-button:hover {
+    background-color: #45a049;
+}
+
+#no-build {
+    background-color: #f44336;
+}
+
+#no-build:hover {
+    background-color: #e53935;
 }

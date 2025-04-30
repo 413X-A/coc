@@ -25,128 +25,81 @@ const gridCenterX = Math.floor(WIDTH / 2);
 const gridCenterY = Math.floor(HEIGHT / 2);
 const islandRadius = Math.min(WIDTH, HEIGHT) * 0.4;
 // Grid erstellen mit Insel-Form
-function generateIsland() {
-    const gridArray = [];
-    const grid = document.getElementById("grid");
-    grid.innerHTML = ""; // Vorheriges Grid leeren
+for (let y = 0; y < HEIGHT; y++) {
+    gridArray[y] = [];
+    for (let x = 0; x < WIDTH; x++) {
+        const cell = document.createElement("div");
+        cell.className = "cell";
+        cell.dataset.x = x;
+        cell.dataset.y = y;
 
-    const WIDTH = 101;
-    const HEIGHT = 75;
-    const gridCenterX = Math.floor(WIDTH / 2);
-    const gridCenterY = Math.floor(HEIGHT / 2);
-    const islandRadius = Math.min(WIDTH, HEIGHT) * 0.38;
+        const dx = x - gridCenterX;
+        const dy = y - gridCenterY;
+        const distance = Math.sqrt(dx * dx + dy * dy);
 
-    // Insel generieren
-    for (let y = 0; y < HEIGHT; y++) {
-        gridArray[y] = [];
-        for (let x = 0; x < WIDTH; x++) {
-            const cell = document.createElement("div");
-            cell.className = "cell";
-            cell.dataset.x = x;
-            cell.dataset.y = y;
+        // leichte Verzerrung für eine unregelmäßige Insel
+        const noise = (Math.sin(x * 0.3) + Math.cos(y * 0.2)) * 3;
 
-            const dx = (x - gridCenterX) / (WIDTH * 0.3);   // Horizontal gestreckt (ca. 3/5 der Breite)
-            const dy = (y - gridCenterY) / (HEIGHT * 0.25);  // Vertikal gestaucht (ca. 1/4 der Höhe)
-            const distance = Math.sqrt(dx * dx + dy * dy);  // Berechnet die Entfernung von der Mitte
-
-            // Noise für eine natürliche Verzerrung
-            const angle = Math.atan2(dy, dx);
-            const noise =
-                (Math.sin(x * 0.1) + Math.cos(y * 0.1)) * 3 + 
-                Math.sin(angle * 2.5) * 2 + 
-                (Math.random() - 0.5) * 3;
-
-            if (distance < 1 + noise / 40) {
-                gridArray[y][x] = { type: null, element: cell, active: true };
-            } else {
-                cell.classList.add("wasser");
-                gridArray[y][x] = { type: "wasser", element: cell, active: false };
-            }
-
-            cell.addEventListener("click", (e) => onCellClick(e, x, y));
-            grid.appendChild(cell);
+        if (distance < islandRadius + noise) {
+            // Insel
+            gridArray[y][x] = { type: null, element: cell, active: true };
+        } else {
+            // Wasser
+            cell.classList.add("wasser");
+            gridArray[y][x] = { type: "wasser", element: cell, active: false };
         }
+
+        cell.addEventListener("click", (e) => onCellClick(e, x, y));
+        grid.appendChild(cell);
     }
+}
 
-    // Rathaus in der Mitte platzieren (3x3)
-    for (let y = gridCenterY - 1; y <= gridCenterY + 1; y++) {
-        for (let x = gridCenterX - 1; x <= gridCenterX + 1; x++) {
-            if (gridArray[y][x] && gridArray[y][x].active) {
-                gridArray[y][x].type = "rathaus";
-                gridArray[y][x].element.classList.add("rathaus");
-            }
-        }
+// Rathaus in der Mitte platzieren (3x3)
+for (let y = gridCenterY - 1; y <= gridCenterY + 1; y++) {
+    for (let x = gridCenterX - 1; x <= gridCenterX + 1; x++) {
+        gridArray[y][x].type = "rathaus";
+        gridArray[y][x].element.classList.add("rathaus");
     }
+}
 
-    // Natürlich geformte, dichte Berge ohne Löcher
-    for (let i = 0; i < 3; i++) {
-        let startX, startY, attempts = 0;
-        let isValid = false;
+// Berge platzieren
+const minDistanceFromCenter = 10;
+const numMountains = 3;
+let mountainsPlaced = 0;
 
-        while (attempts < 1000 && !isValid) {
-            startX = Math.floor(Math.random() * WIDTH);
-            startY = Math.floor(Math.random() * HEIGHT);
-            const dx = startX - gridCenterX;
-            const dy = startY - gridCenterY;
-            const distanceToCenter = Math.sqrt(dx * dx + dy * dy);
+while (mountainsPlaced < numMountains) {
+    const mountainX = Math.floor(Math.random() * WIDTH);
+    const mountainY = Math.floor(Math.random() * HEIGHT);
 
-            if (
-                distanceToCenter > 12 &&
-                gridArray[startY][startX].active &&
-                !gridArray[startY][startX].type
-            ) {
-                isValid = true;
-            }
-            attempts++;
-        }
+    const dx = mountainX - gridCenterX;
+    const dy = mountainY - gridCenterY;
+    const distanceToCenter = Math.sqrt(dx * dx + dy * dy);
 
-        if (!isValid) continue;
+    // Stelle sicher, dass der Berg weit genug vom Zentrum entfernt ist
+    if (distanceToCenter < minDistanceFromCenter) continue;
 
-        const maxTiles = Math.floor(Math.random() * 30) + 20;
-        const open = [{ x: startX, y: startY }];
-        const visited = new Set();
-        let placed = 0;
+    const mountainRadius = 3 + Math.floor(Math.random() * 2); // Radius 3–4
+    for (let y = mountainY - mountainRadius; y <= mountainY + mountainRadius; y++) {
+        for (let x = mountainX - mountainRadius; x <= mountainX + mountainRadius; x++) {
+            if (x >= 0 && y >= 0 && x < WIDTH && y < HEIGHT) {
+                const dx = x - mountainX;
+                const dy = y - mountainY;
+                const dist = Math.sqrt(dx * dx + dy * dy);
+                const distortion = (Math.sin(x * 0.5) + Math.cos(y * 0.4)) * 0.8;
 
-        while (open.length > 0 && placed < maxTiles) {
-            const current = open.shift();
-            const key = `${current.x},${current.y}`;
-            if (visited.has(key)) continue;
-            visited.add(key);
-
-            if (
-                current.x >= 0 && current.x < WIDTH &&
-                current.y >= 0 && current.y < HEIGHT &&
-                gridArray[current.y][current.x].active &&
-                !gridArray[current.y][current.x].type
-            ) {
-                gridArray[current.y][current.x].type = "berg";
-                gridArray[current.y][current.x].element.classList.add("berg");
-                placed++;
-
-                const directions = [
-                    { dx: -1, dy: 0 }, { dx: 1, dy: 0 },
-                    { dx: 0, dy: -1 }, { dx: 0, dy: 1 },
-                    { dx: -1, dy: -1 }, { dx: 1, dy: 1 },
-                    { dx: -1, dy: 1 }, { dx: 1, dy: -1 }
-                ];
-
-                for (const dir of directions) {
-                    open.push({
-                        x: current.x + dir.dx,
-                        y: current.y + dir.dy
-                    });
+                if (dist < mountainRadius + distortion) {
+                    const cellData = gridArray[y][x];
+                    if (cellData && cellData.type === null) {
+                        cellData.type = "berg";
+                        cellData.element.classList.add("berg");
+                    }
                 }
             }
         }
     }
 
-    window.gridArray = gridArray;
+    mountainsPlaced++;
 }
-
-
-
-
-
 
 
 

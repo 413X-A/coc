@@ -73,7 +73,38 @@ function generateIsland() {
     }
 
     // Gebäude nach dem Laden aktivieren
-    
+    // 3 größere Berge generieren
+const mountainCount = 3;
+for (let i = 0; i < mountainCount; i++) {
+    // Einen zufälligen Punkt innerhalb der Insel finden
+    let mountainX, mountainY;
+    do {
+        mountainX = Math.floor(Math.random() * WIDTH);
+        mountainY = Math.floor(Math.random() * HEIGHT);
+    } while (!gridArray[mountainY][mountainX].active || gridArray[mountainY][mountainX].type);
+
+    // Bergzentrum definieren und ausbreiten
+    const mountainRadius = Math.floor(Math.random() * 5) + 4; // Radius zwischen 4 und 8
+    for (let y = mountainY - mountainRadius; y <= mountainY + mountainRadius; y++) {
+        for (let x = mountainX - mountainRadius; x <= mountainX + mountainRadius; x++) {
+            if (
+                x >= 0 && x < WIDTH &&
+                y >= 0 && y < HEIGHT &&
+                gridArray[y][x].active &&
+                !gridArray[y][x].type
+            ) {
+                const dx = x - mountainX;
+                const dy = y - mountainY;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+
+                if (distance <= mountainRadius) {
+                    gridArray[y][x].type = "berg";
+                    gridArray[y][x].element.classList.add("berg");
+                }
+            }
+        }
+    }
+}
 }
 
 // Hilfsfunktion zum Mischen eines Arrays

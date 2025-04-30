@@ -28,7 +28,7 @@ const islandRadius = Math.min(WIDTH, HEIGHT) * 0.4;
 function generateIsland() {
     const gridArray = [];
     const grid = document.getElementById("grid");
-    grid.innerHTML = ""; // vorheriges Grid leeren
+    grid.innerHTML = "";
 
     const WIDTH = 101;
     const HEIGHT = 75;
@@ -36,7 +36,7 @@ function generateIsland() {
     const gridCenterY = Math.floor(HEIGHT / 2);
     const islandRadius = Math.min(WIDTH, HEIGHT) * 0.38;
 
-    // Insel generieren
+    // Insel generieren (nicht zu rund, nicht zu eckig)
     for (let y = 0; y < HEIGHT; y++) {
         gridArray[y] = [];
         for (let x = 0; x < WIDTH; x++) {
@@ -45,16 +45,16 @@ function generateIsland() {
             cell.dataset.x = x;
             cell.dataset.y = y;
 
-            const dx = (x - gridCenterX) * 1.2; // Trapez-Effekt horizontal
-            const dy = y - gridCenterY;
+            const dx = (x - gridCenterX) * 1.2; // Horizontale Streckung für trapezähnliche Verzerrung
+            const dy = (y - gridCenterY) * 0.9; // Vertikale Stauchung
             const distance = Math.sqrt(dx * dx + dy * dy);
-
-            // natürliche Verzerrung per Noise
             const angle = Math.atan2(dy, dx);
+
+            // Natürlichere Inselkontur mit welligem Noise
             const noise =
-                (Math.sin(x * 0.15) + Math.cos(y * 0.12)) * 2 +
-                (Math.sin(angle * 3) + Math.cos(angle * 5)) * 1.5 +
-                (Math.random() - 0.5) * 4;
+                (Math.sin(x * 0.1) + Math.cos(y * 0.1)) * 3 +
+                Math.sin(angle * 2.5) * 2 +
+                (Math.random() - 0.5) * 3;
 
             if (distance < islandRadius + noise) {
                 gridArray[y][x] = { type: null, element: cell, active: true };
@@ -78,7 +78,7 @@ function generateIsland() {
         }
     }
 
-    // 3 natürlich geformte Berge generieren
+    // Natürlich geformte Berge
     for (let i = 0; i < 3; i++) {
         let startX, startY, attempts = 0;
         let isValid = false;
@@ -86,7 +86,6 @@ function generateIsland() {
         while (attempts < 1000 && !isValid) {
             startX = Math.floor(Math.random() * WIDTH);
             startY = Math.floor(Math.random() * HEIGHT);
-
             const dx = startX - gridCenterX;
             const dy = startY - gridCenterY;
             const distanceToCenter = Math.sqrt(dx * dx + dy * dy);
@@ -144,9 +143,9 @@ function generateIsland() {
         }
     }
 
-    // Optional: global speichern, falls außerhalb benötigt
     window.gridArray = gridArray;
 }
+
 
 
 

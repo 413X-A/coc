@@ -34,12 +34,11 @@ function generateIsland() {
     const islandRadius = Math.min(WIDTH, HEIGHT) * 0.4;
     const minDistanceToTownhall = 10;
     const mountainCount = 3;
-    
+
     const grid = document.getElementById("grid");
     grid.innerHTML = "";
     const gridArray = [];
 
-    // Raster mit verrauschter Insel
     for (let y = 0; y < HEIGHT; y++) {
         gridArray[y] = [];
         for (let x = 0; x < WIDTH; x++) {
@@ -52,16 +51,16 @@ function generateIsland() {
             const dy = y - gridCenterY;
             const distance = Math.sqrt(dx * dx + dy * dy);
 
-            // Dynamisches Noise für natürliche, variierende Insel
-            const angleNoise = (Math.sin(x * 0.3) + Math.cos(y * 0.2)) * 3;
-            const randomNoise = (Math.random() - 0.5) * 6;
-            const noise = angleNoise + randomNoise;
+            // Natürlichere Inselform durch verzerrten Noise
+            const angleNoise = Math.sin(x * 0.2) + Math.cos(y * 0.18);
+            const rippleNoise = Math.sin(x * 0.05 + y * 0.03) * 5;
+            const randomNoise = (Math.random() - 0.5) * 5;
 
-            if (distance < islandRadius + noise) {
-                // Insel
+            const totalNoise = angleNoise * 4 + rippleNoise + randomNoise;
+
+            if (distance < islandRadius + totalNoise) {
                 gridArray[y][x] = { type: null, element: cell, active: true };
             } else {
-                // Wasser
                 cell.classList.add("wasser");
                 gridArray[y][x] = { type: "wasser", element: cell, active: false };
             }
@@ -71,7 +70,7 @@ function generateIsland() {
         }
     }
 
-    // Rathaus (3x3) platzieren
+    // Rathaus (3x3)
     for (let y = gridCenterY - 1; y <= gridCenterY + 1; y++) {
         for (let x = gridCenterX - 1; x <= gridCenterX + 1; x++) {
             gridArray[y][x].type = "rathaus";
@@ -80,7 +79,7 @@ function generateIsland() {
         }
     }
 
-    // 3 natürlich geformte Berge generieren
+    // Berge generieren
     for (let i = 0; i < mountainCount; i++) {
         let mountainX, mountainY, attempts = 0, valid = false;
 
@@ -90,10 +89,10 @@ function generateIsland() {
 
             const dx = mountainX - gridCenterX;
             const dy = mountainY - gridCenterY;
-            const distanceToTownhall = Math.sqrt(dx * dx + dy * dy);
+            const distToTownhall = Math.sqrt(dx * dx + dy * dy);
 
             if (
-                distanceToTownhall >= minDistanceToTownhall &&
+                distToTownhall >= minDistanceToTownhall &&
                 gridArray[mountainY][mountainX].active &&
                 !gridArray[mountainY][mountainX].type
             ) {
@@ -105,9 +104,10 @@ function generateIsland() {
 
         if (!valid) continue;
 
-        const mountainRadius = Math.floor(Math.random() * 2) + 3; // 3–4
-        for (let y = mountainY - mountainRadius; y <= mountainY + mountainRadius; y++) {
-            for (let x = mountainX - mountainRadius; x <= mountainX + mountainRadius; x++) {
+        const radius = Math.floor(Math.random() * 2) + 3;
+
+        for (let y = mountainY - radius; y <= mountainY + radius; y++) {
+            for (let x = mountainX - radius; x <= mountainX + radius; x++) {
                 if (
                     x >= 0 && x < WIDTH &&
                     y >= 0 && y < HEIGHT &&
@@ -116,10 +116,10 @@ function generateIsland() {
                 ) {
                     const dx = x - mountainX;
                     const dy = y - mountainY;
-                    const distance = Math.sqrt(dx * dx + dy * dy);
+                    const dist = Math.sqrt(dx * dx + dy * dy);
                     const noise = (Math.random() - 0.5) * 1.5;
 
-                    if (distance + noise <= mountainRadius) {
+                    if (dist + noise <= radius) {
                         gridArray[y][x].type = "berg";
                         gridArray[y][x].element.classList.add("berg");
                     }
@@ -128,7 +128,6 @@ function generateIsland() {
         }
     }
 
-    // Optional: global speichern, falls du auf gridArray später zugreifen willst
     window.gridArray = gridArray;
 }
 

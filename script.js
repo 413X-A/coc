@@ -38,10 +38,14 @@ function generateIsland() {
             const dy = y - gridCenterY;
             const distance = Math.sqrt(dx * dx + dy * dy);
 
-            // leichte Verzerrung für eine unregelmäßige Insel
-            const noise = (Math.sin(x * 0.3) + Math.cos(y * 0.2)) * 3;
+            // Stärkere Verzerrung für eine "zackigere", größere Insel
+            const noise =
+                (Math.sin(x * 0.15) + Math.cos(y * 0.15)) * 6 +
+                (Math.sin(y * 0.3 + x * 0.2)) * 4;
 
-            if (distance < islandRadius + noise) {
+            const effectiveRadius = islandRadius + noise + 5; // Basisradius + Noise + leichte Streckung
+
+            if (distance < effectiveRadius) {
                 // Insel
                 gridArray[y][x] = { type: null, element: cell, active: true };
             } else {
@@ -76,10 +80,9 @@ function generateIsland() {
         const dy = mountainY - gridCenterY;
         const distanceToCenter = Math.sqrt(dx * dx + dy * dy);
 
-        // Stelle sicher, dass der Berg weit genug vom Zentrum entfernt ist
         if (distanceToCenter < minDistanceFromCenter) continue;
 
-        const mountainRadius = 3 + Math.floor(Math.random() * 2); // Radius 3–4
+        const mountainRadius = 3 + Math.floor(Math.random() * 2);
         for (let y = mountainY - mountainRadius; y <= mountainY + mountainRadius; y++) {
             for (let x = mountainX - mountainRadius; x <= mountainX + mountainRadius; x++) {
                 if (x >= 0 && y >= 0 && x < WIDTH && y < HEIGHT) {
@@ -102,6 +105,7 @@ function generateIsland() {
         mountainsPlaced++;
     }
 }
+
 
 
 

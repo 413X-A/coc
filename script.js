@@ -26,16 +26,17 @@ const gridCenterY = Math.floor(HEIGHT / 2);
 const islandRadius = Math.min(WIDTH, HEIGHT) * 0.4;
 // Grid erstellen mit Insel-Form
 function generateIsland() {
+    const gridArray = [];
+    const grid = document.getElementById("grid");
+    grid.innerHTML = ""; // vorheriges Grid leeren
+
     const WIDTH = 101;
     const HEIGHT = 75;
     const gridCenterX = Math.floor(WIDTH / 2);
     const gridCenterY = Math.floor(HEIGHT / 2);
-    const islandRadius = Math.min(WIDTH, HEIGHT) * 0.3; // Basisradius für Insel
-    const grid = document.getElementById("grid");
-    grid.innerHTML = "";
-    const gridArray = [];
+    const islandRadius = Math.min(WIDTH, HEIGHT) * 0.38;
 
-    // Inselgenerierung mit unregelmäßiger Form
+    // Insel generieren
     for (let y = 0; y < HEIGHT; y++) {
         gridArray[y] = [];
         for (let x = 0; x < WIDTH; x++) {
@@ -44,23 +45,20 @@ function generateIsland() {
             cell.dataset.x = x;
             cell.dataset.y = y;
 
-            const dx = x - gridCenterX;
+            const dx = (x - gridCenterX) * 1.2; // Trapez-Effekt horizontal
             const dy = y - gridCenterY;
             const distance = Math.sqrt(dx * dx + dy * dy);
 
-            // Verzerrung für unregelmäßige Inselform
-            const noiseX = (Math.sin(x * 0.3) + Math.random() - 0.5) * 3; // Zufällige Verzerrung X
-            const noiseY = (Math.cos(y * 0.2) + Math.random() - 0.5) * 3; // Zufällige Verzerrung Y
+            // natürliche Verzerrung per Noise
+            const angle = Math.atan2(dy, dx);
+            const noise =
+                (Math.sin(x * 0.15) + Math.cos(y * 0.12)) * 2 +
+                (Math.sin(angle * 3) + Math.cos(angle * 5)) * 1.5 +
+                (Math.random() - 0.5) * 4;
 
-            // Radius anpassen je nach Richtung (trapezartige Form)
-            const adjustedDistanceX = distance + noiseX;
-            const adjustedDistanceY = distance + noiseY;
-
-            // Generiere Insel basierend auf Verzerrung
-            if (adjustedDistanceX < islandRadius + 10 && adjustedDistanceY < islandRadius + 10) {
+            if (distance < islandRadius + noise) {
                 gridArray[y][x] = { type: null, element: cell, active: true };
             } else {
-                // Wasser
                 cell.classList.add("wasser");
                 gridArray[y][x] = { type: "wasser", element: cell, active: false };
             }
@@ -70,86 +68,86 @@ function generateIsland() {
         }
     }
 
-    // Rathaus in der Mitte (3x3)
+    // Rathaus in der Mitte platzieren (3x3)
     for (let y = gridCenterY - 1; y <= gridCenterY + 1; y++) {
         for (let x = gridCenterX - 1; x <= gridCenterX + 1; x++) {
-            gridArray[y][x].type = "rathaus";
-            gridArray[y][x].element.classList.add("rathaus");
-            gridArray[y][x].active = true;
+            if (gridArray[y][x] && gridArray[y][x].active) {
+                gridArray[y][x].type = "rathaus";
+                gridArray[y][x].element.classList.add("rathaus");
+            }
         }
     }
 
-    // 3 wirklich natürliche Berge erzeugen
-for (let i = 0; i < 3; i++) {
-    let startX, startY, attempts = 0;
-    let isValid = false;
+    // 3 natürlich geformte Berge generieren
+    for (let i = 0; i < 3; i++) {
+        let startX, startY, attempts = 0;
+        let isValid = false;
 
-    while (attempts < 1000 && !isValid) {
-        startX = Math.floor(Math.random() * WIDTH);
-        startY = Math.floor(Math.random() * HEIGHT);
+        while (attempts < 1000 && !isValid) {
+            startX = Math.floor(Math.random() * WIDTH);
+            startY = Math.floor(Math.random() * HEIGHT);
 
-        const dx = startX - gridCenterX;
-        const dy = startY - gridCenterY;
-        const distanceToCenter = Math.sqrt(dx * dx + dy * dy);
+            const dx = startX - gridCenterX;
+            const dy = startY - gridCenterY;
+            const distanceToCenter = Math.sqrt(dx * dx + dy * dy);
 
-        if (
-            distanceToCenter > 12 &&  // genug Abstand zum Rathaus
-            gridArray[startY][startX].active &&
-            !gridArray[startY][startX].type
-        ) {
-            isValid = true;
+            if (
+                distanceToCenter > 12 &&
+                gridArray[startY][startX].active &&
+                !gridArray[startY][startX].type
+            ) {
+                isValid = true;
+            }
+            attempts++;
         }
-        attempts++;
-    }
 
-    if (!isValid) continue;
+        if (!isValid) continue;
 
-    const maxTiles = Math.floor(Math.random() * 30) + 20;
-    const open = [{ x: startX, y: startY }];
-    const visited = new Set();
-    let placed = 0;
+        const maxTiles = Math.floor(Math.random() * 30) + 20;
+        const open = [{ x: startX, y: startY }];
+        const visited = new Set();
+        let placed = 0;
 
-    while (open.length > 0 && placed < maxTiles) {
-        const current = open.shift();
-        const key = `${current.x},${current.y}`;
-        if (visited.has(key)) continue;
-        visited.add(key);
+        while (open.length > 0 && placed < maxTiles) {
+            const current = open.shift();
+            const key = `${current.x},${current.y}`;
+            if (visited.has(key)) continue;
+            visited.add(key);
 
-        if (
-            current.x >= 0 && current.x < WIDTH &&
-            current.y >= 0 && current.y < HEIGHT &&
-            gridArray[current.y][current.x].active &&
-            !gridArray[current.y][current.x].type &&
-            Math.random() < 0.95 // Lücken & Ausfransung
-        ) {
-            gridArray[current.y][current.x].type = "berg";
-            gridArray[current.y][current.x].element.classList.add("berg");
-            placed++;
+            if (
+                current.x >= 0 && current.x < WIDTH &&
+                current.y >= 0 && current.y < HEIGHT &&
+                gridArray[current.y][current.x].active &&
+                !gridArray[current.y][current.x].type &&
+                Math.random() < 0.95
+            ) {
+                gridArray[current.y][current.x].type = "berg";
+                gridArray[current.y][current.x].element.classList.add("berg");
+                placed++;
 
-            // Richtungen zufällig durchmischen für unregelmäßige Form
-            const directions = [
-                { dx: -1, dy: 0 },
-                { dx: 1, dy: 0 },
-                { dx: 0, dy: -1 },
-                { dx: 0, dy: 1 },
-                { dx: -1, dy: -1 },
-                { dx: 1, dy: 1 },
-                { dx: -1, dy: 1 },
-                { dx: 1, dy: -1 }
-            ].sort(() => Math.random() - 0.5);
+                const directions = [
+                    { dx: -1, dy: 0 }, { dx: 1, dy: 0 },
+                    { dx: 0, dy: -1 }, { dx: 0, dy: 1 },
+                    { dx: -1, dy: -1 }, { dx: 1, dy: 1 },
+                    { dx: -1, dy: 1 }, { dx: 1, dy: -1 }
+                ].sort(() => Math.random() - 0.5);
 
-            // Mehr Ausbreitung in eine zufällige Richtung erzeugt Verästelungen
-            for (const dir of directions) {
-                if (Math.random() < 0.6) {
-                    open.push({
-                        x: current.x + dir.dx,
-                        y: current.y + dir.dy
-                    });
+                for (const dir of directions) {
+                    if (Math.random() < 0.6) {
+                        open.push({
+                            x: current.x + dir.dx,
+                            y: current.y + dir.dy
+                        });
+                    }
                 }
             }
         }
     }
+
+    // Optional: global speichern, falls außerhalb benötigt
+    window.gridArray = gridArray;
 }
+
 
 
 

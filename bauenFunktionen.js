@@ -121,3 +121,5 @@ document.getElementById("no-build").addEventListener("click", () => {
     cancelBuild();
     closePopup();
 });
+
+closePopup();

@@ -81,7 +81,7 @@ function loadGame(event) {
             }
         }
 
-        checkConnectivity(); // zur Sicherheit, falls Wegverbindungen fehlen
+        // checkConnectivity(); // zur Sicherheit, falls Wegverbindungen fehlen
     };
 
     reader.readAsText(file);

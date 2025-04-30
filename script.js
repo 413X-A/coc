@@ -36,7 +36,7 @@ function generateIsland() {
     const gridCenterY = Math.floor(HEIGHT / 2);
     const islandRadius = Math.min(WIDTH, HEIGHT) * 0.38;
 
-    // Insel generieren (nicht zu rund, nicht zu eckig)
+    // Insel generieren
     for (let y = 0; y < HEIGHT; y++) {
         gridArray[y] = [];
         for (let x = 0; x < WIDTH; x++) {
@@ -45,12 +45,11 @@ function generateIsland() {
             cell.dataset.x = x;
             cell.dataset.y = y;
 
-            const dx = (x - gridCenterX) * 1.2; // Horizontale Streckung für trapezähnliche Verzerrung
-            const dy = (y - gridCenterY) * 0.9; // Vertikale Stauchung
+            const dx = (x - gridCenterX) * 1.5; // stärkere Breite
+            const dy = (y - gridCenterY) * 0.9; // leicht gestaucht in Höhe
             const distance = Math.sqrt(dx * dx + dy * dy);
             const angle = Math.atan2(dy, dx);
 
-            // Natürlichere Inselkontur mit welligem Noise
             const noise =
                 (Math.sin(x * 0.1) + Math.cos(y * 0.1)) * 3 +
                 Math.sin(angle * 2.5) * 2 +
@@ -78,7 +77,7 @@ function generateIsland() {
         }
     }
 
-    // Natürlich geformte Berge
+    // Natürlich geformte, dichte Berge ohne Löcher
     for (let i = 0; i < 3; i++) {
         let startX, startY, attempts = 0;
         let isValid = false;
@@ -117,8 +116,7 @@ function generateIsland() {
                 current.x >= 0 && current.x < WIDTH &&
                 current.y >= 0 && current.y < HEIGHT &&
                 gridArray[current.y][current.x].active &&
-                !gridArray[current.y][current.x].type &&
-                Math.random() < 0.95
+                !gridArray[current.y][current.x].type
             ) {
                 gridArray[current.y][current.x].type = "berg";
                 gridArray[current.y][current.x].element.classList.add("berg");
@@ -129,15 +127,13 @@ function generateIsland() {
                     { dx: 0, dy: -1 }, { dx: 0, dy: 1 },
                     { dx: -1, dy: -1 }, { dx: 1, dy: 1 },
                     { dx: -1, dy: 1 }, { dx: 1, dy: -1 }
-                ].sort(() => Math.random() - 0.5);
+                ];
 
                 for (const dir of directions) {
-                    if (Math.random() < 0.6) {
-                        open.push({
-                            x: current.x + dir.dx,
-                            y: current.y + dir.dy
-                        });
-                    }
+                    open.push({
+                        x: current.x + dir.dx,
+                        y: current.y + dir.dy
+                    });
                 }
             }
         }
@@ -145,6 +141,7 @@ function generateIsland() {
 
     window.gridArray = gridArray;
 }
+
 
 
 

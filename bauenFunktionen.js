@@ -76,9 +76,12 @@ function showPopup(building) {
     const popup = document.getElementById("building-popup");
     const popupContent = document.getElementById("popup-content");
 
+    // Prüfe, ob das Gebäude kostenlos verfügbar ist
+    const isFree = freeBuildings[building] > 0;
+
     popupContent.innerHTML = `
         <strong>${info.name}</strong><br>
-        <b>Kosten:</b> ${info.cost} Gold<br><br>
+        <b>Kosten:</b> ${isFree ? "Kostenlos" : info.cost + " Gold"}<br><br>
         <b>Produktion:</b> ${info.produces}<br>
         <b>Platzierung:</b> ${info.needs}<br><br>
     `;

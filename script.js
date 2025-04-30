@@ -30,7 +30,7 @@ function generateIsland() {
     const HEIGHT = 75;
     const gridCenterX = Math.floor(WIDTH / 2);
     const gridCenterY = Math.floor(HEIGHT / 2);
-    const islandRadius = Math.min(WIDTH, HEIGHT) * 0.35; // Basisradius für Insel
+    const islandRadius = Math.min(WIDTH, HEIGHT) * 0.3; // Basisradius für Insel
     const minDistanceToTownhall = 10;
     const mountainCount = 3;
 
@@ -38,7 +38,7 @@ function generateIsland() {
     grid.innerHTML = "";
     const gridArray = [];
 
-    // Inselgenerierung mit zufälligem Rauschen
+    // Inselgenerierung mit Trapezform und Kreis-Mischung
     for (let y = 0; y < HEIGHT; y++) {
         gridArray[y] = [];
         for (let x = 0; x < WIDTH; x++) {
@@ -51,15 +51,17 @@ function generateIsland() {
             const dy = y - gridCenterY;
             const distance = Math.sqrt(dx * dx + dy * dy);
 
-            // Zufällige Verzerrungen in X und Y Richtung
-            const noiseX = Math.sin(x * 0.1) * Math.random() * 2;  // Horizontale Verzerrung
-            const noiseY = Math.cos(y * 0.1) * Math.random() * 2;  // Vertikale Verzerrung
-            const randomNoise = (Math.random() - 0.5) * 2;  // Zufälliges Noise für Auswüchse
+            // Trapezförmige Verzerrung
+            const distanceRatioX = Math.abs(dx) / (WIDTH / 2); // Verhältnis der X-Distanz zur Gesamtbreite
+            const distanceRatioY = Math.abs(dy) / (HEIGHT / 2); // Verhältnis der Y-Distanz zur Gesamthöhe
+            const trapezoidDistortionX = (Math.sin(distanceRatioX * Math.PI) * 0.5) * 2; // Verzerrung in X-Richtung
+            const trapezoidDistortionY = (Math.cos(distanceRatioY * Math.PI) * 0.5) * 2; // Verzerrung in Y-Richtung
+            const randomNoise = (Math.random() - 0.5) * 1.5; // Zufälliges Noise für Variation
 
-            // Berechnung der Verzerrung der Inselgrenze
-            const distortion = noiseX + noiseY + randomNoise;
+            // Berechnung der Gesamtverzerrung
+            const distortion = trapezoidDistortionX + trapezoidDistortionY + randomNoise;
 
-            // Berechnung, ob Zelle zur Insel gehört
+            // Berechnung, ob Zelle zur Insel gehört (Mischung aus Kreis und Trapez)
             if (distance < islandRadius + distortion) {
                 gridArray[y][x] = { type: null, element: cell, active: true };
             } else {
@@ -132,6 +134,7 @@ function generateIsland() {
 
     window.gridArray = gridArray;
 }
+
 
 
 

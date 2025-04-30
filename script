@@ -69,9 +69,9 @@ function generateIsland() {
         }
     }
 
-    // Rathaus in der Mitte platzieren (3x3)
-    for (let y = gridCenterY - 1; y <= gridCenterY + 1; y++) {
-        for (let x = gridCenterX - 1; x <= gridCenterX + 1; x++) {
+    // Rathaus in der Mitte platzieren (7x7)
+    for (let y = gridCenterY - 3; y <= gridCenterY + 3; y++) {
+        for (let x = gridCenterX - 3; x <= gridCenterX + 3; x++) {
             const cell = gridArray[y][x];
             if (cell && cell.type !== "wasser") {
                 cell.type = "rathaus";

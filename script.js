@@ -26,21 +26,20 @@ const gridCenterY = Math.floor(HEIGHT / 2);
 const islandRadius = Math.min(WIDTH, HEIGHT) * 0.4;
 // Grid erstellen mit Insel-Form
 function generateIsland() {
-    const points = 12; // Anzahl der Kontrollpunkte
-    const radius = Math.min(WIDTH, HEIGHT) / 3;
+    const points = 20;
+    const baseRadius = Math.min(WIDTH, HEIGHT) / 4;
+    const noise = baseRadius / 2;
     const angleStep = (Math.PI * 2) / points;
 
-    // Generiere Kontrollpunkte mit zufälligem Abstand vom Zentrum
     const controlPoints = [];
     for (let i = 0; i < points; i++) {
         const angle = i * angleStep;
-        const dist = radius + Math.random() * (radius / 2);
+        const dist = baseRadius + (Math.random() - 0.5) * noise * 2;
         const px = Math.floor(gridCenterX + Math.cos(angle) * dist);
         const py = Math.floor(gridCenterY + Math.sin(angle) * dist);
         controlPoints.push({ x: px, y: py });
     }
 
-    // Hilfsfunktion: Punkt-in-Polygon-Test (Raycasting-Methode)
     function pointInPolygon(x, y, polygon) {
         let inside = false;
         for (let i = 0, j = polygon.length - 1; i < polygon.length; j = i++) {
@@ -48,13 +47,13 @@ function generateIsland() {
             const xj = polygon[j].x, yj = polygon[j].y;
 
             const intersect = ((yi > y) !== (yj > y)) &&
-                              (x < ((xj - xi) * (y - yi)) / (yj - yi) + xi);
+                (x < ((xj - xi) * (y - yi)) / (yj - yi) + xi);
             if (intersect) inside = !inside;
         }
         return inside;
     }
 
-    // Insel erzeugen
+    // Gitter mit Wasser füllen, Insel formen
     for (let y = 0; y < HEIGHT; y++) {
         gridArray[y] = [];
         for (let x = 0; x < WIDTH; x++) {
@@ -75,7 +74,7 @@ function generateIsland() {
         }
     }
 
-    // Rathaus platzieren
+    // Rathaus zentriert setzen
     for (let y = gridCenterY - 1; y <= gridCenterY + 1; y++) {
         for (let x = gridCenterX - 1; x <= gridCenterX + 1; x++) {
             const cell = gridArray[y][x];
@@ -86,7 +85,7 @@ function generateIsland() {
         }
     }
 
-    // Zufällige Berge auf der Insel
+    // Berge natürlich platzieren (wie vorher)
     const numMountains = 5;
     let mountainsPlaced = 0;
 
@@ -94,7 +93,7 @@ function generateIsland() {
         const mx = Math.floor(Math.random() * WIDTH);
         const my = Math.floor(Math.random() * HEIGHT);
         const cell = gridArray[my]?.[mx];
-        if (!cell || cell.type !== null) continue;
+        if (!cell || cell.type !== null || !cell.active) continue;
 
         const radius = 2 + Math.floor(Math.random() * 2);
         for (let y = my - radius; y <= my + radius; y++) {
@@ -104,7 +103,7 @@ function generateIsland() {
                     const dy = y - my;
                     if (Math.sqrt(dx * dx + dy * dy) <= radius) {
                         const c = gridArray[y][x];
-                        if (c && c.type === null) {
+                        if (c && c.type === null && c.active) {
                             c.type = "berg";
                             c.element.classList.add("berg");
                         }

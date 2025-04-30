@@ -39,19 +39,19 @@ function generateIsland() {
             const dy = y - gridCenterY;
             const distance = Math.sqrt(dx * dx + dy * dy);
 
-            // leichte Verzerrung + Zufalls-Noise für unregelmäßige Insel
+            // Insel-Form mit Verzerrung + Rauschen
             const noise = (Math.sin(x * 0.3) + Math.cos(y * 0.2)) * 3 + (Math.random() - 0.5) * 6;
 
             if (distance < islandRadius + noise) {
-                // Insel
+                gridArray[y] = gridArray[y] || [];
                 gridArray[y][x] = {
                     type: null,
                     element: cell,
                     active: true
                 };
             } else {
-                // Wasser
                 cell.classList.add("wasser");
+                gridArray[y] = gridArray[y] || [];
                 gridArray[y][x] = {
                     type: "wasser",
                     element: cell,
@@ -64,7 +64,7 @@ function generateIsland() {
         }
     }
 
-    // Rathaus in der Mitte platzieren (3x3)
+    // Rathaus (3x3) in der Mitte platzieren
     for (let y = gridCenterY - 1; y <= gridCenterY + 1; y++) {
         for (let x = gridCenterX - 1; x <= gridCenterX + 1; x++) {
             gridArray[y][x].type = "rathaus";
@@ -73,26 +73,33 @@ function generateIsland() {
         }
     }
 
-    // 3 größere Berge generieren
+    // Berge generieren – mit Abstand zum Rathaus
     const mountainCount = 3;
+    const minDistanceToTownhall = 10;
+
     for (let i = 0; i < mountainCount; i++) {
         let mountainX, mountainY, distanceToTownhall;
         let tries = 0;
 
+        // Suche nach geeignetem Ort mit Abstand
         do {
             mountainX = Math.floor(Math.random() * WIDTH);
             mountainY = Math.floor(Math.random() * HEIGHT);
+
             const dx = mountainX - gridCenterX;
             const dy = mountainY - gridCenterY;
             distanceToTownhall = Math.sqrt(dx * dx + dy * dy);
             tries++;
         } while (
-            (!gridArray[mountainY][mountainX].active ||
-            gridArray[mountainY][mountainX].type ||
-            distanceToTownhall < 8) && tries < 100
+            tries < 100 &&
+            (
+                distanceToTownhall < minDistanceToTownhall ||
+                !gridArray[mountainY][mountainX].active ||
+                gridArray[mountainY][mountainX].type
+            )
         );
 
-        const mountainRadius = Math.floor(Math.random() * 5) + 4; // Radius zwischen 4 und 8
+        const mountainRadius = Math.floor(Math.random() * 5) + 4; // 4–8 Felder Radius
 
         for (let y = mountainY - mountainRadius; y <= mountainY + mountainRadius; y++) {
             for (let x = mountainX - mountainRadius; x <= mountainX + mountainRadius; x++) {
@@ -106,10 +113,10 @@ function generateIsland() {
                     const dy = y - mountainY;
                     const distance = Math.sqrt(dx * dx + dy * dy);
 
-                    // Stelle sicher, dass auch einzelne Bergzellen nicht zu nah am Rathaus liegen
+                    // Jede Berg-Zelle muss ebenfalls Abstand zum Rathaus haben
                     const distToTownhall = Math.sqrt((x - gridCenterX) ** 2 + (y - gridCenterY) ** 2);
 
-                    if (distance <= mountainRadius && distToTownhall >= 6) {
+                    if (distance <= mountainRadius && distToTownhall >= minDistanceToTownhall) {
                         gridArray[y][x].type = "berg";
                         gridArray[y][x].element.classList.add("berg");
                     }
@@ -118,6 +125,7 @@ function generateIsland() {
         }
     }
 }
+
 
 // Hilfsfunktion zum Mischen eines Arrays
 function shuffle(array) {

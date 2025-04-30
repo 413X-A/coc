@@ -26,8 +26,35 @@ const gridCenterY = Math.floor(HEIGHT / 2);
 const islandRadius = Math.min(WIDTH, HEIGHT) * 0.4;
 // Grid erstellen mit Insel-Form
 function generateIsland() {
-    const islandRadius = Math.min(WIDTH, HEIGHT) / 3; // deutlich kleiner als das Grid
+    const points = 12; // Anzahl der Kontrollpunkte
+    const radius = Math.min(WIDTH, HEIGHT) / 3;
+    const angleStep = (Math.PI * 2) / points;
 
+    // Generiere Kontrollpunkte mit zufälligem Abstand vom Zentrum
+    const controlPoints = [];
+    for (let i = 0; i < points; i++) {
+        const angle = i * angleStep;
+        const dist = radius + Math.random() * (radius / 2);
+        const px = Math.floor(gridCenterX + Math.cos(angle) * dist);
+        const py = Math.floor(gridCenterY + Math.sin(angle) * dist);
+        controlPoints.push({ x: px, y: py });
+    }
+
+    // Hilfsfunktion: Punkt-in-Polygon-Test (Raycasting-Methode)
+    function pointInPolygon(x, y, polygon) {
+        let inside = false;
+        for (let i = 0, j = polygon.length - 1; i < polygon.length; j = i++) {
+            const xi = polygon[i].x, yi = polygon[i].y;
+            const xj = polygon[j].x, yj = polygon[j].y;
+
+            const intersect = ((yi > y) !== (yj > y)) &&
+                              (x < ((xj - xi) * (y - yi)) / (yj - yi) + xi);
+            if (intersect) inside = !inside;
+        }
+        return inside;
+    }
+
+    // Insel erzeugen
     for (let y = 0; y < HEIGHT; y++) {
         gridArray[y] = [];
         for (let x = 0; x < WIDTH; x++) {
@@ -36,22 +63,9 @@ function generateIsland() {
             cell.dataset.x = x;
             cell.dataset.y = y;
 
-            const dx = x - gridCenterX;
-            const dy = y - gridCenterY;
-            const distance = Math.sqrt(dx * dx + dy * dy);
-
-            // Leichte, aber kleinere Verzerrung
-            const noise =
-                (Math.sin(x * 0.25) + Math.cos(y * 0.25)) * 2 +
-                (Math.sin(x * 0.15 + y * 0.2)) * 1.5;
-
-            const effectiveRadius = islandRadius + noise;
-
-            if (distance < effectiveRadius) {
-                // Insel
+            if (pointInPolygon(x, y, controlPoints)) {
                 gridArray[y][x] = { type: null, element: cell, active: true };
             } else {
-                // Wasser
                 cell.classList.add("wasser");
                 gridArray[y][x] = { type: "wasser", element: cell, active: false };
             }
@@ -61,39 +75,38 @@ function generateIsland() {
         }
     }
 
-    // Rathaus in der Mitte platzieren (3x3)
+    // Rathaus platzieren
     for (let y = gridCenterY - 1; y <= gridCenterY + 1; y++) {
         for (let x = gridCenterX - 1; x <= gridCenterX + 1; x++) {
-            gridArray[y][x].type = "rathaus";
-            gridArray[y][x].element.classList.add("rathaus");
+            const cell = gridArray[y][x];
+            if (cell && cell.type !== "wasser") {
+                cell.type = "rathaus";
+                cell.element.classList.add("rathaus");
+            }
         }
     }
 
-    // Zufällige Berge auf Insel verteilen
+    // Zufällige Berge auf der Insel
     const numMountains = 5;
     let mountainsPlaced = 0;
 
     while (mountainsPlaced < numMountains) {
-        const mountainX = Math.floor(Math.random() * WIDTH);
-        const mountainY = Math.floor(Math.random() * HEIGHT);
-        const cellData = gridArray[mountainY][mountainX];
+        const mx = Math.floor(Math.random() * WIDTH);
+        const my = Math.floor(Math.random() * HEIGHT);
+        const cell = gridArray[my]?.[mx];
+        if (!cell || cell.type !== null) continue;
 
-        if (!cellData || cellData.type !== null) continue; // Nur auf leerer Insel platzieren
-
-        const mountainRadius = 2 + Math.floor(Math.random() * 2); // Radius 2–3
-        for (let y = mountainY - mountainRadius; y <= mountainY + mountainRadius; y++) {
-            for (let x = mountainX - mountainRadius; x <= mountainX + mountainRadius; x++) {
+        const radius = 2 + Math.floor(Math.random() * 2);
+        for (let y = my - radius; y <= my + radius; y++) {
+            for (let x = mx - radius; x <= mx + radius; x++) {
                 if (x >= 0 && y >= 0 && x < WIDTH && y < HEIGHT) {
-                    const dx = x - mountainX;
-                    const dy = y - mountainY;
-                    const dist = Math.sqrt(dx * dx + dy * dy);
-                    const distortion = (Math.sin(x * 0.4) + Math.cos(y * 0.3)) * 0.6;
-
-                    if (dist < mountainRadius + distortion) {
-                        const cell = gridArray[y][x];
-                        if (cell && cell.type === null) {
-                            cell.type = "berg";
-                            cell.element.classList.add("berg");
+                    const dx = x - mx;
+                    const dy = y - my;
+                    if (Math.sqrt(dx * dx + dy * dy) <= radius) {
+                        const c = gridArray[y][x];
+                        if (c && c.type === null) {
+                            c.type = "berg";
+                            c.element.classList.add("berg");
                         }
                     }
                 }

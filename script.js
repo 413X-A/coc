@@ -25,16 +25,18 @@ const gridCenterX = Math.floor(WIDTH / 2);
 const gridCenterY = Math.floor(HEIGHT / 2);
 const islandRadius = Math.min(WIDTH, HEIGHT) * 0.4;
 // 3 natürlich geformte, kleinere Berge generieren
+// 3 größere Berge generieren
 const mountainCount = 3;
 for (let i = 0; i < mountainCount; i++) {
+    // Einen zufälligen Punkt innerhalb der Insel finden
     let mountainX, mountainY;
     do {
         mountainX = Math.floor(Math.random() * WIDTH);
         mountainY = Math.floor(Math.random() * HEIGHT);
     } while (!gridArray[mountainY][mountainX].active || gridArray[mountainY][mountainX].type);
 
-    const mountainRadius = Math.floor(Math.random() * 3) + 3; // Radius zwischen 3 und 5
-
+    // Bergzentrum definieren und ausbreiten
+    const mountainRadius = Math.floor(Math.random() * 5) + 4; // Radius zwischen 4 und 8
     for (let y = mountainY - mountainRadius; y <= mountainY + mountainRadius; y++) {
         for (let x = mountainX - mountainRadius; x <= mountainX + mountainRadius; x++) {
             if (
@@ -47,24 +49,14 @@ for (let i = 0; i < mountainCount; i++) {
                 const dy = y - mountainY;
                 const distance = Math.sqrt(dx * dx + dy * dy);
 
-                // Zufälligkeit hinzufügen, um die Form natürlicher zu machen
-                const noise = (Math.random() - 0.5) * 1.5; // leichte Verzerrung
-
-                if (distance + noise <= mountainRadius) {
+                if (distance <= mountainRadius) {
                     gridArray[y][x].type = "berg";
-
-                    const distanceRatio = distance / mountainRadius;
-                    if (distanceRatio < 0.3) {
-                        gridArray[y][x].element.classList.add("berg-3");
-                    } else if (distanceRatio < 0.6) {
-                        gridArray[y][x].element.classList.add("berg-2");
-                    } else {
-                        gridArray[y][x].element.classList.add("berg-1");
-                    }
+                    gridArray[y][x].element.classList.add("berg");
                 }
             }
         }
     }
+}
 }
 
 

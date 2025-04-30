@@ -73,13 +73,27 @@ function generateIsland() {
     }
 
     // 3 natürlich geformte, kleinere Berge generieren
+const minDistanceToTownhall = 15; // Mindestabstand zum Rathauszentrum
+
 const mountainCount = 3;
 for (let i = 0; i < mountainCount; i++) {
     let mountainX, mountainY;
+    let attempts = 0;
     do {
         mountainX = Math.floor(Math.random() * WIDTH);
         mountainY = Math.floor(Math.random() * HEIGHT);
-    } while (!gridArray[mountainY][mountainX].active || gridArray[mountainY][mountainX].type);
+        const dx = mountainX - gridCenterX;
+        const dy = mountainY - gridCenterY;
+        const distanceToTownhall = Math.sqrt(dx * dx + dy * dy);
+        attempts++;
+
+        // Abbrechen, falls zu viele Versuche (nur zur Sicherheit)
+        if (attempts > 1000) break;
+    } while (
+        !gridArray[mountainY][mountainX].active ||
+        gridArray[mountainY][mountainX].type ||
+        distanceToTownhall < minDistanceToTownhall
+    );
 
     const mountainRadius = Math.floor(Math.random() * 3) + 3; // Radius zwischen 3 und 5
 
@@ -94,9 +108,7 @@ for (let i = 0; i < mountainCount; i++) {
                 const dx = x - mountainX;
                 const dy = y - mountainY;
                 const distance = Math.sqrt(dx * dx + dy * dy);
-
-                // Zufälligkeit hinzufügen, um die Form natürlicher zu machen
-                const noise = (Math.random() - 0.5) * 1.5; // leichte Verzerrung
+                const noise = (Math.random() - 0.5) * 1.5;
 
                 if (distance + noise <= mountainRadius) {
                     gridArray[y][x].type = "berg";

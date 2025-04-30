@@ -153,24 +153,6 @@ function onCellClick(e, x, y) {
 }
 
 
-
-// Gebäude auswählen
-function setBuilding(building) {
-    selectedBuilding = building;
-}
-
-// Beim Klicken auf Zelle
-function onCellClick(e, x, y) {
-    const cell = gridArray[y][x];
-
-    if (cell.type && !selectedBuilding) {
-        openBuildingMenu(x, y);
-    } else {
-        build(x, y);
-    }
-}
-
-
 function build(x, y) {
     if (!selectedBuilding) return;
     const cell = gridArray[y][x];

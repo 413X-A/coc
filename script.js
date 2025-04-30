@@ -28,7 +28,7 @@ const islandRadius = Math.min(WIDTH, HEIGHT) * 0.4;
 function generateIsland() {
     const gridArray = [];
     const grid = document.getElementById("grid");
-    grid.innerHTML = "";
+    grid.innerHTML = ""; // Vorheriges Grid leeren
 
     const WIDTH = 101;
     const HEIGHT = 75;
@@ -45,17 +45,18 @@ function generateIsland() {
             cell.dataset.x = x;
             cell.dataset.y = y;
 
-            const dx = (x - gridCenterX) * 0.65; // stärkere Breite
-            const dy = (y - gridCenterY) * 0.9; // leicht gestaucht in Höhe
-            const distance = Math.sqrt(dx * dx + dy * dy);
-            const angle = Math.atan2(dy, dx);
+            const dx = (x - gridCenterX) / (WIDTH * 0.3);   // Horizontal gestreckt (ca. 3/5 der Breite)
+            const dy = (y - gridCenterY) / (HEIGHT * 0.25);  // Vertikal gestaucht (ca. 1/4 der Höhe)
+            const distance = Math.sqrt(dx * dx + dy * dy);  // Berechnet die Entfernung von der Mitte
 
+            // Noise für eine natürliche Verzerrung
+            const angle = Math.atan2(dy, dx);
             const noise =
-                (Math.sin(x * 0.1) + Math.cos(y * 0.1)) * 3 +
-                Math.sin(angle * 2.5) * 2 +
+                (Math.sin(x * 0.1) + Math.cos(y * 0.1)) * 3 + 
+                Math.sin(angle * 2.5) * 2 + 
                 (Math.random() - 0.5) * 3;
 
-            if (distance < islandRadius + noise) {
+            if (distance < 1 + noise / 40) {
                 gridArray[y][x] = { type: null, element: cell, active: true };
             } else {
                 cell.classList.add("wasser");
@@ -141,6 +142,7 @@ function generateIsland() {
 
     window.gridArray = gridArray;
 }
+
 
 
 

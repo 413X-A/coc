@@ -65,8 +65,8 @@ function generateIsland() {
     }
 
     // Rathaus (3x3) in der Mitte platzieren
-    for (let y = gridCenterY - 1; y <= gridCenterY + 1; y++) {
-        for (let x = gridCenterX - 1; x <= gridCenterX + 1; x++) {
+    for (let y = gridCenterY - 3; y <= gridCenterY + 3; y++) {
+        for (let x = gridCenterX - 3; x <= gridCenterX + 3; x++) {
             gridArray[y][x].type = "rathaus";
             gridArray[y][x].element.classList.add("rathaus");
             gridArray[y][x].active = true;

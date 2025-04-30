@@ -10,10 +10,10 @@ function saveGame() {
         selectedBuilding,
         freeBuildings,
         buildingLevels,
-        gridArray: gridArray.map(row => row.map(cell => ({
-            type: cell.type,
-            active: cell.active
-        })))
+        //gridArray: gridArray.map(row => row.map(cell => ({
+            //type: cell.type,
+            //active: cell.active
+        //})))
     };
 
     const blob = new Blob([JSON.stringify(data)], { type: "text/plain" });

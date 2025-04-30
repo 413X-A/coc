@@ -60,34 +60,18 @@ for (let y = gridCenterY - 1; y <= gridCenterY + 1; y++) {
     }
 }
 
-// Danach: 3 natürlich geformte Berge platzieren, NICHT zu nah am Rathaus
+// 3 größere Berge generieren
 const mountainCount = 3;
-const minDistanceToTownhall = 10;
-
 for (let i = 0; i < mountainCount; i++) {
-    let mountainX, mountainY, attempts = 0, valid = false;
-
-    while (attempts < 1000 && !valid) {
+    // Einen zufälligen Punkt innerhalb der Insel finden
+    let mountainX, mountainY;
+    do {
         mountainX = Math.floor(Math.random() * WIDTH);
         mountainY = Math.floor(Math.random() * HEIGHT);
+    } while (!gridArray[mountainY][mountainX].active || gridArray[mountainY][mountainX].type);
 
-        const dx = mountainX - gridCenterX;
-        const dy = mountainY - gridCenterY;
-        const distance = Math.sqrt(dx * dx + dy * dy);
-
-        if (
-            distance >= minDistanceToTownhall &&
-            gridArray[mountainY][mountainX].active &&
-            !gridArray[mountainY][mountainX].type
-        ) {
-            valid = true;
-        }
-        attempts++;
-    }
-
-    if (!valid) continue;
-
-    const mountainRadius = Math.floor(Math.random() * 2) + 3; // kleinerer Radius: 3–4
+    // Bergzentrum definieren und ausbreiten
+    const mountainRadius = Math.floor(Math.random() * 5) + 4; // Radius zwischen 4 und 8
     for (let y = mountainY - mountainRadius; y <= mountainY + mountainRadius; y++) {
         for (let x = mountainX - mountainRadius; x <= mountainX + mountainRadius; x++) {
             if (
@@ -99,9 +83,8 @@ for (let i = 0; i < mountainCount; i++) {
                 const dx = x - mountainX;
                 const dy = y - mountainY;
                 const distance = Math.sqrt(dx * dx + dy * dy);
-                const noise = (Math.random() - 0.5) * 1.5;
 
-                if (distance + noise <= mountainRadius) {
+                if (distance <= mountainRadius) {
                     gridArray[y][x].type = "berg";
                     gridArray[y][x].element.classList.add("berg");
                 }

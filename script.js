@@ -31,14 +31,11 @@ function generateIsland() {
     const gridCenterX = Math.floor(WIDTH / 2);
     const gridCenterY = Math.floor(HEIGHT / 2);
     const islandRadius = Math.min(WIDTH, HEIGHT) * 0.3; // Basisradius für Insel
-    const minDistanceToTownhall = 10;
-    const mountainCount = 3;
-
     const grid = document.getElementById("grid");
     grid.innerHTML = "";
     const gridArray = [];
 
-    // Inselgenerierung mit Trapezform und Kreis-Mischung
+    // Inselgenerierung mit unregelmäßiger Form
     for (let y = 0; y < HEIGHT; y++) {
         gridArray[y] = [];
         for (let x = 0; x < WIDTH; x++) {
@@ -51,20 +48,19 @@ function generateIsland() {
             const dy = y - gridCenterY;
             const distance = Math.sqrt(dx * dx + dy * dy);
 
-            // Trapezförmige Verzerrung
-            const distanceRatioX = Math.abs(dx) / (WIDTH / 2); // Verhältnis der X-Distanz zur Gesamtbreite
-            const distanceRatioY = Math.abs(dy) / (HEIGHT / 2); // Verhältnis der Y-Distanz zur Gesamthöhe
-            const trapezoidDistortionX = (Math.sin(distanceRatioX * Math.PI) * 0.5) * 2; // Verzerrung in X-Richtung
-            const trapezoidDistortionY = (Math.cos(distanceRatioY * Math.PI) * 0.5) * 2; // Verzerrung in Y-Richtung
-            const randomNoise = (Math.random() - 0.5) * 1.5; // Zufälliges Noise für Variation
+            // Verzerrung für unregelmäßige Inselform
+            const noiseX = (Math.sin(x * 0.3) + Math.random() - 0.5) * 3; // Zufällige Verzerrung X
+            const noiseY = (Math.cos(y * 0.2) + Math.random() - 0.5) * 3; // Zufällige Verzerrung Y
 
-            // Berechnung der Gesamtverzerrung
-            const distortion = trapezoidDistortionX + trapezoidDistortionY + randomNoise;
+            // Radius anpassen je nach Richtung (trapezartige Form)
+            const adjustedDistanceX = distance + noiseX;
+            const adjustedDistanceY = distance + noiseY;
 
-            // Berechnung, ob Zelle zur Insel gehört (Mischung aus Kreis und Trapez)
-            if (distance < islandRadius + distortion) {
+            // Generiere Insel basierend auf Verzerrung
+            if (adjustedDistanceX < islandRadius + 10 && adjustedDistanceY < islandRadius + 10) {
                 gridArray[y][x] = { type: null, element: cell, active: true };
             } else {
+                // Wasser
                 cell.classList.add("wasser");
                 gridArray[y][x] = { type: "wasser", element: cell, active: false };
             }
@@ -83,10 +79,11 @@ function generateIsland() {
         }
     }
 
-    // 3 Berge generieren mit Abstand zum Rathaus
-    for (let i = 0; i < mountainCount; i++) {
+    // 3 Berge generieren (mit Zufallspositionen)
+    for (let i = 0; i < 3; i++) {
         let mountainX, mountainY, attempts = 0, valid = false;
 
+        // Bergplatzierung
         while (attempts < 1000 && !valid) {
             mountainX = Math.floor(Math.random() * WIDTH);
             mountainY = Math.floor(Math.random() * HEIGHT);
@@ -95,37 +92,29 @@ function generateIsland() {
             const dy = mountainY - gridCenterY;
             const distToTownhall = Math.sqrt(dx * dx + dy * dy);
 
-            if (
-                distToTownhall >= minDistanceToTownhall &&
-                gridArray[mountainY][mountainX].active &&
-                !gridArray[mountainY][mountainX].type
-            ) {
+            // Validierung: Nicht in der Nähe des Rathauses und innerhalb der Insel
+            if (distToTownhall > 10 && gridArray[mountainY][mountainX].active && !gridArray[mountainY][mountainX].type) {
                 valid = true;
             }
-
             attempts++;
         }
 
-        if (!valid) continue;
+        // Berg hinzufügen
+        if (valid) {
+            const radius = Math.floor(Math.random() * 2) + 3;
 
-        const radius = Math.floor(Math.random() * 2) + 3;
+            for (let y = mountainY - radius; y <= mountainY + radius; y++) {
+                for (let x = mountainX - radius; x <= mountainX + radius; x++) {
+                    if (x >= 0 && x < WIDTH && y >= 0 && y < HEIGHT && gridArray[y][x].active && !gridArray[y][x].type) {
+                        const dx = x - mountainX;
+                        const dy = y - mountainY;
+                        const dist = Math.sqrt(dx * dx + dy * dy);
 
-        for (let y = mountainY - radius; y <= mountainY + radius; y++) {
-            for (let x = mountainX - radius; x <= mountainX + radius; x++) {
-                if (
-                    x >= 0 && x < WIDTH &&
-                    y >= 0 && y < HEIGHT &&
-                    gridArray[y][x].active &&
-                    !gridArray[y][x].type
-                ) {
-                    const dx = x - mountainX;
-                    const dy = y - mountainY;
-                    const dist = Math.sqrt(dx * dx + dy * dy);
-                    const noise = (Math.random() - 0.5) * 1.2;
-
-                    if (dist + noise <= radius) {
-                        gridArray[y][x].type = "berg";
-                        gridArray[y][x].element.classList.add("berg");
+                        // Wenn der Punkt innerhalb des Bergradius liegt
+                        if (dist <= radius) {
+                            gridArray[y][x].type = "berg";
+                            gridArray[y][x].element.classList.add("berg");
+                        }
                     }
                 }
             }
@@ -134,12 +123,6 @@ function generateIsland() {
 
     window.gridArray = gridArray;
 }
-
-
-
-
-
-
 
 
 // Hilfsfunktion zum Mischen eines Arrays

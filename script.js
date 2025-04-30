@@ -410,6 +410,7 @@ function startProduction() {
 
 // Produktion der Ressourcen
 function produceGold() {
+    checkConnectivity();
     let goldProduced = gridArray.flat().reduce((sum, cell) => {
         if (cell.active && cell.type === "goldmine") {
             const key = `${cell.element.dataset.x}_${cell.element.dataset.y}`;

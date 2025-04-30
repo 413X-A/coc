@@ -25,6 +25,16 @@ const gridCenterX = Math.floor(WIDTH / 2);
 const gridCenterY = Math.floor(HEIGHT / 2);
 const islandRadius = Math.min(WIDTH, HEIGHT) * 0.4;
 function generateIsland() {
+    const gridArray = [];
+    const grid = document.getElementById("grid");
+    grid.innerHTML = ""; // Falls es ein vorheriges Grid gibt, leeren
+    const WIDTH = 101;
+    const HEIGHT = 75;
+    const gridCenterX = Math.floor(WIDTH / 2);
+    const gridCenterY = Math.floor(HEIGHT / 2);
+    const islandRadius = Math.min(WIDTH, HEIGHT) * 0.4;
+
+    // Inselraster aufbauen
     for (let y = 0; y < HEIGHT; y++) {
         gridArray[y] = [];
 
@@ -37,8 +47,6 @@ function generateIsland() {
             const dx = x - gridCenterX;
             const dy = y - gridCenterY;
             const distance = Math.sqrt(dx * dx + dy * dy);
-
-            // leichte Verzerrung + Zufalls-Noise für unregelmäßige Insel
             const noise = (Math.sin(x * 0.3) + Math.cos(y * 0.2)) * 3 + (Math.random() - 0.5) * 6;
 
             if (distance < islandRadius + noise) {
@@ -63,70 +71,78 @@ function generateIsland() {
         }
     }
 
-    // Rathaus in der Mitte platzieren (3x3)
+    // Rathaus (3x3) in der Mitte platzieren
     for (let y = gridCenterY - 1; y <= gridCenterY + 1; y++) {
         for (let x = gridCenterX - 1; x <= gridCenterX + 1; x++) {
             gridArray[y][x].type = "rathaus";
             gridArray[y][x].element.classList.add("rathaus");
-            gridArray[y][x].active = true;  // Das Rathaus als aktiv markieren
+            gridArray[y][x].active = true;
         }
     }
 
-    // 3 natürlich geformte, kleinere Berge generieren
-const minDistanceToTownhall = 15; // Mindestabstand zum Rathauszentrum
+    // Berge generieren (mit Abstand zum Rathaus)
+    const mountainCount = 3;
+    const minDistanceToTownhall = 10;
+    for (let i = 0; i < mountainCount; i++) {
+        let mountainX, mountainY, attempts = 0;
+        let found = false;
 
-const mountainCount = 3;
-for (let i = 0; i < mountainCount; i++) {
-    let mountainX, mountainY;
-    let attempts = 0;
-    do {
-        mountainX = Math.floor(Math.random() * WIDTH);
-        mountainY = Math.floor(Math.random() * HEIGHT);
-        const dx = mountainX - gridCenterX;
-        const dy = mountainY - gridCenterY;
-        const distanceToTownhall = Math.sqrt(dx * dx + dy * dy);
-        attempts++;
+        while (attempts < 1000 && !found) {
+            mountainX = Math.floor(Math.random() * WIDTH);
+            mountainY = Math.floor(Math.random() * HEIGHT);
 
-        // Abbrechen, falls zu viele Versuche (nur zur Sicherheit)
-        if (attempts > 1000) break;
-    } while (
-        !gridArray[mountainY][mountainX].active ||
-        gridArray[mountainY][mountainX].type ||
-        distanceToTownhall < minDistanceToTownhall
-    );
+            const dx = mountainX - gridCenterX;
+            const dy = mountainY - gridCenterY;
+            const distanceToTownhall = Math.sqrt(dx * dx + dy * dy);
 
-    const mountainRadius = Math.floor(Math.random() * 3) + 3; // Radius zwischen 3 und 5
-
-    for (let y = mountainY - mountainRadius; y <= mountainY + mountainRadius; y++) {
-        for (let x = mountainX - mountainRadius; x <= mountainX + mountainRadius; x++) {
             if (
-                x >= 0 && x < WIDTH &&
-                y >= 0 && y < HEIGHT &&
-                gridArray[y][x].active &&
-                !gridArray[y][x].type
+                distanceToTownhall >= minDistanceToTownhall &&
+                gridArray[mountainY][mountainX].active &&
+                !gridArray[mountainY][mountainX].type
             ) {
-                const dx = x - mountainX;
-                const dy = y - mountainY;
-                const distance = Math.sqrt(dx * dx + dy * dy);
-                const noise = (Math.random() - 0.5) * 1.5;
+                found = true;
+            }
+            attempts++;
+        }
 
-                if (distance + noise <= mountainRadius) {
-                    gridArray[y][x].type = "berg";
+        if (!found) continue;
 
-                    const distanceRatio = distance / mountainRadius;
-                    if (distanceRatio < 0.3) {
-                        gridArray[y][x].element.classList.add("berg-3");
-                    } else if (distanceRatio < 0.6) {
-                        gridArray[y][x].element.classList.add("berg-2");
-                    } else {
-                        gridArray[y][x].element.classList.add("berg-1");
+        const mountainRadius = Math.floor(Math.random() * 3) + 3; // 3–5
+
+        for (let y = mountainY - mountainRadius; y <= mountainY + mountainRadius; y++) {
+            for (let x = mountainX - mountainRadius; x <= mountainX + mountainRadius; x++) {
+                if (
+                    x >= 0 && x < WIDTH &&
+                    y >= 0 && y < HEIGHT &&
+                    gridArray[y][x].active &&
+                    !gridArray[y][x].type
+                ) {
+                    const dx = x - mountainX;
+                    const dy = y - mountainY;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+                    const noise = (Math.random() - 0.5) * 1.5;
+
+                    if (distance + noise <= mountainRadius) {
+                        gridArray[y][x].type = "berg";
+
+                        const distanceRatio = distance / mountainRadius;
+                        if (distanceRatio < 0.3) {
+                            gridArray[y][x].element.classList.add("berg-3");
+                        } else if (distanceRatio < 0.6) {
+                            gridArray[y][x].element.classList.add("berg-2");
+                        } else {
+                            gridArray[y][x].element.classList.add("berg-1");
+                        }
                     }
                 }
             }
         }
     }
+
+    // Globale Variable setzen, wenn benötigt
+    window.gridArray = gridArray;
 }
-}
+
 
 // Hilfsfunktion zum Mischen eines Arrays
 function shuffle(array) {

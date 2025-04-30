@@ -27,6 +27,11 @@ const islandRadius = Math.min(WIDTH, HEIGHT) * 0.4;
 // Grid erstellen mit Insel-Form
 // Raster generieren + Insel mit Noise
 function generateIsland() {
+    const WIDTH = 101;
+    const HEIGHT = 75;
+    const gridCenterX = Math.floor(WIDTH / 2);
+    const gridCenterY = Math.floor(HEIGHT / 2);
+    const islandRadius = Math.min(WIDTH, HEIGHT) * 0.3; // kleinerer Radius
     const minDistanceToTownhall = 10;
     const mountainCount = 3;
 
@@ -46,14 +51,13 @@ function generateIsland() {
             const dy = y - gridCenterY;
             const distance = Math.sqrt(dx * dx + dy * dy);
 
-            // Natürliches, aber rundes Terrain
+            // Glattes, sanftes Noise
             const waveNoise = (
-                Math.sin(x * 0.08) +
-                Math.sin(y * 0.08 + x * 0.04) +
-                Math.cos((x + y) * 0.05)
-            ) * 1.2;
+                Math.sin(x * 0.05) +
+                Math.sin(y * 0.05)
+            ) * 0.8;
 
-            const randomNoise = (Math.random() - 0.5) * 1.5;
+            const randomNoise = (Math.random() - 0.5) * 1; // mildes Rauschen
             const noise = waveNoise + randomNoise;
 
             if (distance < islandRadius + noise) {
@@ -77,7 +81,7 @@ function generateIsland() {
         }
     }
 
-    // 3 Berge generieren (nicht zu nah am Rathaus)
+    // 3 Berge generieren mit Abstand zum Rathaus
     for (let i = 0; i < mountainCount; i++) {
         let mountainX, mountainY, attempts = 0, valid = false;
 
@@ -115,7 +119,7 @@ function generateIsland() {
                     const dx = x - mountainX;
                     const dy = y - mountainY;
                     const dist = Math.sqrt(dx * dx + dy * dy);
-                    const n = (Math.random() - 0.5) * 1.5;
+                    const n = (Math.random() - 0.5) * 1.2;
 
                     if (dist + n <= radius) {
                         gridArray[y][x].type = "berg";
@@ -126,8 +130,9 @@ function generateIsland() {
         }
     }
 
-    window.gridArray = gridArray; // Optional global speichern
+    window.gridArray = gridArray;
 }
+
 
 
 // Hilfsfunktion zum Mischen eines Arrays

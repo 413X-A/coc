@@ -80,49 +80,65 @@ function generateIsland() {
     }
 
     // 3 Berge generieren (mit Zufallspositionen)
-    for (let i = 0; i < 3; i++) {
-        let mountainX, mountainY, attempts = 0, valid = false;
+for (let i = 0; i < 3; i++) {
+    let mountainX, mountainY, attempts = 0, valid = false;
 
-        // Bergplatzierung
-        while (attempts < 1000 && !valid) {
-            mountainX = Math.floor(Math.random() * WIDTH);
-            mountainY = Math.floor(Math.random() * HEIGHT);
+    // Bergplatzierung
+    while (attempts < 1000 && !valid) {
+        mountainX = Math.floor(Math.random() * WIDTH);
+        mountainY = Math.floor(Math.random() * HEIGHT);
 
-            const dx = mountainX - gridCenterX;
-            const dy = mountainY - gridCenterY;
-            const distToTownhall = Math.sqrt(dx * dx + dy * dy);
+        const dx = mountainX - gridCenterX;
+        const dy = mountainY - gridCenterY;
+        const distToTownhall = Math.sqrt(dx * dx + dy * dy);
 
-            // Validierung: Nicht in der Nähe des Rathauses und innerhalb der Insel
-            if (distToTownhall > 10 && gridArray[mountainY][mountainX].active && !gridArray[mountainY][mountainX].type) {
-                valid = true;
-            }
-            attempts++;
+        if (distToTownhall > 10 && gridArray[mountainY][mountainX].active && !gridArray[mountainY][mountainX].type) {
+            valid = true;
         }
+        attempts++;
+    }
 
-        // Berg hinzufügen
-        if (valid) {
-            const radius = Math.floor(Math.random() * 2) + 3;
+    // Natürliche Bergform erzeugen
+    if (valid) {
+        const size = Math.floor(Math.random() * 6) + 6; // Größe der Ausbreitung
+        const cellsToCheck = [{ x: mountainX, y: mountainY }];
+        const visited = new Set();
 
-            for (let y = mountainY - radius; y <= mountainY + radius; y++) {
-                for (let x = mountainX - radius; x <= mountainX + radius; x++) {
-                    if (x >= 0 && x < WIDTH && y >= 0 && y < HEIGHT && gridArray[y][x].active && !gridArray[y][x].type) {
-                        const dx = x - mountainX;
-                        const dy = y - mountainY;
-                        const dist = Math.sqrt(dx * dx + dy * dy);
+        let count = 0;
+        while (cellsToCheck.length > 0 && count < size * 5) {
+            const { x, y } = cellsToCheck.shift();
+            const key = `${x},${y}`;
+            if (visited.has(key)) continue;
+            visited.add(key);
 
-                        // Wenn der Punkt innerhalb des Bergradius liegt
-                        if (dist <= radius) {
-                            gridArray[y][x].type = "berg";
-                            gridArray[y][x].element.classList.add("berg");
-                        }
+            if (
+                x >= 0 && x < WIDTH &&
+                y >= 0 && y < HEIGHT &&
+                gridArray[y][x].active &&
+                !gridArray[y][x].type &&
+                Math.random() < 0.9 // zufällige Lücken für Unregelmäßigkeit
+            ) {
+                gridArray[y][x].type = "berg";
+                gridArray[y][x].element.classList.add("berg");
+                count++;
+
+                // zufällig neue Zellen anhängen (unregelmäßige Ausbreitung)
+                const dirs = [
+                    { dx: -1, dy: 0 }, { dx: 1, dy: 0 },
+                    { dx: 0, dy: -1 }, { dx: 0, dy: 1 },
+                    { dx: -1, dy: -1 }, { dx: 1, dy: 1 },
+                    { dx: -1, dy: 1 }, { dx: 1, dy: -1 }
+                ];
+                for (const dir of dirs) {
+                    if (Math.random() < 0.6) {
+                        cellsToCheck.push({ x: x + dir.dx, y: y + dir.dy });
                     }
                 }
             }
         }
     }
-
-    window.gridArray = gridArray;
 }
+
 
 
 // Hilfsfunktion zum Mischen eines Arrays

@@ -39,7 +39,7 @@ function generateIsland() {
             const distance = Math.sqrt(dx * dx + dy * dy);
 
             // leichte Verzerrung + Zufalls-Noise für unregelmäßige Insel
-            const noise = (Math.sin(x * 0.3) + Math.cos(y * 0.2)) * 3 + (Math.random() - 0.5) * 6;
+            const noise = (Math.sin(x * 0.1) + Math.cos(y * 0.1)) * 2 + (Math.random() - 0.5) * 2;
 
             if (distance < islandRadius + noise) {
                 // Insel

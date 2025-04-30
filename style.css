@@ -68,6 +68,10 @@ body {
     background-color: #3399ff; /* Wasser */
 }
 
+.berg {
+    background-color: gray;
+}
+
 #baumenü {
     margin: 10px;
 }

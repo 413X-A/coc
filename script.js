@@ -45,7 +45,7 @@ function generateIsland() {
             cell.dataset.x = x;
             cell.dataset.y = y;
 
-            const dx = (x - gridCenterX) * 3.0; // stärkere Breite
+            const dx = (x - gridCenterX) * 0.35; // stärkere Breite
             const dy = (y - gridCenterY) * 0.9; // leicht gestaucht in Höhe
             const distance = Math.sqrt(dx * dx + dy * dy);
             const angle = Math.atan2(dy, dx);

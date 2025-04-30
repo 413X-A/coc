@@ -26,6 +26,8 @@ const gridCenterY = Math.floor(HEIGHT / 2);
 const islandRadius = Math.min(WIDTH, HEIGHT) * 0.4;
 // Grid erstellen mit Insel-Form
 function generateIsland() {
+    const islandRadius = Math.min(WIDTH, HEIGHT) / 3; // deutlich kleiner als das Grid
+
     for (let y = 0; y < HEIGHT; y++) {
         gridArray[y] = [];
         for (let x = 0; x < WIDTH; x++) {
@@ -38,12 +40,12 @@ function generateIsland() {
             const dy = y - gridCenterY;
             const distance = Math.sqrt(dx * dx + dy * dy);
 
-            // Stärkere Verzerrung für eine "zackigere", größere Insel
+            // Leichte, aber kleinere Verzerrung
             const noise =
-                (Math.sin(x * 0.15) + Math.cos(y * 0.15)) * 6 +
-                (Math.sin(y * 0.3 + x * 0.2)) * 4;
+                (Math.sin(x * 0.25) + Math.cos(y * 0.25)) * 2 +
+                (Math.sin(x * 0.15 + y * 0.2)) * 1.5;
 
-            const effectiveRadius = islandRadius + noise + 5; // Basisradius + Noise + leichte Streckung
+            const effectiveRadius = islandRadius + noise;
 
             if (distance < effectiveRadius) {
                 // Insel
@@ -67,35 +69,31 @@ function generateIsland() {
         }
     }
 
-    // Berge platzieren
-    const minDistanceFromCenter = 10;
-    const numMountains = 3;
+    // Zufällige Berge auf Insel verteilen
+    const numMountains = 5;
     let mountainsPlaced = 0;
 
     while (mountainsPlaced < numMountains) {
         const mountainX = Math.floor(Math.random() * WIDTH);
         const mountainY = Math.floor(Math.random() * HEIGHT);
+        const cellData = gridArray[mountainY][mountainX];
 
-        const dx = mountainX - gridCenterX;
-        const dy = mountainY - gridCenterY;
-        const distanceToCenter = Math.sqrt(dx * dx + dy * dy);
+        if (!cellData || cellData.type !== null) continue; // Nur auf leerer Insel platzieren
 
-        if (distanceToCenter < minDistanceFromCenter) continue;
-
-        const mountainRadius = 3 + Math.floor(Math.random() * 2);
+        const mountainRadius = 2 + Math.floor(Math.random() * 2); // Radius 2–3
         for (let y = mountainY - mountainRadius; y <= mountainY + mountainRadius; y++) {
             for (let x = mountainX - mountainRadius; x <= mountainX + mountainRadius; x++) {
                 if (x >= 0 && y >= 0 && x < WIDTH && y < HEIGHT) {
                     const dx = x - mountainX;
                     const dy = y - mountainY;
                     const dist = Math.sqrt(dx * dx + dy * dy);
-                    const distortion = (Math.sin(x * 0.5) + Math.cos(y * 0.4)) * 0.8;
+                    const distortion = (Math.sin(x * 0.4) + Math.cos(y * 0.3)) * 0.6;
 
                     if (dist < mountainRadius + distortion) {
-                        const cellData = gridArray[y][x];
-                        if (cellData && cellData.type === null) {
-                            cellData.type = "berg";
-                            cellData.element.classList.add("berg");
+                        const cell = gridArray[y][x];
+                        if (cell && cell.type === null) {
+                            cell.type = "berg";
+                            cell.element.classList.add("berg");
                         }
                     }
                 }

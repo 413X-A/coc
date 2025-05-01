@@ -168,185 +168,59 @@ function isNearbyRohstoff(x, y, range, resourceType) {
 }
 
 // Anpassen der bestehenden build Funktion
-function build(x, y) {
-    if (!selectedBuilding) return;
-    const cell = gridArray[y][x];
-    if (cell.type) return;
+else if (["steinbruch", "eisenbruch", "goldbruch", "smaragdbruch"].includes(selectedBuilding)) {
+    let validPlacement = true;
 
-    let cost = 0;
-    let baseSizeX = 1;
-    let baseSizeY = 1;
-    let bewohnerChange = 0;
-    let isFreeBuilding = false;
-
-    const buildingData = {
-        "haus": { cost: 150, sizeX: 2, sizeY: 2, bewohnerChange: 5 },
-        "weg": { cost: 10, sizeX: 1, sizeY: 1, bewohnerChange: 0 },
-        "marktplatz": { cost: 75, sizeX: 2, sizeY: 2, bewohnerChange: 0 },
-        "getreidefarm": { cost: 280, sizeX: 3, sizeY: 2, bewohnerChange: -3 },
-        "fischerhuette": { cost: 120, sizeX: 2, sizeY: 1, bewohnerChange: -2 },
-        "holzfaeller": { cost: 150, sizeX: 3, sizeY: 2, bewohnerChange: -4 },
-        "steinmetz": { cost: 300, sizeX: 2, sizeY: 2, bewohnerChange: -4 },
-        "eisenschmiede": { cost: 800, sizeX: 2, sizeY: 2, bewohnerChange: -6 },
-        "goldschmiede": { cost: 600, sizeX: 2, sizeY: 2, bewohnerChange: -5 },
-        "smaragdschmiede": { cost: 1500, sizeX: 2, sizeY: 2, bewohnerChange: -8 },
-        "steinbruch": { cost: 500, sizeX: 2, sizeY: 2, bewohnerChange: 0 },
-        "eisenbruch": { cost: 800, sizeX: 2, sizeY: 2, bewohnerChange: 0 },
-        "goldbruch": { cost: 600, sizeX: 2, sizeY: 2, bewohnerChange: 0 },
-        "smaragdbruch": { cost: 1500, sizeX: 2, sizeY: 2, bewohnerChange: 0 },
-    };
-
-    const building = buildingData[selectedBuilding];
-    if (!building) return;
-
-    cost = building.cost;
-    baseSizeX = building.sizeX;
-    baseSizeY = building.sizeY;
-    bewohnerChange = building.bewohnerChange;
-
-    if (bewohner + bewohnerChange < 0) {
-        alert("Nicht genug Einwohner!");
-        return;
+    // Alle Zellen des Bruchs müssen auf BERG liegen
+    for (let dy = 0; dy < rot.sy; dy++) {
+        for (let dx = 0; dx < rot.sx; dx++) {
+            const nx = startX + dx;
+            const ny = startY + dy;
+            const cell = gridArray[ny]?.[nx];
+            if (!cell || cell.type !== "berg") {
+                validPlacement = false;
+            }
+        }
     }
 
-    if (freeBuildings[selectedBuilding] && freeBuildings[selectedBuilding] > 0) {
-        isFreeBuilding = true;
+    if (!validPlacement) {
+        alert("Brüche müssen komplett auf Bergen gebaut werden!");
+        continue;
     }
 
-    function isAreaFree(startX, startY, w, h) {
-        for (let dy = 0; dy < h; dy++) {
-            for (let dx = 0; dx < w; dx++) {
-                const nx = startX + dx;
-                const ny = startY + dy;
-                if (!isInBounds(nx, ny) || gridArray[ny][nx].type) {
-                    return false;
+    // Keine angrenzenden BERG-Zellen neben dem Bruch
+    for (let dy = 0; dy < rot.sy; dy++) {
+        for (let dx = 0; dx < rot.sx; dx++) {
+            const nx = startX + dx;
+            const ny = startY + dy;
+
+            const adjacent = [
+                { x: nx, y: ny - 1 },
+                { x: nx + 1, y: ny },
+                { x: nx, y: ny + 1 },
+                { x: nx - 1, y: ny }
+            ];
+
+            for (let n of adjacent) {
+                if (!isInBounds(n.x, n.y)) continue;
+                const neighbor = gridArray[n.y][n.x];
+                // Kein anderer Berg darf angrenzen (außer der, auf dem man selbst steht)
+                if (neighbor.type === "berg" && !(
+                    n.x >= startX && n.x < startX + rot.sx &&
+                    n.y >= startY && n.y < startY + rot.sy
+                )) {
+                    alert("Brüche dürfen nicht direkt an andere Berge angrenzen!");
+                    validPlacement = false;
+                    break;
                 }
             }
+            if (!validPlacement) break;
         }
-        return true;
+        if (!validPlacement) break;
     }
 
-    const rotations = [
-        { dx: 0, dy: 0, sx: baseSizeX, sy: baseSizeY },
-        { dx: -(baseSizeY - 1), dy: 0, sx: baseSizeY, sy: baseSizeX },
-        { dx: -(baseSizeX - 1), dy: -(baseSizeY - 1), sx: baseSizeX, sy: baseSizeY },
-        { dx: 0, dy: -(baseSizeX - 1), sx: baseSizeY, sy: baseSizeX }
-    ];
-
-    let placed = false;
-
-    for (let rot of rotations) {
-        const startX = x + rot.dx;
-        const startY = y + rot.dy;
-
-        if (!isAreaFree(startX, startY, rot.sx, rot.sy)) continue;
-
-        let adjacentToStreet = false;
-        let adjacentToValidWegTarget = false;
-        let adjacentToWater = false;
-
-        for (let dy = 0; dy < rot.sy; dy++) {
-            for (let dx = 0; dx < rot.sx; dx++) {
-                const nx = startX + dx;
-                const ny = startY + dy;
-
-                const neighbors = [
-                    { x: nx, y: ny - 1 },
-                    { x: nx + 1, y: ny },
-                    { x: nx, y: ny + 1 },
-                    { x: nx - 1, y: ny }
-                ];
-
-                for (let n of neighbors) {
-                    if (!isInBounds(n.x, n.y)) continue;
-                    const neighborType = gridArray[n.y][n.x].type;
-
-                    if (neighborType === "weg") {
-                        adjacentToStreet = true;
-                    }
-
-                    if (["weg", "marktplatz", "rathaus"].includes(neighborType)) {
-                        adjacentToValidWegTarget = true;
-                    }
-
-                    if (gridArray[n.y][n.x].type === "wasser") {
-                        adjacentToWater = true;
-                    }
-                }
-            }
-        }
-
-        // Regeln prüfen:
-        if (selectedBuilding === "marktplatz") {
-            // darf überall
-        } else if (selectedBuilding === "weg") {
-            if (!adjacentToValidWegTarget) continue;
-        } else if (selectedBuilding === "fischerhuette") {
-            if (!adjacentToStreet || !adjacentToWater) {
-                alert("Fischerhütten müssen an Straße und Wasser angrenzen!");
-                continue;
-            }
-        } else if (selectedBuilding === "steinmetz") {
-            // Nur wenn ein Steinbruch in der Nähe ist
-            if (!isNearbyRohstoff(x, y, 5, "steinbruch")) {
-                alert("Der Steinmetz benötigt einen Steinbruch in der Nähe!");
-                continue;
-            }
-        } else if (selectedBuilding === "eisenschmiede") {
-            // Nur wenn ein Eisenbruch in der Nähe ist
-            if (!isNearbyRohstoff(x, y, 5, "eisenbruch")) {
-                alert("Die Eisenschmiede benötigt einen Eisenbruch in der Nähe!");
-                continue;
-            }
-        } else if (selectedBuilding === "goldschmiede") {
-            // Nur wenn ein Goldbruch in der Nähe ist
-            if (!isNearbyRohstoff(x, y, 5, "goldbruch")) {
-                alert("Die Goldschmiede benötigt einen Goldbruch in der Nähe!");
-                continue;
-            }
-        } else if (selectedBuilding === "smaragdschmiede") {
-            // Nur wenn ein Smaragdbruch in der Nähe ist
-            if (!isNearbyRohstoff(x, y, 5, "smaragdbruch")) {
-                alert("Die Smaragdschmiede benötigt einen Smaragdbruch in der Nähe!");
-                continue;
-            }
-        } else {
-            if (!adjacentToStreet) continue;
-        }
-
-        if (!isFreeBuilding && gold < cost) {
-            alert("Nicht genug Gold!");
-            return;
-        }
-
-        if (isFreeBuilding) {
-            freeBuildings[selectedBuilding]--;
-            cost = 0;
-        }
-
-        gold -= cost;
-        bewohner += bewohnerChange;
-        updateInfo();
-
-        for (let dy = 0; dy < rot.sy; dy++) {
-            for (let dx = 0; dx < rot.sx; dx++) {
-                const tileX = startX + dx;
-                const tileY = startY + dy;
-                gridArray[tileY][tileX].type = selectedBuilding;
-                gridArray[tileY][tileX].element.classList.add(selectedBuilding);
-                buildingLevels[`${tileX}_${tileY}`] = 1;
-            }
-        }
-
-        placed = true;
-        break;
-    }
-
-    if (!placed) {
-        alert("Kein Platz oder keine gültige Anbindung!");
-    }
+    if (!validPlacement) continue;
 }
-
 
 
 

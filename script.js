@@ -269,7 +269,7 @@ function build(x, y) {
                         adjacentToValidWegTarget = true;
                     }
 
-                    if (gridArray[n.y][n.x].type === "wasser") {
+                    if (neighborType === "wasser") {
                         adjacentToWater = true;
                     }
                 }
@@ -286,26 +286,64 @@ function build(x, y) {
                 alert("Fischerhütten müssen an Straße und Wasser angrenzen!");
                 continue;
             }
+        } else if (["steinbruch", "eisenbruch", "goldbruch", "smaragdbruch"].includes(selectedBuilding)) {
+            let onlyOnBerg = true;
+            let hasAdjacentNonBerg = false;
+
+            for (let dy = 0; dy < rot.sy; dy++) {
+                for (let dx = 0; dx < rot.sx; dx++) {
+                    const nx = startX + dx;
+                    const ny = startY + dy;
+                    const cell = gridArray[ny]?.[nx];
+
+                    if (!cell || cell.type !== "berg") {
+                        onlyOnBerg = false;
+                    }
+
+                    const neighbors = [
+                        { x: nx, y: ny - 1 },
+                        { x: nx + 1, y: ny },
+                        { x: nx, y: ny + 1 },
+                        { x: nx - 1, y: ny }
+                    ];
+
+                    for (const n of neighbors) {
+                        if (!isInBounds(n.x, n.y)) continue;
+                        const neighbor = gridArray[n.y][n.x];
+                        const isOutside = n.x < startX || n.x >= startX + rot.sx || n.y < startY || n.y >= startY + rot.sy;
+
+                        if (isOutside && neighbor.type !== "berg") {
+                            hasAdjacentNonBerg = true;
+                        }
+                    }
+                }
+            }
+
+            if (!onlyOnBerg) {
+                alert("Brüche dürfen nur auf Bergen gebaut werden!");
+                continue;
+            }
+
+            if (!hasAdjacentNonBerg) {
+                alert("Mindestens ein angrenzendes Feld muss kein Berg sein!");
+                continue;
+            }
         } else if (selectedBuilding === "steinmetz") {
-            // Nur wenn ein Steinbruch in der Nähe ist
             if (!isNearbyRohstoff(x, y, 5, "steinbruch")) {
                 alert("Der Steinmetz benötigt einen Steinbruch in der Nähe!");
                 continue;
             }
         } else if (selectedBuilding === "eisenschmiede") {
-            // Nur wenn ein Eisenbruch in der Nähe ist
             if (!isNearbyRohstoff(x, y, 5, "eisenbruch")) {
                 alert("Die Eisenschmiede benötigt einen Eisenbruch in der Nähe!");
                 continue;
             }
         } else if (selectedBuilding === "goldschmiede") {
-            // Nur wenn ein Goldbruch in der Nähe ist
             if (!isNearbyRohstoff(x, y, 5, "goldbruch")) {
                 alert("Die Goldschmiede benötigt einen Goldbruch in der Nähe!");
                 continue;
             }
         } else if (selectedBuilding === "smaragdschmiede") {
-            // Nur wenn ein Smaragdbruch in der Nähe ist
             if (!isNearbyRohstoff(x, y, 5, "smaragdbruch")) {
                 alert("Die Smaragdschmiede benötigt einen Smaragdbruch in der Nähe!");
                 continue;

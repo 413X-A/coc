@@ -18,7 +18,7 @@ const buildingDescriptions = {
         cost: 450,
         bewohnerChange: 0,
         produces: "Zentraler Handelsplatz",
-        needs: "2x2 Platz, kann überall gebaut werden"
+        needs: "4x4 Platz, kann überall gebaut werden"
     },
     getreidefarm: {
         name: "Getreidefarm",

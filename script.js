@@ -11,7 +11,8 @@ let smaragde = 0;
 
 let freeBuildings = {
     haus: 1,
-    weg: 10
+    weg: 10,
+    goldmine: 1
 };
 
 const gridArray = [];
@@ -181,7 +182,7 @@ function build(x, y) {
     const buildingData = {
         "haus": { cost: 150, sizeX: 2, sizeY: 2, bewohnerChange: 5 },
         "weg": { cost: 10, sizeX: 1, sizeY: 1, bewohnerChange: 0 },
-        "marktplatz": { cost: 75, sizeX: 4, sizeY: 4, bewohnerChange: 0 },
+        "marktplatz": { cost: 450, sizeX: 4, sizeY: 4, bewohnerChange: 0 },
         "getreidefarm": { cost: 280, sizeX: 3, sizeY: 2, bewohnerChange: -3 },
         "fischerhuette": { cost: 120, sizeX: 2, sizeY: 1, bewohnerChange: -2 },
         "holzfaeller": { cost: 150, sizeX: 3, sizeY: 2, bewohnerChange: -4 },
@@ -275,27 +276,7 @@ function build(x, y) {
             }
         }
 
-        // Brüche nur auf Bergen
-        if (["steinbruch", "eisenbruch", "goldbruch", "smaragdbruch"].includes(selectedBuilding)) {
-            let allOnMountain = true;
-            for (let dy = 0; dy < rot.sy; dy++) {
-                for (let dx = 0; dx < rot.sx; dx++) {
-                    const nx = startX + dx;
-                    const ny = startY + dy;
-                    if (!isInBounds(nx, ny) || gridArray[ny][nx].terrain !== "berg") {
-                        allOnMountain = false;
-                        break;
-                    }
-                }
-                if (!allOnMountain) break;
-            }
-            if (!allOnMountain) {
-                alert("Brüche können nur auf Bergen gebaut werden!");
-                continue;
-            }
-        }
-
-        // Regeln prüfen
+        // Regeln prüfen:
         if (selectedBuilding === "marktplatz") {
             // darf überall
         } else if (selectedBuilding === "weg") {
@@ -306,21 +287,25 @@ function build(x, y) {
                 continue;
             }
         } else if (selectedBuilding === "steinmetz") {
+            // Nur wenn ein Steinbruch in der Nähe ist
             if (!isNearbyRohstoff(x, y, 5, "steinbruch")) {
                 alert("Der Steinmetz benötigt einen Steinbruch in der Nähe!");
                 continue;
             }
         } else if (selectedBuilding === "eisenschmiede") {
+            // Nur wenn ein Eisenbruch in der Nähe ist
             if (!isNearbyRohstoff(x, y, 5, "eisenbruch")) {
                 alert("Die Eisenschmiede benötigt einen Eisenbruch in der Nähe!");
                 continue;
             }
         } else if (selectedBuilding === "goldschmiede") {
+            // Nur wenn ein Goldbruch in der Nähe ist
             if (!isNearbyRohstoff(x, y, 5, "goldbruch")) {
                 alert("Die Goldschmiede benötigt einen Goldbruch in der Nähe!");
                 continue;
             }
         } else if (selectedBuilding === "smaragdschmiede") {
+            // Nur wenn ein Smaragdbruch in der Nähe ist
             if (!isNearbyRohstoff(x, y, 5, "smaragdbruch")) {
                 alert("Die Smaragdschmiede benötigt einen Smaragdbruch in der Nähe!");
                 continue;

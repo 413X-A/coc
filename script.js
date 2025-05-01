@@ -175,10 +175,10 @@ function build(x, y) {
         "eisenschmiede": { cost: 800, sizeX: 2, sizeY: 2, bewohnerChange: -6 },
         "goldschmiede": { cost: 600, sizeX: 2, sizeY: 2, bewohnerChange: -5 },
         "smaragdschmiede": { cost: 1500, sizeX: 2, sizeY: 2, bewohnerChange: -8 },
-        "steinbruch": { cost: 500, sizeX: 2, sizeY: 2, bewohnerChange: 0 },
-        "eisenbruch": { cost: 800, sizeX: 2, sizeY: 2, bewohnerChange: 0 },
-        "goldbruch": { cost: 600, sizeX: 2, sizeY: 2, bewohnerChange: 0 },
-        "smaragdbruch": { cost: 1500, sizeX: 2, sizeY: 2, bewohnerChange: 0 },
+        "steinbruch": { cost: 500, sizeX: 1, sizeY: 1, bewohnerChange: 0 },
+        "eisenbruch": { cost: 800, sizeX: 1, sizeY:1, bewohnerChange: 0 },
+        "goldbruch": { cost: 600, sizeX: 1, sizeY:1,  bewohnerChange: 0 },
+        "smaragdbruch": { cost: 1500, sizeX: 1, sizeY: 1, bewohnerChange: 0 },
     };
 
     const building = buildingData[selectedBuilding];

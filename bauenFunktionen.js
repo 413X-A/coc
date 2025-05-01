@@ -74,28 +74,28 @@ const buildingDescriptions = {
         cost: 400,
         bewohnerChange: 0,
         produces: "Erzeugt Stein",
-        needs: "2x2 Platz, nur auf einem Berg"
+        needs: "1x1 Platz, nur auf einem Berg"
     },
     eisenbruch: {
         name: "Eisenbruch",
         cost: 600,
         bewohnerChange: 0,
         produces: "Erzeugt Eisen",
-        needs: "2x2 Platz, nur auf einem Berg"
+        needs: "1x1 Platz, nur auf einem Berg"
     },
     goldbruch: {
         name: "Goldbruch",
         cost: 800,
         bewohnerChange: 0,
         produces: "Erzeugt Gold",
-        needs: "2x2 Platz, nur auf einem Berg"
+        needs: "1x1 Platz, nur auf einem Berg"
     },
     smaragdbruch: {
         name: "Smaragdbruch",
         cost: 1000,
         bewohnerChange: 0,
         produces: "Erzeugt Smaragde",
-        needs: "2x2 Platz, nur auf einem Berg"
+        needs: "1x1 Platz, nur auf einem Berg"
     },
 };
 

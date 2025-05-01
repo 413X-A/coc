@@ -254,13 +254,14 @@ function build(x, y) {
                         adjacentToValidWegTarget = true;
                     }
 
-                    if (neighborType === "wasser") {
+                    if (gridArray[n.y][n.x].type === "wasser") {
                         adjacentToWater = true;
                     }
                 }
             }
         }
 
+        // Regeln prüfen:
         if (selectedBuilding === "marktplatz") {
             // darf überall
         } else if (selectedBuilding === "weg") {
@@ -271,74 +272,27 @@ function build(x, y) {
                 continue;
             }
         } else if (selectedBuilding === "steinmetz") {
+            // Nur wenn ein Steinbruch in der Nähe ist
             if (!isNearbyRohstoff(x, y, 5, "steinbruch")) {
                 alert("Der Steinmetz benötigt einen Steinbruch in der Nähe!");
                 continue;
             }
         } else if (selectedBuilding === "eisenschmiede") {
+            // Nur wenn ein Eisenbruch in der Nähe ist
             if (!isNearbyRohstoff(x, y, 5, "eisenbruch")) {
                 alert("Die Eisenschmiede benötigt einen Eisenbruch in der Nähe!");
                 continue;
             }
         } else if (selectedBuilding === "goldschmiede") {
+            // Nur wenn ein Goldbruch in der Nähe ist
             if (!isNearbyRohstoff(x, y, 5, "goldbruch")) {
                 alert("Die Goldschmiede benötigt einen Goldbruch in der Nähe!");
                 continue;
             }
         } else if (selectedBuilding === "smaragdschmiede") {
+            // Nur wenn ein Smaragdbruch in der Nähe ist
             if (!isNearbyRohstoff(x, y, 5, "smaragdbruch")) {
                 alert("Die Smaragdschmiede benötigt einen Smaragdbruch in der Nähe!");
-                continue;
-            }
-        } else if (["steinbruch", "eisenbruch", "goldbruch", "smaragdbruch"].includes(selectedBuilding)) {
-            let validPlacement = true;
-            let hasNonBergAdjacent = false;
-
-            // Fläche muss vollständig auf Bergen liegen
-            for (let dy = 0; dy < rot.sy; dy++) {
-                for (let dx = 0; dx < rot.sx; dx++) {
-                    const nx = startX + dx;
-                    const ny = startY + dy;
-                    const cell = gridArray[ny]?.[nx];
-                    if (!cell || cell.type !== "berg") {
-                        validPlacement = false;
-                    }
-                }
-            }
-
-            if (!validPlacement) {
-                alert("Brüche müssen komplett auf Bergen gebaut werden!");
-                continue;
-            }
-
-            // Eine angrenzende Zelle muss KEIN Berg sein
-            outer: for (let dy = 0; dy < rot.sy; dy++) {
-                for (let dx = 0; dx < rot.sx; dx++) {
-                    const nx = startX + dx;
-                    const ny = startY + dy;
-
-                    const adjacent = [
-                        { x: nx, y: ny - 1 },
-                        { x: nx + 1, y: ny },
-                        { x: nx, y: ny + 1 },
-                        { x: nx - 1, y: ny }
-                    ];
-
-                    for (let n of adjacent) {
-                        if (!isInBounds(n.x, n.y)) continue;
-                        const neighbor = gridArray[n.y][n.x];
-                        const isOutside = n.x < startX || n.x >= startX + rot.sx || n.y < startY || n.y >= startY + rot.sy;
-
-                        if (isOutside && neighbor.type !== "berg") {
-                            hasNonBergAdjacent = true;
-                            break outer;
-                        }
-                    }
-                }
-            }
-
-            if (!hasNonBergAdjacent) {
-                alert("Brüche dürfen nicht vollständig von Bergen umschlossen sein!");
                 continue;
             }
         } else {
@@ -365,7 +319,7 @@ function build(x, y) {
                 const tileY = startY + dy;
                 gridArray[tileY][tileX].type = selectedBuilding;
                 gridArray[tileY][tileX].element.classList.add(selectedBuilding);
-                buildingLevels[`${tileX}_${tileY}`] = 1;
+                buildingLevels[${tileX}_${tileY}] = 1;
             }
         }
 

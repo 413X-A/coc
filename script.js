@@ -181,7 +181,7 @@ function build(x, y) {
     const buildingData = {
         "haus": { cost: 150, sizeX: 2, sizeY: 2, bewohnerChange: 5 },
         "weg": { cost: 10, sizeX: 1, sizeY: 1, bewohnerChange: 0 },
-        "marktplatz": { cost: 75, sizeX: 2, sizeY: 2, bewohnerChange: 0 },
+        "marktplatz": { cost: 75, sizeX: 4, sizeY: 4, bewohnerChange: 0 },
         "getreidefarm": { cost: 280, sizeX: 3, sizeY: 2, bewohnerChange: -3 },
         "fischerhuette": { cost: 120, sizeX: 2, sizeY: 1, bewohnerChange: -2 },
         "holzfaeller": { cost: 150, sizeX: 3, sizeY: 2, bewohnerChange: -4 },

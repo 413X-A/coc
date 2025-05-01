@@ -153,6 +153,21 @@ function onCellClick(e, x, y) {
 }
 
 
+// Funktion, um zu überprüfen, ob der entsprechende Bruch (Steinbruch, Eisenbruch, Goldbruch oder Smaragdbruch) in der Nähe ist
+function isNearbyRohstoff(x, y, range, resourceType) {
+    for (let dy = -range; dy <= range; dy++) {
+        for (let dx = -range; dx <= range; dx++) {
+            const nx = x + dx;
+            const ny = y + dy;
+            if (isInBounds(nx, ny) && gridArray[ny][nx].type === resourceType) {
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
+// Anpassen der bestehenden build Funktion
 function build(x, y) {
     if (!selectedBuilding) return;
     const cell = gridArray[y][x];
@@ -175,10 +190,10 @@ function build(x, y) {
         "eisenschmiede": { cost: 800, sizeX: 2, sizeY: 2, bewohnerChange: -6 },
         "goldschmiede": { cost: 600, sizeX: 2, sizeY: 2, bewohnerChange: -5 },
         "smaragdschmiede": { cost: 1500, sizeX: 2, sizeY: 2, bewohnerChange: -8 },
-        "steinbruch": { cost: 500, sizeX: 1, sizeY: 1, bewohnerChange: 0 },
-        "eisenbruch": { cost: 800, sizeX: 1, sizeY:1, bewohnerChange: 0 },
-        "goldbruch": { cost: 600, sizeX: 1, sizeY:1,  bewohnerChange: 0 },
-        "smaragdbruch": { cost: 1500, sizeX: 1, sizeY: 1, bewohnerChange: 0 },
+        "steinbruch": { cost: 500, sizeX: 2, sizeY: 2, bewohnerChange: 0 },
+        "eisenbruch": { cost: 800, sizeX: 2, sizeY: 2, bewohnerChange: 0 },
+        "goldbruch": { cost: 600, sizeX: 2, sizeY: 2, bewohnerChange: 0 },
+        "smaragdbruch": { cost: 1500, sizeX: 2, sizeY: 2, bewohnerChange: 0 },
     };
 
     const building = buildingData[selectedBuilding];
@@ -319,7 +334,7 @@ function build(x, y) {
                 const tileY = startY + dy;
                 gridArray[tileY][tileX].type = selectedBuilding;
                 gridArray[tileY][tileX].element.classList.add(selectedBuilding);
-                buildingLevels[${tileX}_${tileY}] = 1;
+                buildingLevels[`${tileX}_${tileY}`] = 1;
             }
         }
 
@@ -556,7 +571,6 @@ function produceNahrung() {
     nahrung += nahrungProduced; // Wert zu Nahrung hinzufügen
     updateInfo();
 }
-
 
 
 generateIsland();

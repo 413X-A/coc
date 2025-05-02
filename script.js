@@ -11,8 +11,7 @@ let smaragde = 0;
 
 let freeBuildings = {
     haus: 1,
-    weg: 10,
-    goldmine: 1
+    weg: 10
 };
 
 const gridArray = [];

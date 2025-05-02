@@ -76,23 +76,8 @@ body {
     background-color: #C0C0C0; /* Berg */
 }
 
-/* Neue Gebäudearten: Brüche und Schmieden */
-
-/* Brüche */
-.steinbruch {
-    background-color: #dcdcdc; /* Helles Grau für Steinbruch */
-}
-
-.eisenbruch {
+.minenschacht {
     background-color: #b0bec5; /* Blau-Grau für Eisenbruch */
-}
-
-.goldbruch {
-    background-color: #ffeb3b; /* Gelb für Goldbruch */
-}
-
-.smaragdbruch {
-    background-color: #4caf50; /* Grün für Smaragdbruch */
 }
 
 /* Schmieden */

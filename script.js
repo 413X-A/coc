@@ -183,10 +183,7 @@ function build(x, y) {
         "eisenschmiede": { cost: 800, sizeX: 2, sizeY: 2, bewohnerChange: -6 },
         "goldschmiede": { cost: 600, sizeX: 2, sizeY: 2, bewohnerChange: -5 },
         "smaragdschmiede": { cost: 1500, sizeX: 2, sizeY: 2, bewohnerChange: -8 },
-        "steinbruch": { cost: 500, sizeX: 1, sizeY: 1, bewohnerChange: 0 },
-        "eisenbruch": { cost: 800, sizeX: 1, sizeY: 1, bewohnerChange: 0 },
-        "goldbruch": { cost: 600, sizeX: 1, sizeY: 1, bewohnerChange: 0 },
-        "smaragdbruch": { cost: 1500, sizeX: 1, sizeY: 1, bewohnerChange: 0 },
+        "minenschacht": { cost: 1500, sizeX: 1, sizeY: 1, bewohnerChange: 0 },
     };
 
     const building = buildingData[selectedBuilding];
@@ -214,7 +211,7 @@ function build(x, y) {
                 const tile = gridArray[ny][nx];
                 if (tile.type) return false;
 
-                if (["steinbruch", "eisenbruch", "goldbruch", "smaragdbruch"].includes(selectedBuilding)) {
+                if (selectedBuilding === "minenschacht") {
                     if (!tile.element.classList.contains("berg")) {
                         return false;
                     }
@@ -231,15 +228,15 @@ function build(x, y) {
         { dx: 0, dy: -(baseSizeX - 1), sx: baseSizeY, sy: baseSizeX }
     ];
 
-    // Vorabprüfung für Brüche: mindestens eine gültige Rotation mit "berg"-Feld
-    if (["steinbruch", "eisenbruch", "goldbruch", "smaragdbruch"].includes(selectedBuilding)) {
+    // Minenschacht
+    if (selectedBuilding === "minenschacht") {
         const anyValid = rotations.some(rot => {
             const startX = x + rot.dx;
             const startY = y + rot.dy;
             return isAreaFree(startX, startY, rot.sx, rot.sy);
         });
         if (!anyValid) {
-            alert("Brüche dürfen nur auf Bergen gebaut werden!");
+            alert("Minenschächte dürfen nur an Bergen gebaut werden!");
             return;
         }
     }
@@ -290,15 +287,25 @@ function build(x, y) {
                 continue;
             }
         } else if (selectedBuilding === "steinmetz") {
-            if (!isNearbyRohstoff(x, y, 5, "steinbruch")) {
-                alert("Der Steinmetz benötigt einen Steinbruch in der Nähe!");
+            if (!isNearbyRohstoff(x, y, 5, "minenschacht")) {
+                alert("Der Steinmetz benötigt einen Minenschacht in der Nähe!");
                 continue;
             }
-        } else if (["eisenschmiede", "goldschmiede", "smaragdschmiede"].includes(selectedBuilding)) {
-            if (!validateSchmiedePlacement(selectedBuilding, x, y)) continue;
-        } else if (["steinbruch", "eisenbruch", "goldbruch", "smaragdbruch"].includes(selectedBuilding)) {
-            // Regel bereits oben geprüft
-        } else {
+        } else if (selectedBuilding === "goldschmiede") {
+            if (!isNearbyRohstoff(x, y, 5, "minenschacht")) {
+                alert("Die Goldschmiede benötigt einen Minenschacht in der Nähe!");
+                continue;
+            }
+        } else if (selectedBuilding === "eisenschmiede") {
+            if (!isNearbyRohstoff(x, y, 5, "minenschacht")) {
+                alert("Die Eisenschmiede benötigt einen Minenschacht in der Nähe!");
+                continue;
+            }
+        } else if (selectedBuilding === "smaragdschmiede") {
+            if (!isNearbyRohstoff(x, y, 5, "minenschacht")) {
+                alert("Die Smaragdschmiede benötigt einen Minenschacht in der Nähe!");
+                continue;
+            }
             if (!adjacentToStreet) continue;
         }
 

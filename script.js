@@ -231,6 +231,19 @@ function build(x, y) {
         { dx: 0, dy: -(baseSizeX - 1), sx: baseSizeY, sy: baseSizeX }
     ];
 
+    // Vorabprüfung für Brüche: mindestens eine gültige Rotation mit "berg"-Feld
+    if (["steinbruch", "eisenbruch", "goldbruch", "smaragdbruch"].includes(selectedBuilding)) {
+        const anyValid = rotations.some(rot => {
+            const startX = x + rot.dx;
+            const startY = y + rot.dy;
+            return isAreaFree(startX, startY, rot.sx, rot.sy);
+        });
+        if (!anyValid) {
+            alert("Brüche dürfen nur auf Bergen gebaut werden!");
+            return;
+        }
+    }
+
     let placed = false;
 
     for (let rot of rotations) {
@@ -284,7 +297,7 @@ function build(x, y) {
         } else if (["eisenschmiede", "goldschmiede", "smaragdschmiede"].includes(selectedBuilding)) {
             if (!validateSchmiedePlacement(selectedBuilding, x, y)) continue;
         } else if (["steinbruch", "eisenbruch", "goldbruch", "smaragdbruch"].includes(selectedBuilding)) {
-            // Nur auf Berg erlaubt (bereits in isAreaFree geprüft)
+            // Regel bereits oben geprüft
         } else {
             if (!adjacentToStreet) continue;
         }

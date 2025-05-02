@@ -69,7 +69,7 @@ const buildingDescriptions = {
         produces: "Erzeugt Smaragde (benötigt Smaragdbruch in der Nähe)",
         needs: "2x2 Platz, angrenzend an Straße"
     },
-    steinbruch: {
+    minenschacht: {
         name: "Minenschacht",
         cost: 1500,
         bewohnerChange: 0,

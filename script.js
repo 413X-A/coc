@@ -209,8 +209,15 @@ function build(x, y) {
             for (let dx = 0; dx < w; dx++) {
                 const nx = startX + dx;
                 const ny = startY + dy;
-                if (!isInBounds(nx, ny) || gridArray[ny][nx].type) {
-                    return false;
+                if (!isInBounds(nx, ny)) return false;
+
+                const tile = gridArray[ny][nx];
+                if (tile.type) return false;
+
+                if (["steinbruch", "eisenbruch", "goldbruch", "smaragdbruch"].includes(selectedBuilding)) {
+                    if (!tile.element.classList.contains("berg")) {
+                        return false;
+                    }
                 }
             }
         }
@@ -261,7 +268,7 @@ function build(x, y) {
 
         // Bau-Regeln
         if (selectedBuilding === "marktplatz") {
-            // erlaubt
+            // Immer erlaubt
         } else if (selectedBuilding === "weg") {
             if (!adjacentToValidWegTarget) continue;
         } else if (selectedBuilding === "fischerhuette") {
@@ -269,7 +276,7 @@ function build(x, y) {
                 alert("Fischerhütten müssen an Straße und Wasser angrenzen!");
                 continue;
             }
-        } else if (["steinmetz"].includes(selectedBuilding)) {
+        } else if (selectedBuilding === "steinmetz") {
             if (!isNearbyRohstoff(x, y, 5, "steinbruch")) {
                 alert("Der Steinmetz benötigt einen Steinbruch in der Nähe!");
                 continue;
@@ -277,7 +284,7 @@ function build(x, y) {
         } else if (["eisenschmiede", "goldschmiede", "smaragdschmiede"].includes(selectedBuilding)) {
             if (!validateSchmiedePlacement(selectedBuilding, x, y)) continue;
         } else if (["steinbruch", "eisenbruch", "goldbruch", "smaragdbruch"].includes(selectedBuilding)) {
-            if (!validateBruchPlacement(startX, startY, rot.sx, rot.sy)) continue;
+            // Nur auf Berg erlaubt (bereits in isAreaFree geprüft)
         } else {
             if (!adjacentToStreet) continue;
         }
@@ -315,68 +322,6 @@ function build(x, y) {
     if (!placed) {
         alert("Kein Platz oder keine gültige Anbindung!");
     }
-}
-
-function validateSchmiedePlacement(building, x, y) {
-    const rohstoffMap = {
-        "steinmetz": "steinbruch",
-        "eisenschmiede": "eisenbruch",
-        "goldschmiede": "goldbruch",
-        "smaragdschmiede": "smaragdbruch"
-    };
-    const rohstoff = rohstoffMap[building];
-    if (!isNearbyRohstoff(x, y, 5, rohstoff)) {
-        alert(`Die ${building} benötigt einen ${rohstoff} in der Nähe!`);
-        return false;
-    }
-    return true;
-}
-
-function validateBruchPlacement(startX, startY, width, height) {
-    let validOnMountains = true;
-    for (let dy = 0; dy < height; dy++) {
-        for (let dx = 0; dx < width; dx++) {
-            const tx = startX + dx;
-            const ty = startY + dy;
-            if (!isInBounds(tx, ty) || gridArray[ty][tx].type !== "berg") {
-                validOnMountains = false;
-            }
-        }
-    }
-
-    if (!validOnMountains) {
-        alert(`${building} dürfen nur auf Bergen gebaut werden!`);
-        return false;
-    }
-
-    let hasNonBergNeighbor = false;
-    outer: for (let dy = 0; dy < height; dy++) {
-        for (let dx = 0; dx < width; dx++) {
-            const tx = startX + dx;
-            const ty = startY + dy;
-            const adjacents = [
-                { x: tx, y: ty - 1 },
-                { x: tx + 1, y: ty },
-                { x: tx, y: ty + 1 },
-                { x: tx - 1, y: ty }
-            ];
-            for (let adj of adjacents) {
-                if (!isInBounds(adj.x, adj.y)) continue;
-                const neighbor = gridArray[adj.y][adj.x];
-                if (neighbor.type !== "berg") {
-                    hasNonBergNeighbor = true;
-                    break outer;
-                }
-            }
-        }
-    }
-
-    if (!hasNonBergNeighbor) {
-        alert("Brüche dürfen nicht vollständig von Bergen umgeben sein!");
-        return false;
-    }
-
-    return true;
 }
 
 

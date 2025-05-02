@@ -173,12 +173,6 @@ function build(x, y) {
     const cell = gridArray[y][x];
     if (cell.type) return;
 
-    let cost = 0;
-    let baseSizeX = 1;
-    let baseSizeY = 1;
-    let bewohnerChange = 0;
-    let isFreeBuilding = false;
-
     const buildingData = {
         "haus": { cost: 150, sizeX: 2, sizeY: 2, bewohnerChange: 5 },
         "weg": { cost: 10, sizeX: 1, sizeY: 1, bewohnerChange: 0 },
@@ -199,10 +193,8 @@ function build(x, y) {
     const building = buildingData[selectedBuilding];
     if (!building) return;
 
-    cost = building.cost;
-    baseSizeX = building.sizeX;
-    baseSizeY = building.sizeY;
-    bewohnerChange = building.bewohnerChange;
+    let { cost, sizeX: baseSizeX, sizeY: baseSizeY, bewohnerChange } = building;
+    let isFreeBuilding = false;
 
     if (bewohner + bewohnerChange < 0) {
         alert("Nicht genug Einwohner!");
@@ -261,24 +253,16 @@ function build(x, y) {
                     if (!isInBounds(n.x, n.y)) continue;
                     const neighborType = gridArray[n.y][n.x].type;
 
-                    if (neighborType === "weg") {
-                        adjacentToStreet = true;
-                    }
-
-                    if (["weg", "marktplatz", "rathaus"].includes(neighborType)) {
-                        adjacentToValidWegTarget = true;
-                    }
-
-                    if (neighborType === "wasser") {
-                        adjacentToWater = true;
-                    }
+                    if (neighborType === "weg") adjacentToStreet = true;
+                    if (["weg", "marktplatz", "rathaus"].includes(neighborType)) adjacentToValidWegTarget = true;
+                    if (neighborType === "wasser") adjacentToWater = true;
                 }
             }
         }
 
-        // Spezielle Bau-Regeln
+        // Bau-Regeln
         if (selectedBuilding === "marktplatz") {
-            // darf überall
+            // erlaubt
         } else if (selectedBuilding === "weg") {
             if (!adjacentToValidWegTarget) continue;
         } else if (selectedBuilding === "fischerhuette") {
@@ -286,71 +270,15 @@ function build(x, y) {
                 alert("Fischerhütten müssen an Straße und Wasser angrenzen!");
                 continue;
             }
-        } else if (selectedBuilding === "steinmetz") {
+        } else if (["steinmetz"].includes(selectedBuilding)) {
             if (!isNearbyRohstoff(x, y, 5, "steinbruch")) {
                 alert("Der Steinmetz benötigt einen Steinbruch in der Nähe!");
                 continue;
             }
-        } else if (selectedBuilding === "eisenschmiede") {
-            if (!isNearbyRohstoff(x, y, 5, "eisenbruch")) {
-                alert("Die Eisenschmiede benötigt einen Eisenbruch in der Nähe!");
-                continue;
-            }
-        } else if (selectedBuilding === "goldschmiede") {
-            if (!isNearbyRohstoff(x, y, 5, "goldbruch")) {
-                alert("Die Goldschmiede benötigt einen Goldbruch in der Nähe!");
-                continue;
-            }
-        } else if (selectedBuilding === "smaragdschmiede") {
-            if (!isNearbyRohstoff(x, y, 5, "smaragdbruch")) {
-                alert("Die Smaragdschmiede benötigt einen Smaragdbruch in der Nähe!");
-                continue;
-            }
+        } else if (["eisenschmiede", "goldschmiede", "smaragdschmiede"].includes(selectedBuilding)) {
+            if (!validateSchmiedePlacement(selectedBuilding, x, y)) continue;
         } else if (["steinbruch", "eisenbruch", "goldbruch", "smaragdbruch"].includes(selectedBuilding)) {
-            // Prüfen: Nur auf Bergen bauen
-            let validOnMountains = true;
-            for (let dy = 0; dy < rot.sy; dy++) {
-                for (let dx = 0; dx < rot.sx; dx++) {
-                    const tx = startX + dx;
-                    const ty = startY + dy;
-                    if (!isInBounds(tx, ty) || gridArray[ty][tx].type !== "berg") {
-                        validOnMountains = false;
-                    }
-                }
-            }
-
-            if (!validOnMountains) {
-                alert("Brüche dürfen nur auf Bergen gebaut werden!");
-                continue;
-            }
-
-            // Mindestens eine angrenzende Zelle darf kein Berg sein
-            let hasNonBergNeighbor = false;
-            outer: for (let dy = 0; dy < rot.sy; dy++) {
-                for (let dx = 0; dx < rot.sx; dx++) {
-                    const tx = startX + dx;
-                    const ty = startY + dy;
-                    const adjacents = [
-                        { x: tx, y: ty - 1 },
-                        { x: tx + 1, y: ty },
-                        { x: tx, y: ty + 1 },
-                        { x: tx - 1, y: ty }
-                    ];
-                    for (let adj of adjacents) {
-                        if (!isInBounds(adj.x, adj.y)) continue;
-                        const neighbor = gridArray[adj.y][adj.x];
-                        if (neighbor.type !== "berg") {
-                            hasNonBergNeighbor = true;
-                            break outer;
-                        }
-                    }
-                }
-            }
-
-            if (!hasNonBergNeighbor) {
-                alert("Brüche dürfen nicht vollständig von Bergen umgeben sein!");
-                continue;
-            }
+            if (!validateBruchPlacement(startX, startY, rot.sx, rot.sy)) continue;
         } else {
             if (!adjacentToStreet) continue;
         }
@@ -390,6 +318,66 @@ function build(x, y) {
     }
 }
 
+function validateSchmiedePlacement(building, x, y) {
+    const rohstoffMap = {
+        "eisenschmiede": "eisenbruch",
+        "goldschmiede": "goldbruch",
+        "smaragdschmiede": "smaragdbruch"
+    };
+    const rohstoff = rohstoffMap[building];
+    if (!isNearbyRohstoff(x, y, 5, rohstoff)) {
+        alert(`Die ${building} benötigt einen ${rohstoff} in der Nähe!`);
+        return false;
+    }
+    return true;
+}
+
+function validateBruchPlacement(startX, startY, width, height) {
+    let validOnMountains = true;
+    for (let dy = 0; dy < height; dy++) {
+        for (let dx = 0; dx < width; dx++) {
+            const tx = startX + dx;
+            const ty = startY + dy;
+            if (!isInBounds(tx, ty) || gridArray[ty][tx].type !== "berg") {
+                validOnMountains = false;
+            }
+        }
+    }
+
+    if (!validOnMountains) {
+        alert("Brüche dürfen nur auf Bergen gebaut werden!");
+        return false;
+    }
+
+    let hasNonBergNeighbor = false;
+    outer: for (let dy = 0; dy < height; dy++) {
+        for (let dx = 0; dx < width; dx++) {
+            const tx = startX + dx;
+            const ty = startY + dy;
+            const adjacents = [
+                { x: tx, y: ty - 1 },
+                { x: tx + 1, y: ty },
+                { x: tx, y: ty + 1 },
+                { x: tx - 1, y: ty }
+            ];
+            for (let adj of adjacents) {
+                if (!isInBounds(adj.x, adj.y)) continue;
+                const neighbor = gridArray[adj.y][adj.x];
+                if (neighbor.type !== "berg") {
+                    hasNonBergNeighbor = true;
+                    break outer;
+                }
+            }
+        }
+    }
+
+    if (!hasNonBergNeighbor) {
+        alert("Brüche dürfen nicht vollständig von Bergen umgeben sein!");
+        return false;
+    }
+
+    return true;
+}
 
 
 

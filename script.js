@@ -563,7 +563,7 @@ function produceNahrung() {
     let getreideFarms = gridArray.flat().filter(cell => cell.active && cell.type === "getreidefarm").length;
     let fischerhuetten = gridArray.flat().filter(cell => cell.active && cell.type === "fischerhuette").length;
     
-    nahrungProduced = Math.floor(nahrungProduced / 2); // Nahrung von Getreidefarm
+    nahrungProduced = Math.floor(nahrungProduced / 3); // Nahrung von Getreidefarm
     nahrungProduced += Math.floor(fischerhuetten / 2); // Nahrung von Fischerhütten
 
     nahrung += nahrungProduced; // Wert zu Nahrung hinzufügen

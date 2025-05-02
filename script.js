@@ -215,9 +215,7 @@ function build(x, y) {
                 if (tile.type) return false;
 
                 if (["steinbruch", "eisenbruch", "goldbruch", "smaragdbruch"].includes(selectedBuilding)) {
-                    if (!tile.element.classList.contains("berg")) {
-                        return false;
-                    }
+                    if (!tile.element.classList.contains("berg")) return false;
                 }
             }
         }
@@ -231,7 +229,6 @@ function build(x, y) {
         { dx: 0, dy: -(baseSizeX - 1), sx: baseSizeY, sy: baseSizeX }
     ];
 
-    // Vorabprüfung für Brüche: mindestens eine gültige Rotation mit "berg"-Feld
     if (["steinbruch", "eisenbruch", "goldbruch", "smaragdbruch"].includes(selectedBuilding)) {
         const anyValid = rotations.some(rot => {
             const startX = x + rot.dx;
@@ -243,8 +240,6 @@ function build(x, y) {
             return;
         }
     }
-
-    let placed = false;
 
     for (let rot of rotations) {
         const startX = x + rot.dx;
@@ -279,9 +274,8 @@ function build(x, y) {
             }
         }
 
-        // Bau-Regeln
         if (selectedBuilding === "marktplatz") {
-            // Immer erlaubt
+            // immer erlaubt
         } else if (selectedBuilding === "weg") {
             if (!adjacentToValidWegTarget) continue;
         } else if (selectedBuilding === "fischerhuette") {
@@ -295,46 +289,36 @@ function build(x, y) {
                 continue;
             }
         } else if (["eisenschmiede", "goldschmiede", "smaragdschmiede"].includes(selectedBuilding)) {
-            if (!validateSchmiedePlacement(selectedBuilding, x, y)) continue;
-        } else if (["steinbruch", "eisenbruch", "goldbruch", "smaragdbruch"].includes(selectedBuilding)) {
-            // Regel bereits oben geprüft
-        } else {
-            if (!adjacentToStreet) continue;
-        }
-
-        if (!isFreeBuilding && gold < cost) {
-            alert("Nicht genug Gold!");
-            return;
-        }
-
-        if (isFreeBuilding) {
-            freeBuildings[selectedBuilding]--;
-            cost = 0;
-        }
-
-        gold -= cost;
-        bewohner += bewohnerChange;
-        updateInfo();
-
-        for (let dy = 0; dy < rot.sy; dy++) {
-            for (let dx = 0; dx < rot.sx; dx++) {
-                const tileX = startX + dx;
-                const tileY = startY + dy;
-                const tile = gridArray[tileY][tileX];
-                tile.element.classList.remove("berg");
-                tile.type = selectedBuilding;
-                tile.element.classList.add(selectedBuilding);
-                buildingLevels[`${tileX}_${tileY}`] = 1;
+            if (!validateSchmiedePlacement(selectedBuilding, x, y)) {
+                alert("Für diese Schmiede fehlt der passende Bruch in der Nähe!");
+                continue;
             }
         }
 
-        placed = true;
-        break;
+        // Alles OK, baue es
+        for (let dy = 0; dy < rot.sy; dy++) {
+            for (let dx = 0; dx < rot.sx; dx++) {
+                const nx = startX + dx;
+                const ny = startY + dy;
+
+                const tile = gridArray[ny][nx];
+                tile.type = selectedBuilding;
+                tile.element.classList.add("bau", selectedBuilding);
+            }
+        }
+
+        if (!isFreeBuilding) {
+            geld -= cost;
+        } else {
+            freeBuildings[selectedBuilding]--;
+        }
+
+        bewohner += bewohnerChange;
+        updateUI();
+        return;
     }
 
-    if (!placed) {
-        alert("Kein Platz oder keine gültige Anbindung!");
-    }
+    alert("Kein gültiger Bauplatz gefunden!");
 }
 
 

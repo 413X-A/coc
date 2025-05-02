@@ -320,6 +320,7 @@ function build(x, y) {
 
 function validateSchmiedePlacement(building, x, y) {
     const rohstoffMap = {
+        "steinmetz": "steinbruch",
         "eisenschmiede": "eisenbruch",
         "goldschmiede": "goldbruch",
         "smaragdschmiede": "smaragdbruch"
@@ -345,7 +346,7 @@ function validateBruchPlacement(startX, startY, width, height) {
     }
 
     if (!validOnMountains) {
-        alert("Brüche dürfen nur auf Bergen gebaut werden!");
+        alert(`${building} dürfen nur auf Bergen gebaut werden!`);
         return false;
     }
 

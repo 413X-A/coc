@@ -201,6 +201,13 @@ function build(x, y) {
         isFreeBuilding = true;
     }
 
+    if (selectedBuilding === "minenschacht") {
+        if (!cell.element.classList.contains("berg")) {
+            alert("Minenschächte dürfen nur auf Bergen gebaut werden!");
+            return;
+        }
+    }
+
     function isAreaFree(startX, startY, w, h) {
         for (let dy = 0; dy < h; dy++) {
             for (let dx = 0; dx < w; dx++) {
@@ -210,12 +217,6 @@ function build(x, y) {
 
                 const tile = gridArray[ny][nx];
                 if (tile.type) return false;
-
-                if (selectedBuilding === "minenschacht") {
-                    if (!tile.element.classList.contains("berg")) {
-                        return false;
-                    }
-                }
             }
         }
         return true;
@@ -227,19 +228,6 @@ function build(x, y) {
         { dx: -(baseSizeX - 1), dy: -(baseSizeY - 1), sx: baseSizeX, sy: baseSizeY },
         { dx: 0, dy: -(baseSizeX - 1), sx: baseSizeY, sy: baseSizeX }
     ];
-
-    // Minenschacht
-    if (selectedBuilding === "minenschacht") {
-        const anyValid = rotations.some(rot => {
-            const startX = x + rot.dx;
-            const startY = y + rot.dy;
-            return isAreaFree(startX, startY, rot.sx, rot.sy);
-        });
-        if (!anyValid) {
-            alert("Minenschächte dürfen nur an Bergen gebaut werden!");
-            return;
-        }
-    }
 
     let placed = false;
 
@@ -286,29 +274,13 @@ function build(x, y) {
                 alert("Fischerhütten müssen an Straße und Wasser angrenzen!");
                 continue;
             }
-        } else if (selectedBuilding === "steinmetz") {
+        } else if (["steinmetz", "goldschmiede", "eisenschmiede", "smaragdschmiede"].includes(selectedBuilding)) {
             if (!isNearbyRohstoff(x, y, 5, "minenschacht")) {
-                alert("Der Steinmetz benötigt einen Minenschacht in der Nähe!");
+                alert(`${selectedBuilding.charAt(0).toUpperCase() + selectedBuilding.slice(1)} benötigt einen Minenschacht in der Nähe!`);
                 continue;
             }
-        } else if (selectedBuilding === "goldschmiede") {
-            if (!isNearbyRohstoff(x, y, 5, "minenschacht")) {
-                alert("Die Goldschmiede benötigt einen Minenschacht in der Nähe!");
-                continue;
-            }
-        } else if (selectedBuilding === "eisenschmiede") {
-            if (!isNearbyRohstoff(x, y, 5, "minenschacht")) {
-                alert("Die Eisenschmiede benötigt einen Minenschacht in der Nähe!");
-                continue;
-            }
-        } else if (selectedBuilding === "smaragdschmiede") {
-            if (!isNearbyRohstoff(x, y, 5, "minenschacht")) {
-                alert("Die Smaragdschmiede benötigt einen Minenschacht in der Nähe!");
-                continue;
-            }
-            if (!adjacentToStreet) continue;
+            if (selectedBuilding === "smaragdschmiede" && !adjacentToStreet) continue;
         }
-        
 
         if (!isFreeBuilding && gold < cost) {
             alert("Nicht genug Gold!");

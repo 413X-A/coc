@@ -308,6 +308,7 @@ function build(x, y) {
             }
             if (!adjacentToStreet) continue;
         }
+        
 
         if (!isFreeBuilding && gold < cost) {
             alert("Nicht genug Gold!");

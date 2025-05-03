@@ -48,22 +48,6 @@ body {
     background-color: saddlebrown; /* Holzfäller */
 }
 
-.steinmetz {
-    background-color: dimgray; /* Steinmetz */
-}
-
-.eisenerz {
-    background-color: darkred; /* Eisenerz */
-}
-
-.goldmine {
-    background-color: gold; /* Goldmine */
-}
-
-.smaragdmine {
-    background-color: darkgreen; /* Smaragdmine */
-}
-
 .rathaus {
     background-color: darkblue; /* Rathaus */
 }
@@ -78,6 +62,10 @@ body {
 
 .minenschacht {
     background-color: #b0bec5; /* Blau-Grau für Eisenbruch */
+}
+
+.eisenerz {
+    background-color: darkred; /* Eisenerz */
 }
 
 /* Schmieden */

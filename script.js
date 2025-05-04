@@ -8,7 +8,6 @@ let nahrung = 100;
 let stein = 0;
 let eisen = 0;
 let smaragde = 0;
-let verbrauch = 0;
 
 let freeBuildings = {
     haus: 1,

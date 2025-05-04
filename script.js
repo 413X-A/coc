@@ -466,10 +466,20 @@ function produceNahrung() {
 }
 
 function nahrung_verbrauchen() {
-    const verbrauch = Math.floor(nahrung * 0.15); // 15 % der Nahrung
-    nahrung -= verbrauch;
+    const verbrauchProEinwohner = 0.4; // 0.20 Nahrung pro Sekunde × 2 Sekunden
+    const gesamtVerbrauch = bewohner * verbrauchProEinwohner;
+
+    if (nahrung >= gesamtVerbrauch) {
+        nahrung -= gesamtVerbrauch;
+    } else {
+        nahrung = 0;
+        console.warn("Nicht genug Nahrung! Die Bevölkerung leidet.");
+        // Optional: Hier könntest du z. B. Einwohnerzahl senken oder Spielstatus ändern
+    }
+
     updateInfo();
 }
+
 
 
 

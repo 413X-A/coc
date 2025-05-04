@@ -465,7 +465,7 @@ function produceNahrung() {
 }
 
 function nahrung_verbrauchen() {
-    const verbrauchProEinwohner = 0.025; // 0.20 Nahrung pro Sekunde × 2 Sekunden
+    const verbrauchProEinwohner = 0.05; // 0.20 Nahrung pro Sekunde × 2 Sekunden
     const gesamtVerbrauch = bewohner * verbrauchProEinwohner;
 
     if (nahrung >= gesamtVerbrauch) {

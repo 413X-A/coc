@@ -18,8 +18,8 @@ const gridArray = [];
 
 const buildingLevels = {}; // Speichert Upgrades der Gebäude
 
-const WIDTH = 101;
-const HEIGHT = 75;
+const WIDTH = 1001;
+const HEIGHT = 751;
 const gridCenterX = Math.floor(WIDTH / 2);
 const gridCenterY = Math.floor(HEIGHT / 2);
 const islandRadius = Math.min(WIDTH, HEIGHT) * 0.4;

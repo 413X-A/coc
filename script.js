@@ -466,10 +466,11 @@ function produceNahrung() {
 }
 
 function nahrung_verbrauchen() {
-    nahrung_verbrauchen = Math.floor(nahrung * 0.15); // 15 % Nahrung auswählen
-    nahrung -= nahrung_verbrauchen; // Wert zu Smaragden hinzufügen
+    const verbrauch = Math.floor(nahrung * 0.15); // 15 % der Nahrung
+    nahrung -= verbrauch;
     updateInfo();
 }
+
 
 
 generateIsland();

@@ -8,6 +8,7 @@ let nahrung = 100;
 let stein = 0;
 let eisen = 0;
 let smaragde = 0;
+let nahrung_verbrauchen = 0;
 
 let freeBuildings = {
     haus: 1,
@@ -368,6 +369,7 @@ function updateInfo() {
 
 // Produktion starten
 function startProduction() {
+    setInterval(nahrung_verbrauchen, 2000);        // Nahrung verbrauchen alle 2 Sekunden
     setInterval(produceGold, 3000);        // Goldminen alle 3 Sekunden
     setInterval(produceHolz, 5000);        // Holzfäller alle 5 Sekunden
     setInterval(produceStein, 6000);       // Steinmetze alle 6 Sekunden
@@ -460,6 +462,12 @@ function produceNahrung() {
     nahrungProduced += Math.floor(fischerhuetten / 2); // Nahrung von Fischerhütten
 
     nahrung += nahrungProduced; // Wert zu Nahrung hinzufügen
+    updateInfo();
+}
+
+function nahrung_verbrauchen() {
+    nahrung_verbrauchen = Math.floor(nahrung * 0.15); // 15 % Nahrung auswählen
+    nahrung -= nahrung_verbrauchen; // Wert zu Smaragden hinzufügen
     updateInfo();
 }
 

@@ -473,7 +473,7 @@ function nahrung_verbrauchen() {
         nahrung -= gesamtVerbrauch;
     } else {
         nahrung = 0;
-        console.warn("Nicht genug Nahrung! Die Bevölkerung leidet.");
+        alert("Nicht genug Nahrung! Die Bevölkerung leidet!");
         // Optional: Hier könntest du z. B. Einwohnerzahl senken oder Spielstatus ändern
     }
 

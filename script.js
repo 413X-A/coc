@@ -473,11 +473,12 @@ function nahrung_verbrauchen() {
     } else {
         nahrung = 0;
         alert("Nicht genug Nahrung! Die Bevölkerung leidet!");
-        // Optional: Hier könntest du z. B. Einwohnerzahl senken oder Spielstatus ändern
     }
 
+    nahrung = Math.round(nahrung);  // Hier wird die Variable selbst gerundet
     updateInfo();
 }
+
 
 
 

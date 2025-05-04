@@ -368,7 +368,7 @@ function updateInfo() {
 
 // Produktion starten
 function startProduction() {
-    setInterval(nahrung_verbrauchen, 2000);        // Nahrung verbrauchen alle 2 Sekunden
+    setInterval(nahrung_verbrauchen, 2500);        // Nahrung verbrauchen alle 2,5 Sekunden
     setInterval(produceGold, 3000);        // Goldminen alle 3 Sekunden
     setInterval(produceHolz, 5000);        // Holzfäller alle 5 Sekunden
     setInterval(produceStein, 6000);       // Steinmetze alle 6 Sekunden
@@ -475,7 +475,7 @@ function nahrung_verbrauchen() {
         alert("Nicht genug Nahrung! Die Bevölkerung leidet!");
     }
 
-    nahrung = Math.round(nahrung);  // Hier wird die Variable selbst gerundet
+    // nahrung = Math.round(nahrung);  // Hier wird die Variable selbst gerundet
     updateInfo();
 }
 

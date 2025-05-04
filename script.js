@@ -474,7 +474,7 @@ function nahrung_verbrauchen() {
         nahrung = 0;
         alert("Nicht genug Nahrung! Die Bevölkerung leidet!");
     }
-
+    nahrung = parseFloat(nahrung.toFixed(2));  // Auf 2 Dezimalstellen runden und als Zahl zurückgeben
     // nahrung = Math.round(nahrung);  // Hier wird die Variable selbst gerundet
     updateInfo();
 }

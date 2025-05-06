@@ -521,6 +521,7 @@ function updateInfo() {
 
 // Produktion starten
 function startProduction() {
+    setInterval(nahrung_verbrauchen, 2500);        // Goldminen alle 2,5 Sekunden
     setInterval(produceGold, 3000);        // Goldminen alle 3 Sekunden
     setInterval(produceHolz, 5000);        // Holzfäller alle 5 Sekunden
     setInterval(produceStein, 6000);       // Steinmetze alle 6 Sekunden
@@ -615,6 +616,22 @@ function produceNahrung() {
     nahrung += nahrungProduced; // Wert zu Nahrung hinzufügen
     updateInfo();
 }
+
+function nahrung_verbrauchen() {
+    const verbrauchProEinwohner = 0.05; // 0.20 Nahrung pro Sekunde × 2 Sekunden
+    const gesamtVerbrauch = bewohner * verbrauchProEinwohner;
+
+    if (nahrung >= gesamtVerbrauch) {
+        nahrung -= gesamtVerbrauch;
+    } else {
+        nahrung = 0;
+        alert("Nicht genug Nahrung! Die Bevölkerung leidet!");
+    }
+    nahrung = parseFloat(nahrung.toFixed(2));  // Auf 2 Dezimalstellen runden und als Zahl zurückgeben
+    // nahrung = Math.round(nahrung);  // Hier wird die Variable selbst gerundet
+    updateInfo();
+}
+
 
 
 generateIsland();
